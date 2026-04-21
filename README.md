@@ -32,6 +32,4 @@ Contributing
 ------------
 Create feature branches, follow existing code style, and open pull requests.
 
-License
--------
-Specify project license in LICENSE file if desired.
+
