@@ -1,0 +1,67 @@
+﻿@model IEnumerable<LouietexERP.Models.Order>
+
+@{
+    ViewData["Title"] = "Order Status Tracking";
+}
+
+<h2>Order Status Tracking</h2>
+
+<!-- 🔘 Filter Buttons -->
+<p>
+    <a asp-action="TrackStatus" asp-route-status="Pending" class="btn btn-warning">
+        Pending Orders
+    </a>
+
+    <a asp-action="TrackStatus" asp-route-status="Shipped" class="btn btn-success">
+        Shipped Orders
+    </a>
+
+    <a asp-action="Create" class="btn btn-primary float-end">
+        Create New Order
+    </a>
+</p>
+
+<hr />
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Buyer Name</th>
+            <th>Style Code</th>
+            <th>Total Quantity</th>
+            <th>Delivery Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.BuyerName</td>
+                <td>@item.StyleCode</td>
+                <td>@item.TotalQuantity</td>
+                <td>@item.DeliveryDate.ToShortDateString()</td>
+
+                <!-- ✅ Status Badge -->
+                <td>
+                    @if (item.Status == "Shipped")
+                    {
+                        <span class="badge bg-success">Shipped</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    }
+                </td>
+
+                <!-- 🔧 Actions -->
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

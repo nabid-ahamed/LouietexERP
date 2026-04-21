@@ -1,31 +1,70 @@
+/* =========================
+   BASE TYPOGRAPHY
+========================= */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+/* =========================
+   GLOBAL LAYOUT (IMPORTANT)
+========================= */
 body {
-  margin-bottom: 60px;
+    margin: 0;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* Main content grows to push footer down */
+.main-content {
+    flex: 1;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* =========================
+   FOCUS STYLING
+========================= */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
+
+/* =========================
+   FORM PLACEHOLDER FIX
+========================= */
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+/* =========================
+   MODERN DARK FOOTER
+========================= */
+.footer {
+    background-color: #212529; /* dark background */
+    color: #ffffff; /* white text */
+    padding: 12px 0;
+    text-align: center;
+    font-size: 14px;
+    border-top: 1px solid #444;
+}
+
+    /* Optional: smooth look */
+    .footer:hover {
+        background-color: #1a1e21;
+    }

@@ -10,9 +10,11 @@ namespace LouietexERP.Data
 
         public DbSet<Inventory> Inventories { get; set; }
 
-      
+
         public DbSet<Employee> Employees { get; set; }
 
         public DbSet<Production> Productions { get; set; }
+
+        public DbSet<Order> Orders { get; set; }
     }
 }

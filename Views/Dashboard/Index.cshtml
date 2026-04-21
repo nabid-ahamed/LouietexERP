@@ -1,0 +1,43 @@
+﻿@model LouietexERP.Models.DashboardViewModel
+
+<div class="container mt-4">
+    <h2 class="mb-4">Dashboard</h2>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <h5>Total Orders</h5>
+                    <h3>@Model.TotalOrders</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h5>Today's Output</h5>
+                    <h3>@Model.TodayProduction</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark mb-4">
+                <div class="card-body">
+                    <h5>Low Stock Alerts</h5>
+                    <h3>@Model.LowStockItems</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-info text-white mb-4">
+                <div class="card-body">
+                    <h5>Total Staff</h5>
+                    <h3>@Model.TotalEmployees</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

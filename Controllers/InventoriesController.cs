@@ -58,6 +58,13 @@ namespace LouietexERP.Controllers
             {
                 _context.Add(inventory);
                 await _context.SaveChangesAsync();
+
+                // ✅ LOW STOCK ALERT (Create)
+                if (inventory.Quantity <= inventory.MinStockLevel)
+                {
+                    TempData["Warning"] = $"Alert: {inventory.Name} is below the minimum stock level!";
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             return View(inventory);
@@ -96,6 +103,12 @@ namespace LouietexERP.Controllers
                 {
                     _context.Update(inventory);
                     await _context.SaveChangesAsync();
+
+                    // ✅ LOW STOCK ALERT (Edit)
+                    if (inventory.Quantity <= inventory.MinStockLevel)
+                    {
+                        TempData["Warning"] = $"Alert: {inventory.Name} is below the minimum stock level!";
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -147,7 +160,7 @@ namespace LouietexERP.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ✅ LOW STOCK METHOD ADDED HERE
+        // ✅ LOW STOCK LIST (extra feature)
         public async Task<IActionResult> LowStock()
         {
             var lowStockItems = await _context.Inventories

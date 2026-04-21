@@ -4,60 +4,47 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - LouietexERP</title>
-    <script type="importmap"></script>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/LouietexERP.styles.css" asp-append-version="true" />
 </head>
 <body>
+
+    <!-- HEADER -->
     <header>
         <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
 
-                <!-- Logo -->
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    LouietexERP
+                <a class="navbar-brand d-flex align-items-center" asp-controller="Dashboard" asp-action="Index">
+                    <img src="~/images/logo.png" alt="Logo" style="height:40px; margin-right:10px;" />
+                    <span>ERP</span>
                 </a>
 
-                <!-- Toggle button (mobile) -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <!-- Navbar Links -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-controller="Dashboard" asp-action="Index">Home</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-controller="Inventories" asp-action="Index">Inventory</a>
                         </li>
 
-                        <!-- ✅ Inventory Link -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Inventories" asp-action="Index">
-                                Inventory
-                            </a>
+                            <a class="nav-link text-dark" asp-controller="Employees" asp-action="Index">Employees</a>
                         </li>
 
-                        <!-- ✅ Employees Link -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Employees" asp-action="Index">
-                                Employees
-                            </a>
+                            <a class="nav-link text-dark" asp-controller="Productions" asp-action="Index">Production</a>
                         </li>
-                        <!-- ✅ NEW: Production Tracking -->
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Productions" asp-action="Index">
-                                Production Tracking
-                            </a>
+                            <a class="nav-link text-dark" asp-controller="Orders" asp-action="Index">Orders</a>
                         </li>
 
                     </ul>
@@ -67,26 +54,31 @@
         </nav>
     </header>
 
-    <!-- Main Content -->
-    <div class="container">
+    <!-- ALERT -->
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning text-center">
+            @TempData["Warning"]
+        </div>
+    }
+
+    <!-- MAIN CONTENT -->
+    <div class="container main-content">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <!-- Footer -->
-    <footer class="border-top footer text-muted">
+    <!-- FOOTER -->
+    <footer class="footer text-center border-top">
         <div class="container">
-            &copy; 2026 - LouietexERP -
-            <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; @DateTime.Now.Year - LouietexERP - Nabid Ahamed Noushad
         </div>
     </footer>
 
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
 
-    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
