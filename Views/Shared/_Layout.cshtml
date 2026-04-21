@@ -52,9 +52,19 @@
                             <a class="nav-link text-dark" asp-controller="Orders" asp-action="Index">Orders</a>
                         </li>
 
+                        <!-- ✅ SUPER ADMIN ONLY MENU -->
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-danger fw-bold" asp-controller="UserManagement" asp-action="PendingApprovals">
+                                    Approve Users
+                                </a>
+                            </li>
+                        }
+
                     </ul>
 
-                    <!-- ✅ RIGHT SIDE LOGIN / LOGOUT -->
+                    <!-- RIGHT SIDE LOGIN / LOGOUT -->
                     <div class="ms-auto">
                         <partial name="_LoginPartial" />
                     </div>

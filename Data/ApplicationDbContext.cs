@@ -4,11 +4,13 @@ using LouietexERP.Models;
 
 namespace LouietexERP.Data
 {
-    // ✅ Enables login, users, roles, authentication
-    public class ApplicationDbContext : IdentityDbContext
+    // ✅ Now uses ApplicationUser instead of default IdentityUser
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
+            : base(options)
+        {
+        }
 
         public DbSet<Inventory> Inventories { get; set; }
         public DbSet<Employee> Employees { get; set; }

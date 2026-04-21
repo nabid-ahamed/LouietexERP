@@ -1,0 +1,108 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h2 class="text-center mb-4">Create Account</h2>
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+
+            <h5 class="text-center">Register a new account</h5>
+            <hr />
+
+            <!-- 🔴 Validation Summary -->
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- ✅ FULL NAME -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.FullName"
+                       class="form-control"
+                       aria-required="true"
+                       placeholder="Nabid Ahamed" />
+                <label asp-for="Input.FullName"></label>
+                <span asp-validation-for="Input.FullName" class="text-danger"></span>
+            </div>
+
+            <!-- EMAIL -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email"
+                       class="form-control"
+                       autocomplete="username"
+                       aria-required="true"
+                       placeholder="name@example.com" />
+                <label asp-for="Input.Email"></label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password"
+                       class="form-control"
+                       autocomplete="new-password"
+                       aria-required="true"
+                       placeholder="Password" />
+                <label asp-for="Input.Password"></label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <!-- CONFIRM PASSWORD -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.ConfirmPassword"
+                       class="form-control"
+                       autocomplete="new-password"
+                       aria-required="true"
+                       placeholder="Confirm Password" />
+                <label asp-for="Input.ConfirmPassword"></label>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <!-- BUTTON -->
+            <button id="registerSubmit"
+                    type="submit"
+                    class="w-100 btn btn-primary btn-lg">
+                Register
+            </button>
+
+        </form>
+    </div>
+
+    <!-- OPTIONAL: External Login -->
+    <div class="col-md-5">
+        <section>
+            <h5>Or register using</h5>
+            <hr />
+
+            @if ((Model.ExternalLogins?.Count ?? 0) == 0)
+            {
+                <p class="text-muted">
+                    No external authentication services configured.
+                </p>
+            }
+            else
+            {
+                <form id="external-account"
+                      asp-page="./ExternalLogin"
+                      asp-route-returnUrl="@Model.ReturnUrl"
+                      method="post">
+
+                    @foreach (var provider in Model.ExternalLogins!)
+                    {
+                        <button type="submit"
+                                class="btn btn-outline-primary mb-2 w-100"
+                                name="provider"
+                                value="@provider.Name">
+                            Continue with @provider.DisplayName
+                        </button>
+                    }
+                </form>
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

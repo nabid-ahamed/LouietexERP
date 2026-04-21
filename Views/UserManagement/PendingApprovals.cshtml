@@ -1,0 +1,33 @@
+﻿@model List<LouietexERP.Models.ApplicationUser>
+
+<h2>Pending User Approvals</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.FullName</td>
+                <td>@user.Email</td>
+                <td>
+                    <form asp-action="Approve" method="post" style="display:inline;">
+                        <input type="hidden" name="userId" value="@user.Id" />
+                        <button type="submit" class="btn btn-success">Approve</button>
+                    </form>
+
+                    <form asp-action="Reject" method="post" style="display:inline;">
+                        <input type="hidden" name="userId" value="@user.Id" />
+                        <button type="submit" class="btn btn-danger">Reject</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
