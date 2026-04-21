@@ -15,16 +15,21 @@
         <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
 
+                <!-- LOGO -->
                 <a class="navbar-brand d-flex align-items-center" asp-controller="Dashboard" asp-action="Index">
                     <img src="~/images/logo.png" alt="Logo" style="height:40px; margin-right:10px;" />
                     <span>ERP</span>
                 </a>
 
+                <!-- MOBILE TOGGLE -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
+                <!-- NAVBAR CONTENT -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                    <!-- LEFT MENU -->
                     <ul class="navbar-nav flex-grow-1">
 
                         <li class="nav-item">
@@ -48,6 +53,12 @@
                         </li>
 
                     </ul>
+
+                    <!-- ✅ RIGHT SIDE LOGIN / LOGOUT -->
+                    <div class="ms-auto">
+                        <partial name="_LoginPartial" />
+                    </div>
+
                 </div>
 
             </div>
@@ -76,9 +87,12 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
+    <!-- SCRIPTS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
 
 </body>
 </html>

@@ -1,20 +1,29 @@
-using Microsoft.EntityFrameworkCore;
 using LouietexERP.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-
-// ✅ Register DbContext (THIS was missing)
+// ✅ Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
+// ✅ Add Identity
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>();
+
+// ✅ MVC + Razor Pages
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -22,16 +31,20 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();   // IMPORTANT for Identity UI
+
 app.UseRouting();
 
-app.UseAuthorization();
+// ✅ MUST BE IN THIS ORDER
+app.UseAuthentication();   // WHO ARE YOU
+app.UseAuthorization();    // WHAT CAN YOU DO
 
-// Static files (your existing setup)
-app.MapStaticAssets();
-
+// Routing
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Dashboard}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
+
+// ✅ Required for Identity pages (Login/Register)
+app.MapRazorPages();
 
 app.Run();

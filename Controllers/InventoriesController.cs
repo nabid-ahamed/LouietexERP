@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LouietexERP.Data;
 using LouietexERP.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LouietexERP.Controllers
 {
+    [Authorize]
     public class InventoriesController : Controller
     {
         private readonly ApplicationDbContext _context;
