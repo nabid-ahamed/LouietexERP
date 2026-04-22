@@ -1,6 +1,7 @@
 ﻿using LouietexERP.Data;
 using LouietexERP.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,11 +11,60 @@ namespace LouietexERP.Controllers
     public class UserManagementController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        // ✅ SHOW PROFILE REQUESTS
+        public async Task<IActionResult> ViewModifications()
+        {
+            var requests = await _context.ProfileRequests
+                .Where(r => !r.IsProcessed)
+                .ToListAsync();
+
+            return View(requests);
+        }
+        // ✅ PROCESS APPROVE / REJECT
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProcessModification(int requestId, bool approved)
+        {
+            var request = await _context.ProfileRequests.FindAsync(requestId);
+
+            if (request == null)
+                return NotFound();
+
+            var user = await _userManager.FindByIdAsync(request.UserId);
+
+            if (user == null)
+                return NotFound();
+
+            if (approved)
+            {
+                user.FullName = request.NewFullName;
+                user.Email = request.NewEmail;
+                user.UserName = request.NewEmail;
+
+                user.NormalizedEmail = request.NewEmail.ToUpper();
+                user.NormalizedUserName = request.NewEmail.ToUpper();
+
+                request.Status = "Approved";
+            }
+            else
+            {
+                request.Status = "Rejected";
+            }
+
+            request.IsProcessed = true;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ViewModifications));
+        }
 
         // ✅ Proper constructor (your version was not correct for MVC)
-        public UserManagementController(ApplicationDbContext context)
+        public UserManagementController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // ✅ Show users who are NOT approved

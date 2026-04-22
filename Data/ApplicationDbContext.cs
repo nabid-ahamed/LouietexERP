@@ -16,5 +16,6 @@ namespace LouietexERP.Data
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Production> Productions { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<ProfileRequest> ProfileRequests { get; set; }
     }
 }

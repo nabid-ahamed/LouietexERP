@@ -1,43 +1,74 @@
 ﻿@model LouietexERP.Models.DashboardViewModel
 
 <div class="container mt-4">
-    <h2 class="mb-4">Dashboard</h2>
-    
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white mb-4">
-                <div class="card-body">
-                    <h5>Total Orders</h5>
-                    <h3>@Model.TotalOrders</h3>
-                </div>
-            </div>
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Dashboard</h2>
+            <p class="text-muted mb-0">Overview of your ERP system</p>
         </div>
 
-        <div class="col-md-3">
-            <div class="card bg-success text-white mb-4">
-                <div class="card-body">
-                    <h5>Today's Output</h5>
-                    <h3>@Model.TodayProduction</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card bg-warning text-dark mb-4">
-                <div class="card-body">
-                    <h5>Low Stock Alerts</h5>
-                    <h3>@Model.LowStockItems</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card bg-info text-white mb-4">
-                <div class="card-body">
-                    <h5>Total Staff</h5>
-                    <h3>@Model.TotalEmployees</h3>
-                </div>
-            </div>
-        </div>
+        <!-- ✅ SUPER ADMIN BUTTON -->
+        @if (User.Identity.IsAuthenticated && User.IsInRole("SuperAdmin"))
+        {
+            <a class="btn btn-outline-primary fw-bold"
+                   asp-controller="UserManagement"
+                   asp-action="ViewModifications">
+                Review Modification Requests
+            </a>
+        }
     </div>
+
+    <!-- SAFETY CHECK -->
+    @if (Model == null)
+    {
+        <div class="alert alert-danger text-center">
+            Dashboard data not available.
+        </div>
+    }
+    else
+    {
+        <!-- STATS CARDS -->
+        <div class="row">
+
+            <div class="col-md-3">
+                <div class="card bg-primary text-white mb-4 shadow-sm">
+                    <div class="card-body text-center">
+                        <h6>Total Orders</h6>
+                        <h3>@Model.TotalOrders</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card bg-success text-white mb-4 shadow-sm">
+                    <div class="card-body text-center">
+                        <h6>Today's Output</h6>
+                        <h3>@Model.TodayProduction</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark mb-4 shadow-sm">
+                    <div class="card-body text-center">
+                        <h6>Low Stock Alerts</h6>
+                        <h3>@Model.LowStockItems</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card bg-info text-white mb-4 shadow-sm">
+                    <div class="card-body text-center">
+                        <h6>Total Staff</h6>
+                        <h3>@Model.TotalEmployees</h3>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    }
+
 </div>

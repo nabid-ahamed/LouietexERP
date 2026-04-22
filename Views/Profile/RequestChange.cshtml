@@ -1,0 +1,21 @@
+﻿@model LouietexERP.Models.ProfileRequest
+
+<h2>Request Profile Change</h2>
+
+<form asp-action="RequestChange" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        <label>New Full Name</label>
+        <input asp-for="NewFullName" class="form-control" />
+        <span asp-validation-for="NewFullName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-3">
+        <label>New Email</label>
+        <input asp-for="NewEmail" class="form-control" />
+        <span asp-validation-for="NewEmail" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Submit Request</button>
+</form>

@@ -1,0 +1,39 @@
+﻿@model List<LouietexERP.Models.ProfileRequest>
+
+<h2>Profile Modification Requests</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>New Name</th>
+            <th>New Email</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var req in Model)
+        {
+            <tr>
+                <td>@req.UserId</td>
+                <td>@req.NewFullName</td>
+                <td>@req.NewEmail</td>
+                <td>
+                    <form asp-action="ProcessModification" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="requestId" value="@req.Id" />
+                        <input type="hidden" name="approved" value="true" />
+                        <button class="btn btn-success">Approve</button>
+                    </form>
+
+                    <form asp-action="ProcessModification" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="requestId" value="@req.Id" />
+                        <input type="hidden" name="approved" value="false" />
+                        <button class="btn btn-danger">Reject</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
