@@ -1,0 +1,25 @@
+﻿@model List<LouietexERP.Models.ProfileRequest>
+
+<h2>Profile Change Requests</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>New Name</th>
+            <th>New Email</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.UserId</td>
+                <td>@item.NewFullName</td>
+                <td>@item.NewEmail</td>
+                <td>@item.Status</td>
+            </tr>
+        }
+    </tbody>
+</table>

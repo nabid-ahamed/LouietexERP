@@ -16,8 +16,11 @@ namespace LouietexERP.Controllers
         // ✅ SHOW PROFILE REQUESTS
         public async Task<IActionResult> ViewModifications()
         {
+            // Fetch pending requests robustly using status constant and include user data
             var requests = await _context.ProfileRequests
-                .Where(r => !r.IsProcessed)
+                .Where(r => !r.IsProcessed || r.Status.ToLower() == Models.ProfileRequestStatus.Pending.ToLower())
+                .Include(r => r.User)
+                .OrderByDescending(r => r.RequestDate)
                 .ToListAsync();
 
             return View(requests);

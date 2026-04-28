@@ -2,6 +2,14 @@
 @using LouietexERP.Models
 @inject UserManager<ApplicationUser> UserManager
 
+@{
+    var path = Context.Request.Path.Value.ToLower();
+
+    // ✅ Detect Login/Register pages
+    var isAuthPage = path.Contains("/identity/account/login") ||
+                     path.Contains("/identity/account/register");
+}
+
 <!DOCTYPE html>
 <html lang="en" id="main-html">
 <head>
@@ -24,9 +32,10 @@
         <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
 
+                <!-- LOGO -->
                 <a class="navbar-brand d-flex align-items-center" asp-controller="Dashboard" asp-action="Index">
                     <img src="~/images/logo.png" alt="Logo" style="height:40px; margin-right:10px;" />
-                    <span>ERP</span>
+                    
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
@@ -36,64 +45,60 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 
                     <!-- LEFT MENU -->
-                    <ul class="navbar-nav flex-grow-1">
+                    @if (!isAuthPage)
+                    {
+                        <ul class="navbar-nav flex-grow-1">
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Dashboard" asp-action="Index">Home</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Inventories" asp-action="Index">Inventory</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Employees" asp-action="Index">Employees</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Productions" asp-action="Index">Production</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Orders" asp-action="Index">Orders</a>
-                        </li>
-
-                        @if (User.Identity.IsAuthenticated && User.IsInRole("NormalUser"))
-                        {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Profile" asp-action="RequestChange">
-                                    Request Profile Change
-                                </a>
-                            </li>
-                        }
-
-                        @if (User.Identity.IsAuthenticated && User.IsInRole("SuperAdmin"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-danger fw-bold" asp-controller="UserManagement" asp-action="PendingApprovals">
-                                    Approve Users
-                                </a>
+                                <a class="nav-link text-dark" asp-controller="Dashboard" asp-action="Index">Home</a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-warning fw-bold" asp-controller="UserManagement" asp-action="ViewModifications">
-                                    Profile Requests
-                                </a>
+                                <a class="nav-link text-dark" asp-controller="Inventories" asp-action="Index">Inventory</a>
                             </li>
-                        }
 
-                    </ul>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Employees" asp-action="Index">Employees</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Productions" asp-action="Index">Production</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Orders" asp-action="Index">Orders</a>
+                            </li>
+
+                            @if (User.Identity.IsAuthenticated && User.IsInRole("NormalUser"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="RequestChange">
+                                        Request Profile Change
+                                    </a>
+                                </li>
+                            }
+
+                            @if (User.Identity.IsAuthenticated && User.IsInRole("SuperAdmin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-danger fw-bold" asp-controller="UserManagement" asp-action="PendingApprovals">
+                                        Approve Users
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link text-warning fw-bold" asp-controller="UserManagement" asp-action="ViewModifications">
+                                        Profile Requests
+                                    </a>
+                                </li>
+                            }
+
+                        </ul>
+                    }
 
                     <!-- RIGHT SIDE -->
                     <div class="ms-auto d-flex align-items-center gap-2">
-
-                        <!-- 🌙 THEME TOGGLE -->
-                        <button class="btn btn-link nav-link" id="theme-toggle" title="Toggle Theme">
-                            <i id="theme-icon" class="bi bi-moon-fill"></i>
-                        </button>
-
                         <partial name="_LoginPartial" />
-
                     </div>
 
                 </div>
@@ -134,48 +139,6 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
-    <!-- ✅ ONLY ONE THEME SCRIPT -->
-    <script>
-            const htmlElement = document.getElementById('main-html');
-            const themeToggle = document.getElementById('theme-toggle');
-            const themeIcon = document.getElementById('theme-icon');
-
-            if (themeToggle) {
-
-                const savedTheme = localStorage.getItem('theme') || 'light';
-                htmlElement.setAttribute('data-bs-theme', savedTheme);
-                updateIcon(savedTheme);
-
-                themeToggle.addEventListener('click', async () => {
-                    const currentTheme = htmlElement.getAttribute('data-bs-theme');
-                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-                    htmlElement.setAttribute('data-bs-theme', newTheme);
-                    localStorage.setItem('theme', newTheme);
-                    updateIcon(newTheme);
-
-                    // OPTIONAL: backend save
-                    try {
-                        await fetch('/Profile/SaveTheme', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ theme: newTheme })
-                        });
-                    } catch (e) {
-                        console.log("Theme save skipped");
-                    }
-                });
-
-                function updateIcon(theme) {
-                    if (theme === 'dark') {
-                        themeIcon.classList.replace('bi-moon-fill', 'bi-sun-fill');
-                    } else {
-                        themeIcon.classList.replace('bi-sun-fill', 'bi-moon-fill');
-                    }
-                }
-            }
-    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 

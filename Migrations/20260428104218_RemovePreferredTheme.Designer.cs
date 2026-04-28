@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LouietexERP.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260422115409_AddUserTheme")]
-    partial class AddUserTheme
+    [Migration("20260428104218_RemovePreferredTheme")]
+    partial class RemovePreferredTheme
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -73,10 +73,6 @@ namespace LouietexERP.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("PreferredTheme")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");

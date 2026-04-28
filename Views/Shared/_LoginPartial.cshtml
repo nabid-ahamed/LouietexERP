@@ -3,9 +3,18 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
+@{
+    var path = Context.Request.Path.Value.ToLower();
+
+    // Detect login/register pages
+    var isAuthPage = path.Contains("/identity/account/login") ||
+                     path.Contains("/identity/account/register");
+}
+
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
+        <!-- Logged in user -->
         <li class="nav-item">
             <a class="nav-link text-dark"
                    asp-area="Identity"
@@ -29,20 +38,24 @@
     }
     else
     {
-        <li class="nav-item">
-            <a class="nav-link text-dark"
-                   asp-area="Identity"
-                   asp-page="/Account/Register">
-                Register
-            </a>
-        </li>
+        <!-- Hide Login/Register on Login/Register pages -->
+        @if (!isAuthPage)
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark"
+                       asp-area="Identity"
+                       asp-page="/Account/Register">
+                    Register
+                </a>
+            </li>
 
-        <li class="nav-item">
-            <a class="nav-link text-dark"
-                   asp-area="Identity"
-                   asp-page="/Account/Login">
-                Login
-            </a>
-        </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark"
+                       asp-area="Identity"
+                       asp-page="/Account/Login">
+                    Login
+                </a>
+            </li>
+        }
     }
 </ul>

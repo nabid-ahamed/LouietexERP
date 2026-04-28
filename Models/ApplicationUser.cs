@@ -6,6 +6,6 @@ namespace LouietexERP.Models
     {
         public bool IsApproved { get; set; } = false; // Default to false for new registrations
         public string FullName { get; set; }
-        public string PreferredTheme { get; set; } = "light";
+        // PreferredTheme removed — theme feature deprecated
     }
 }

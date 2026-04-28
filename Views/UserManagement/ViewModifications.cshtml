@@ -14,8 +14,8 @@
     <tbody>
         @foreach (var req in Model)
         {
-            <tr>
-                <td>@req.UserId</td>
+        <tr>
+                <td>@(req.User?.FullName ?? req.UserId)</td>
                 <td>@req.NewFullName</td>
                 <td>@req.NewEmail</td>
                 <td>
