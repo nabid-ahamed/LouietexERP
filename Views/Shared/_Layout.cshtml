@@ -3,7 +3,7 @@
 @inject UserManager<ApplicationUser> UserManager
 
 @{
-    var path = Context.Request.Path.Value.ToLower();
+    var path = Context.Request.Path.ToString().ToLowerInvariant();
 
     // ✅ Detect Login/Register pages
     var isAuthPage = path.Contains("/identity/account/login") ||
@@ -69,29 +69,29 @@
                                 <a class="nav-link text-dark" asp-controller="Orders" asp-action="Index">Orders</a>
                             </li>
 
-                            @if (User.Identity.IsAuthenticated && User.IsInRole("NormalUser"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="RequestChange">
-                                        Request Profile Change
-                                    </a>
-                                </li>
-                            }
+                        @if ((User?.Identity?.IsAuthenticated == true) && (User?.IsInRole("NormalUser") == true))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Profile" asp-action="RequestChange">
+                                    Request Profile Change
+                                </a>
+                            </li>
+                        }
 
-                            @if (User.Identity.IsAuthenticated && User.IsInRole("SuperAdmin"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-danger fw-bold" asp-controller="UserManagement" asp-action="PendingApprovals">
-                                        Approve Users
-                                    </a>
-                                </li>
+                        @if ((User?.Identity?.IsAuthenticated == true) && (User?.IsInRole("SuperAdmin") == true))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-danger fw-bold" asp-controller="UserManagement" asp-action="PendingApprovals">
+                                    Approve Users
+                                </a>
+                            </li>
 
-                                <li class="nav-item">
-                                    <a class="nav-link text-warning fw-bold" asp-controller="UserManagement" asp-action="ViewModifications">
-                                        Profile Requests
-                                    </a>
-                                </li>
-                            }
+                            <li class="nav-item">
+                                <a class="nav-link text-warning fw-bold" asp-controller="UserManagement" asp-action="ViewModifications">
+                                    Profile Requests
+                                </a>
+                            </li>
+                        }
 
                         </ul>
                     }
