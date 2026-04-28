@@ -8,5 +8,7 @@
         public int TodayProduction { get; set; }
         public double ProductionEfficiency { get; set; }
         public List<Order> RecentOrders { get; set; }
+        public int PendingUsers { get; set; }
+        public int PendingRequests { get; set; }
     }
 }

@@ -12,11 +12,39 @@
         <!-- ✅ SUPER ADMIN BUTTON -->
         @if (User.Identity.IsAuthenticated && User.IsInRole("SuperAdmin"))
         {
-            <a class="btn btn-outline-primary fw-bold"
-                   asp-controller="UserManagement"
-                   asp-action="ViewModifications">
-                Review Modification Requests
-            </a>
+            <div class="d-flex justify-content-end gap-2">
+
+                <!-- Approve Users -->
+                <a class="btn btn-outline-danger fw-bold"
+                       asp-controller="UserManagement"
+                       asp-action="PendingApprovals">
+
+                    Approve Users
+
+                    @if (Model.PendingUsers > 0)
+                    {
+                        <span class="badge bg-danger ms-1">
+                            @Model.PendingUsers
+                        </span>
+                    }
+                </a>
+
+                <!-- Review Modification Requests -->
+                <a class="btn btn-outline-primary fw-bold"
+                       asp-controller="UserManagement"
+                       asp-action="ViewModifications">
+
+                    Review Modification Requests
+
+                    @if (Model.PendingRequests > 0)
+                    {
+                        <span class="badge bg-primary ms-1">
+                            @Model.PendingRequests
+                        </span>
+                    }
+                </a>
+
+            </div>
         }
     </div>
 
