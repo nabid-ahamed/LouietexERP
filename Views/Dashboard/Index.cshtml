@@ -1,52 +1,62 @@
 ﻿@model LouietexERP.Models.DashboardViewModel
 
 <div class="container mt-4">
+    <!-- ✅ SUPER ADMIN BUTTON -->
+    @if (User.Identity.IsAuthenticated && User.IsInRole("SuperAdmin"))
+    {
+        <div class="d-flex justify-content-end gap-2 mb-4">
+
+            <!-- Approve Users -->
+            <a class="btn btn-outline-danger fw-bold"
+                   asp-controller="UserManagement"
+                   asp-action="PendingApprovals">
+
+                Approve Users
+
+                @if (Model.PendingUsers > 0)
+                {
+                    <span class="badge bg-danger ms-1">
+                        @Model.PendingUsers
+                    </span>
+                }
+            </a>
+
+            <!-- Review Modification Requests -->
+            <a class="btn btn-outline-primary fw-bold"
+                   asp-controller="UserManagement"
+                   asp-action="ViewModifications">
+
+                Review Modification Requests
+
+                @if (Model.PendingRequests > 0)
+                {
+                    <span class="badge bg-primary ms-1">
+                        @Model.PendingRequests
+                    </span>
+                }
+            </a>
+
+        </div>
+    }
 
     <!-- HEADER -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2>Dashboard</h2>
-            <p class="text-muted mb-0">Overview of your ERP system</p>
+    <div class="dashboard-header d-flex justify-content-between align-items-center p-4 mb-4">
+
+        <!-- LEFT -->
+        <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-speedometer2 fs-2 text-white"></i>
+            <h2 class="text-white mb-0">Dashboard</h2>
         </div>
 
-        <!-- ✅ SUPER ADMIN BUTTON -->
-        @if (User.Identity.IsAuthenticated && User.IsInRole("SuperAdmin"))
-        {
-            <div class="d-flex justify-content-end gap-2">
+        <!-- RIGHT (LIVE TIME) -->
+        <div class="time-box text-white px-4 py-2">
+            <i class="bi bi-calendar-event me-2"></i>
+            <span id="liveDateTime"></span>
+        </div>
 
-                <!-- Approve Users -->
-                <a class="btn btn-outline-danger fw-bold"
-                       asp-controller="UserManagement"
-                       asp-action="PendingApprovals">
-
-                    Approve Users
-
-                    @if (Model.PendingUsers > 0)
-                    {
-                        <span class="badge bg-danger ms-1">
-                            @Model.PendingUsers
-                        </span>
-                    }
-                </a>
-
-                <!-- Review Modification Requests -->
-                <a class="btn btn-outline-primary fw-bold"
-                       asp-controller="UserManagement"
-                       asp-action="ViewModifications">
-
-                    Review Modification Requests
-
-                    @if (Model.PendingRequests > 0)
-                    {
-                        <span class="badge bg-primary ms-1">
-                            @Model.PendingRequests
-                        </span>
-                    }
-                </a>
-
-            </div>
-        }
     </div>
+
+    
 
     <!-- SAFETY CHECK -->
     @if (Model == null)
@@ -100,3 +110,27 @@
     }
 
 </div>
+
+@section Scripts {
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+
+            document.getElementById("liveDateTime").innerText =
+                now.toLocaleString('en-US', options);
+        }
+
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+    </script>
+}

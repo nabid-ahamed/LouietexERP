@@ -13,7 +13,7 @@ html {
 }
 
 /* =========================
-   GLOBAL LAYOUT (IMPORTANT)
+   GLOBAL LAYOUT
 ========================= */
 body {
     margin: 0;
@@ -22,10 +22,88 @@ body {
     flex-direction: column;
 }
 
-/* Main content grows to push footer down */
+/* Main content */
 .main-content {
     flex: 1;
 }
+
+/* =========================
+   HEADER HEIGHT (IMPORTANT)
+========================= */
+.navbar {
+    height: 60px;
+}
+
+/* =========================
+   SIDEBAR (FIXED BELOW HEADER)
+========================= */
+.sidebar {
+    width: 220px;
+    height: calc(100vh - 60px);
+    background: #2c3e50;
+    position: fixed;
+    left: 0;
+    top: 60px; /* ✅ pushes below navbar */
+    color: white;
+    padding-top: 15px;
+}
+
+    /* Sidebar links */
+    .sidebar a {
+        display: block;
+        padding: 12px 16px;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        margin: 5px 10px;
+        transition: 0.2s;
+    }
+
+        .sidebar a:hover {
+            background: #34495e;
+        }
+
+/* =========================
+   MAIN CONTENT AREA
+========================= */
+.content {
+    margin-left: 220px;
+    margin-top: 60px; /* match navbar height */
+    padding: 20px;
+}
+
+/* =========================
+   DASHBOARD HEADER
+========================= */
+.dashboard-header {
+    background: linear-gradient(135deg, #5f72be, #9b23ea);
+    border-radius: 20px;
+}
+
+/* =========================
+   TIME BOX
+========================= */
+.time-box {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
+    font-weight: 500;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.footer {
+    background-color: #212529;
+    color: #ffffff;
+    padding: 12px 0;
+    text-align: center;
+    font-size: 14px;
+    border-top: 1px solid #444;
+}
+
+    .footer:hover {
+        background-color: #1a1e21;
+    }
 
 /* =========================
    FOCUS STYLING
@@ -51,20 +129,3 @@ body {
 .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
-
-/* =========================
-   MODERN DARK FOOTER
-========================= */
-.footer {
-    background-color: #212529; /* dark background */
-    color: #ffffff; /* white text */
-    padding: 12px 0;
-    text-align: center;
-    font-size: 14px;
-    border-top: 1px solid #444;
-}
-
-    /* Optional: smooth look */
-    .footer:hover {
-        background-color: #1a1e21;
-    }
