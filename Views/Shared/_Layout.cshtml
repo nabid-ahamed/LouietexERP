@@ -5,91 +5,109 @@
 @{
     var path = Context.Request.Path.ToString().ToLowerInvariant();
 
-    // ✅ Detect Login/Register pages
     var isAuthPage = path.Contains("/identity/account/login") ||
                      path.Contains("/identity/account/register");
+
+    Func<string, string, string> isActive = (controller, action) =>
+        path.Contains($"/{controller.ToLower()}/{action.ToLower()}") ? "active" : "";
 }
 
 <!DOCTYPE html>
-<html lang="en" id="main-html">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - LouietexERP</title>
 
-    <!-- Bootstrap -->
+    <!-- CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    <!-- Site CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
+
 <body>
 
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-light bg-white border-bottom px-3 fixed-top">
+        <a class="navbar-brand" asp-controller="Dashboard" asp-action="Index">
+            <img src="~/images/logo.png" style="height:40px;" />
+        </a>
 
-                <!-- LOGO -->
-                <a class="navbar-brand d-flex align-items-center" asp-controller="Dashboard" asp-action="Index">
-                    <img src="~/images/logo.png" alt="Logo" style="height:40px; margin-right:10px;" />
-                    
-                </a>
+        <div class="ms-auto">
+            <partial name="_LoginPartial" />
+        </div>
+    </nav>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+    <!-- SIDEBAR -->
+    @if (!isAuthPage)
+    {
+        <div class="sidebar">
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+            <h5>ERP Menu</h5>
 
-                    <!-- LEFT MENU -->
-                    @if (!isAuthPage)
-                    {
-                        
-                    }
+            <a class="@isActive("Dashboard", "Index")"
+                   asp-controller="Dashboard" asp-action="Index">
+                <i class="bi bi-speedometer2"></i>
+                <span>Home</span>
+            </a>
 
-                    <!-- RIGHT SIDE -->
-                    <div class="ms-auto d-flex align-items-center gap-2">
-                        <partial name="_LoginPartial" />
-                    </div>
+            <a class="@isActive("Inventories", "Index")"
+                   asp-controller="Inventories" asp-action="Index">
+                <i class="bi bi-box"></i>
+                <span>Inventory</span>
+            </a>
 
-                </div>
+            <a class="@isActive("Employees", "Index")"
+                   asp-controller="Employees" asp-action="Index">
+                <i class="bi bi-people"></i>
+                <span>Employees</span>
+            </a>
+
+            <a class="@isActive("Productions", "Index")"
+                   asp-controller="Productions" asp-action="Index">
+                <i class="bi bi-gear"></i>
+                <span>Production</span>
+            </a>
+
+            <a class="@isActive("Orders", "Index")"
+                   asp-controller="Orders" asp-action="Index">
+                <i class="bi bi-cart"></i>
+                <span>Orders</span>
+            </a>
+
+        </div>
+    }
+
+    <!-- MAIN CONTENT -->
+    <div class="main-area">
+
+        <!-- ALERTS -->
+        @if (TempData["Warning"] != null)
+        {
+            <div class="alert alert-warning text-center m-3">
+                @TempData["Warning"]
             </div>
-        </nav>
-    </header>
+        }
 
-    <!-- ALERTS -->
-    @if (TempData["Warning"] != null)
-    {
-        <div class="alert alert-warning text-center">
-            @TempData["Warning"]
-        </div>
-    }
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success text-center m-3">
+                @TempData["Message"]
+            </div>
+        }
 
-    @if (TempData["Message"] != null)
-    {
-        <div class="alert alert-success text-center">
-            @TempData["Message"]
-        </div>
-    }
-
-    <!-- MAIN -->
-    <div class="container main-content">
-        <main role="main" class="pb-3">
+        <main class="content">
             @RenderBody()
         </main>
+
     </div>
 
     <!-- FOOTER -->
-    <footer class="footer text-center border-top">
-        <div class="container">
-            &copy; @DateTime.Now.Year - LouietexERP - Nabid Ahamed Noushad
-        </div>
+    <footer class="footer text-center">
+        &copy; @DateTime.Now.Year - LouietexERP - Nabid Ahamed Noushad
     </footer>
 
-    <!-- SCRIPTS -->
+    <!-- SCRIPTS (IMPORTANT FIX) -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
