@@ -2,137 +2,98 @@
 @model LoginModel
 @{
     ViewData["Title"] = "Log in";
+    ViewData["HideNav"] = true; // optional (hide navbar)
 }
+<div class="login-logo-top">
+    <img src="~/images/logo.png" alt="Logo" />
+</div>
+<div class="login-wrapper d-flex justify-content-center align-items-center">
 
-<div class="container-fluid vh-100 p-0">
-    <div class="row g-0 vh-100">
+    <div class="login-card shadow-lg p-4">
 
-        <!-- LEFT SIDE -->
-        <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center text-white p-5"
-             style="background: linear-gradient(135deg, #00a8e8 0%, #003459 100%);">
+        <h2 class="fw-bold mb-2">Login</h2>
+        <p class="text-secondary mb-4">Welcome back! Please enter your details.</p>
 
-            <img src="~/images/logo.png" class="mb-4" style="height: 100px;" />
+        <form method="post" id="loginForm">
 
-            <h1 class="display-5 fw-bold">Louietex ERP</h1>
-            <p class="fs-6 text-center opacity-75">
-                Advanced Manufacturing & Inventory Solutions
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+            <!-- EMAIL -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control rounded-pill px-4" placeholder="Email" />
+                <label class="ms-3">Email address</label>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="form-floating mb-3 position-relative">
+                <input asp-for="Input.Password"
+                       type="password"
+                       class="form-control rounded-pill px-4"
+                       id="passwordInput"
+                       placeholder="Password" />
+                <label class="ms-3">Password</label>
+
+                <!-- 👁️ Toggle -->
+                <i id="eyeIcon"
+                   class="bi bi-eye position-absolute"
+                   onclick="togglePassword()"
+                   style="right:20px; top:50%; transform:translateY(-50%); cursor:pointer;"></i>
+            </div>
+
+            <!-- REMEMBER + FORGOT -->
+            <div class="d-flex justify-content-between mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="Input.RememberMe" />
+                    <label class="form-check-label">Remember me</label>
+                </div>
+
+                <a asp-page="./ForgotPassword" class="fw-bold text-decoration-none">Forgot?</a>
+            </div>
+
+            <!-- BUTTON -->
+            <button type="submit"
+                    id="loginBtn"
+                    class="btn btn-primary w-100 rounded-pill py-3 fw-bold d-flex justify-content-center align-items-center">
+
+                <span id="btnText">Sign In</span>
+
+                <span id="btnSpinner"
+                      class="spinner-border spinner-border-sm ms-2 d-none"
+                      role="status"></span>
+            </button>
+
+            <!-- LINK -->
+            <p class="text-center mt-3">
+                Don't have an account?
+                <a asp-page="./Register" class="fw-bold text-decoration-none">Create account</a>
             </p>
 
-            <div class="mt-4 p-4 rounded-4 bg-white bg-opacity-10">
-                <p class="fst-italic mb-0">
-                    "Optimizing garment production through intelligent data."
-                </p>
-            </div>
-        </div>
+        </form>
 
-        <!-- RIGHT SIDE -->
-        <div class="col-lg-6 d-flex align-items-center justify-content-center bg-light">
-
-            <div class="card shadow-lg p-4 border-0"
-                 style="width: 100%; max-width: 420px; border-radius: 20px;">
-
-                <div class="card-body">
-
-                    <h2 class="fw-bold mb-2">Login</h2>
-                    <p class="text-secondary mb-4">
-                        Welcome back! Please enter your details.
-                    </p>
-
-                    <form id="account" method="post">
-
-                        @Html.AntiForgeryToken()
-
-                        <!-- VALIDATION -->
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
-
-                        <!-- EMAIL -->
-                        <div class="form-floating mb-3">
-                            <input asp-for="Input.Email"
-                                   class="form-control rounded-pill px-4"
-                                   placeholder="Email" />
-                            <label class="ms-3">Email address</label>
-                            <span asp-validation-for="Input.Email" class="text-danger"></span>
-                        </div>
-
-                        <!-- PASSWORD -->
-                        <div class="form-floating mb-3 position-relative">
-
-                            <input asp-for="Input.Password"
-                                   type="password"
-                                   class="form-control rounded-pill px-4 pe-5"
-                                   id="passwordField"
-                                   placeholder="Password" />
-
-                            <label class="ms-3">Password</label>
-
-                            <!-- Eye Icon -->
-                            <span class="toggle-password" onclick="togglePassword()">
-                                <i class="bi bi-eye" id="eyeIcon"></i>
-                            </span>
-
-                        </div>
-
-                        <!-- REMEMBER -->
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input" asp-for="Input.RememberMe" />
-                                <label class="form-check-label text-secondary">
-                                    Remember me
-                                </label>
-                            </div>
-
-                            <a asp-page="./ForgotPassword"
-                                   class="text-decoration-none small fw-bold">
-                                Forgot?
-                            </a>
-                        </div>
-
-                        <!-- BUTTON -->
-                        <button id="loginBtn"
-                                type="submit"
-                                class="w-100 btn btn-primary btn-lg rounded-pill py-3 fw-bold">
-
-                            <span id="btnText">Sign In</span>
-                            <span id="btnSpinner" class="spinner-border spinner-border-sm d-none"></span>
-
-                        </button>
-
-                        <!-- REGISTER -->
-                        <p class="text-center text-secondary small">
-                            Don't have an account?
-                            <a asp-page="./Register"
-                                   class="fw-bold text-decoration-none">
-                                Create account
-                            </a>
-                        </p>
-
-                    </form>
-
-                </div>
-            </div>
-
-        </div>
     </div>
+
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
     <script>
         function togglePassword() {
-            const field = document.getElementById("passwordField");
+            const input = document.getElementById("passwordInput");
             const icon = document.getElementById("eyeIcon");
 
-            if (field.type === "password") {
-                field.type = "text";
+            if (input.type === "password") {
+                input.type = "text";
                 icon.classList.replace("bi-eye", "bi-eye-slash");
             } else {
-                field.type = "password";
+                input.type = "password";
                 icon.classList.replace("bi-eye-slash", "bi-eye");
             }
         }
-    </script>
-    <script>
-        document.getElementById("account").addEventListener("submit", function () {
+
+        document.getElementById("loginForm").addEventListener("submit", function () {
             document.getElementById("btnText").textContent = "Signing...";
             document.getElementById("btnSpinner").classList.remove("d-none");
             document.getElementById("loginBtn").disabled = true;
