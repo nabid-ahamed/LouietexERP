@@ -10,37 +10,82 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="FullName" class="control-label"></label>
-                <input asp-for="FullName" class="form-control" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
+        <div class="employee-container">
+            <div class="employee-container-wide">
+
+                <h2>Create Employee</h2>
+                <p class="text-muted mb-4">Add new employee information</p>
+
+                <form method="post">
+
+                    <div class="row">
+
+                        <!-- LEFT SIDE -->
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+                                <label>Full Name</label>
+                                <input asp-for="FullName" class="form-control custom-input" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Department</label>
+                                <select asp-for="Department" class="form-control custom-input">
+                                    <option>Select Department</option>
+                                    <option>HR</option>
+                                    <option>QC</option>
+                                    <option>Production</option>
+                                    <option>Accounts</option>
+                                    <option>Sales</option>
+                                    <option>IT</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT SIDE -->
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+                                <label>Email</label>
+                                <input asp-for="Email" class="form-control custom-input" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Role</label>
+                                <select asp-for="Role" class="form-control custom-input">
+                                    <option>Select Role</option>
+                                    <option>Admin</option>
+                                    <option>Manager</option>
+                                    <option>Employee</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- FULL WIDTH FIELD -->
+                    <div class="mb-3">
+                        <label>Joining Date</label>
+                        <input asp-for="JoiningDate" type="date" class="form-control custom-input" />
+                    </div>
+
+                    <!-- SUBMIT BUTTON CENTER -->
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary px-5 py-2">
+                            Create Employee
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a asp-action="Index">Back to List</a>
+                    </div>
+
+                </form>
+
             </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Department" class="control-label"></label>
-                <input asp-for="Department" class="form-control" />
-                <span asp-validation-for="Department" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Role" class="control-label"></label>
-                <input asp-for="Role" class="form-control" />
-                <span asp-validation-for="Role" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="JoiningDate" class="control-label"></label>
-                <input asp-for="JoiningDate" class="form-control" />
-                <span asp-validation-for="JoiningDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 

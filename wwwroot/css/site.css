@@ -34,13 +34,11 @@ body {
     display: flex;
     align-items: center;
     margin: 0;
-    padding: 0;
 }
 
     .navbar-brand img {
         height: 38px;
         margin-top: -6px !important;
-        display: block;
     }
 
 /* ========================= */
@@ -50,7 +48,6 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 14px;
 }
 
     .user-info form {
@@ -60,9 +57,10 @@ body {
     }
 
 /* ========================= */
-/* PROFILE BUTTON */
+/* BUTTONS */
 /* ========================= */
-.profile-btn {
+.profile-btn,
+.logout-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -73,36 +71,12 @@ body {
     font-size: 14px;
     font-weight: 500;
     text-decoration: none;
-    transition: 0.2s;
-}
-
-    .profile-btn i {
-        font-size: 14px;
-    }
-
-    .profile-btn:hover {
-        background: #e0e0e0;
-        color: #000;
-    }
-
-/* ========================= */
-/* LOGOUT BUTTON */
-/* ========================= */
-.logout-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
     border: none;
-    background: #f1f3f5;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #333;
     cursor: pointer;
     transition: 0.2s;
 }
 
+    .profile-btn:hover,
     .logout-btn:hover {
         background: #e0e0e0;
         color: #000;
@@ -131,7 +105,6 @@ body {
         color: #ecf0f1;
         text-decoration: none;
         border-radius: 8px;
-        font-size: 15px;
         transition: 0.2s;
     }
 
@@ -141,7 +114,6 @@ body {
 
         .sidebar a.active {
             background: #1abc9c;
-            color: white;
         }
 
 /* ========================= */
@@ -165,121 +137,157 @@ body {
 }
 
 /* ========================= */
-/* COOL LOGIN EFFECTS */
+/* FORM INPUT */
 /* ========================= */
-
-.backdrop-blur {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.form-control {
+.custom-input {
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid #ddd;
     transition: 0.2s;
 }
 
-    .form-control:focus {
-        box-shadow: 0 0 0 0.25rem rgba(0, 168, 232, 0.25);
+    .custom-input:focus {
         border-color: #00a8e8;
+        box-shadow: 0 0 0 0.2rem rgba(0,168,232,0.2);
     }
 
 /* ========================= */
-/* BUTTON */
+/* BUTTON PRIMARY */
 /* ========================= */
 .btn-primary {
     background: linear-gradient(to right, #00a8e8, #007ea7);
     border: none;
-    transition: all 0.2s ease;
+    transition: 0.2s;
 }
 
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 168, 232, 0.4);
-        opacity: 0.95;
     }
-
-    .btn-primary:active {
-        transform: scale(0.97);
-    }
-
-/* ========================= */
-/* CARD */
-/* ========================= */
-.card {
-    transition: 0.3s;
-}
-
-    .card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    }
-
-/* ========================= */
-/* REMOVE EXTRA SPACING */
-/* ========================= */
-main {
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-/* ========================= */
-/* PASSWORD ICON */
-/* ========================= */
-.toggle-password {
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #888;
-}
-
-/* ========================= */
-/* REGISTER PAGE */
-/* ========================= */
-.register-container {
-    height: 100vh;
-    background: linear-gradient(135deg, #00a8e8, #003459);
-}
-
-.register-card {
-    width: 100%;
-    max-width: 480px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(10px);
-}
-
-.register-logo {
-    height: 60px;
-}
 
 /* ========================= */
 /* LOGIN PAGE */
 /* ========================= */
 .login-wrapper {
     height: 100vh;
-    background: linear-gradient(135deg, #eef2f7, #f8fafc); /* improved */
+    background: linear-gradient(135deg, #eef2f7, #f8fafc);
 }
 
 .login-card {
-    width: 100%;
     max-width: 420px;
     background: white;
     border-radius: 20px;
     padding: 30px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.1); /* premium */
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
 }
 
-/* TOP LOGO */
-.login-logo-top {
-    position: absolute;
-    top: 25px;
-    left: 30px;
-    z-index: 1000;
+/* ========================= */
+/* EMPLOYEE PAGE */
+/* ========================= */
+
+/* Wide Layout (USE THIS ONE ONLY) */
+.employee-container-wide {
+    padding: 40px;
+    max-width: 900px;
 }
 
-    .login-logo-top img {
-        height: 40px;
-        opacity: 0.9;
+/* Card style */
+.employee-card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+}
+/* SEARCH BAR */
+form input[type="text"] {
+    border-radius: 20px;
+    padding: 10px 15px;
+}
+
+form .btn {
+    border-radius: 20px;
+    padding: 10px 16px;
+}
+/* SEARCH BAR RIGHT STYLE */
+.search-input {
+    border-radius: 25px;
+    padding: 10px 15px;
+}
+
+.search-btn {
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* HEADER BAR */
+.employee-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    background: linear-gradient(to right, #2ecc71, #27ae60);
+    color: white;
+}
+
+/* LEFT SIDE */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+    .header-left i {
+        font-size: 20px;
+    }
+
+/* RIGHT SIDE */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* SEARCH */
+.search-input {
+    border-radius: 20px;
+    padding: 8px 12px;
+    border: none;
+}
+
+.search-btn {
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    background: white;
+    color: #27ae60;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ADD BUTTON */
+.add-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: white;
+    color: #27ae60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+    .add-btn:hover {
+        background: #ecfdf5;
     }

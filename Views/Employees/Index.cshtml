@@ -4,11 +4,38 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<div class="employee-header">
+
+    <div class="header-left">
+        <i class="bi bi-people-fill"></i>
+        <span>Employee Info List</span>
+    </div>
+
+    <div class="header-right">
+
+        <!-- SEARCH -->
+        <form method="get" asp-action="Index" class="d-flex">
+            <input type="text" name="searchString"
+                   value="@Context.Request.Query["searchString"]"
+                   class="form-control me-2 search-input"
+                   placeholder="Search..." />
+
+            <button type="submit" class="btn search-btn">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+
+        <!-- ➕ ADD BUTTON -->
+        <a asp-action="Create" class="add-btn">
+            <i class="bi bi-plus"></i>
+        </a>
+
+    </div>
+
+</div>
+
+
 <table class="table">
     <thead>
         <tr>
