@@ -18,6 +18,13 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.User.RequireUniqueEmail = true;
     options.SignIn.RequireConfirmedAccount = false;
+
+    // Optional: make password simple (for testing)
+    options.Password.RequireDigit = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders()
@@ -26,15 +33,49 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 var app = builder.Build();
 
 
-// ✅ COMBINED ROLE + ADMIN SEEDING
+// ✅ RUN SEEDING (IMPORTANT FIX)
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
 
+    SeedRolesAndAdmin(services).GetAwaiter().GetResult();
+}
+
+
+// ✅ Configure pipeline
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+// ✅ Identity middleware
+app.UseAuthentication();
+app.UseAuthorization();
+
+// ✅ MVC routing
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
+
+// ✅ Identity pages
+app.MapRazorPages();
+
+app.Run();
+
+
+// ✅ SEEDING METHOD (ADMIN + ROLES)
+static async Task SeedRolesAndAdmin(IServiceProvider services)
+{
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
-    // 1️⃣ Create roles
+    // 🔹 Create roles
     string[] roles = { "SuperAdmin", "NormalUser" };
 
     foreach (var role in roles)
@@ -45,7 +86,7 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // 2️⃣ Create Super Admin
+    // 🔹 Admin credentials
     string adminEmail = "admin@louietex.com";
     string adminPassword = "Admin@123";
 
@@ -72,31 +113,20 @@ using (var scope = app.Services.CreateScope())
 
         await userManager.AddToRoleAsync(admin, "SuperAdmin");
     }
+    else
+    {
+        // 🔥 Ensure admin is always usable
+        var token = await userManager.GeneratePasswordResetTokenAsync(adminUser);
+        await userManager.ResetPasswordAsync(adminUser, token, adminPassword);
+
+        adminUser.IsApproved = true;
+        adminUser.EmailConfirmed = true;
+
+        await userManager.UpdateAsync(adminUser);
+
+        if (!await userManager.IsInRoleAsync(adminUser, "SuperAdmin"))
+        {
+            await userManager.AddToRoleAsync(adminUser, "SuperAdmin");
+        }
+    }
 }
-
-
-// ✅ Configure pipeline
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-// ✅ Identity middleware
-app.UseAuthentication();
-app.UseAuthorization();
-
-// ✅ MVC routing (IMPORTANT for your controllers)
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
-
-// ✅ Identity pages (Login/Register)
-app.MapRazorPages();
-
-app.Run();
