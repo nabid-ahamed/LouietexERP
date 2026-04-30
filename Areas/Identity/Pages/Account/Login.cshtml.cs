@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using LouietexERP.Models; // ✅ IMPORTANT
+using LouietexERP.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -76,51 +76,67 @@ namespace LouietexERP.Areas.Identity.Pages.Account
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                // 🔍 Find user
-                var user = await _userManager.FindByEmailAsync(Input.Email);
+                return Page();
+            }
 
-                if (user != null)
-                {
-                    // ❌ BLOCK if not approved
-                    if (!user.IsApproved)
-                    {
-                        ModelState.AddModelError(string.Empty, "Your account is pending Super Admin approval.");
-                        return Page();
-                    }
+            // 🔍 Find user by email
+            var user = await _userManager.FindByEmailAsync(Input.Email);
 
-                    // ✅ Try login
-                    var result = await _signInManager.PasswordSignInAsync(
-                        user,
-                        Input.Password,
-                        Input.RememberMe,
-                        lockoutOnFailure: false
-                    );
-
-                    if (result.Succeeded)
-                    {
-                        _logger.LogInformation("User logged in.");
-                        return LocalRedirect(returnUrl);
-                    }
-
-                    if (result.RequiresTwoFactor)
-                    {
-                        return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                    }
-
-                    if (result.IsLockedOut)
-                    {
-                        _logger.LogWarning("User account locked out.");
-                        return RedirectToPage("./Lockout");
-                    }
-                }
-
-                // ❌ Invalid login
+            if (user == null)
+            {
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                 return Page();
             }
 
+            // ❌ Block if not approved
+            if (!user.IsApproved)
+            {
+                ModelState.AddModelError(string.Empty, "Your account is pending Super Admin approval.");
+                return Page();
+            }
+
+            // ✅ Try login (using email)
+            var result = await _signInManager.PasswordSignInAsync(
+                user.Email,
+                Input.Password,
+                Input.RememberMe,
+                lockoutOnFailure: false
+            );
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("User logged in.");
+
+                // 🎯 Role-based redirect
+                if (await _userManager.IsInRoleAsync(user, "SuperAdmin"))
+                {
+                    return RedirectToAction("Index", "Dashboard");
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+
+            if (result.RequiresTwoFactor)
+            {
+                return RedirectToPage("./LoginWith2fa", new
+                {
+                    ReturnUrl = returnUrl,
+                    RememberMe = Input.RememberMe
+                });
+            }
+
+            if (result.IsLockedOut)
+            {
+                _logger.LogWarning("User account locked out.");
+                return RedirectToPage("./Lockout");
+            }
+
+            // ❌ Wrong password or failed login
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return Page();
         }
     }

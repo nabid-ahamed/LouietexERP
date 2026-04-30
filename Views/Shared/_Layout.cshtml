@@ -10,6 +10,13 @@
 
     Func<string, string, string> isActive = (controller, action) =>
         path.Contains($"/{controller.ToLower()}/{action.ToLower()}") ? "active" : "";
+
+    // Role checks
+    var isSuperAdmin = User.IsInRole("SuperAdmin");
+    var isAdmin = User.IsInRole("Admin");
+
+    // 🔥 NEW: Hide navbar support
+    var hideNav = ViewData["HideNav"] as bool? ?? false;
 }
 
 <!DOCTYPE html>
@@ -28,47 +35,64 @@
 <body>
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-light bg-white border-bottom px-3 fixed-top">
-        <a class="navbar-brand" asp-controller="Dashboard" asp-action="Index">
-            <img src="~/images/logo.png" style="height:40px;" />
-        </a>
+    @if (!hideNav)
+    {
+        <nav class="navbar navbar-light bg-white border-bottom px-3 fixed-top">
+            <a class="navbar-brand" asp-controller="Dashboard" asp-action="Index">
+                <img src="~/images/logo.png" class="logo" />
+            </a>
 
-        <div class="ms-auto">
-            <partial name="_LoginPartial" />
-        </div>
-    </nav>
+            <div class="ms-auto">
+                <partial name="_LoginPartial" />
+            </div>
+        </nav>
+    }
 
     <!-- SIDEBAR -->
-    @if (!isAuthPage)
+    @if (!isAuthPage && !hideNav)
     {
         <div class="sidebar">
 
-            <h5>ERP Menu</h5>
+            <h5 class="px-3">ERP Menu</h5>
 
+            <!-- Dashboard -->
             <a class="@isActive("Dashboard", "Index")"
                    asp-controller="Dashboard" asp-action="Index">
                 <i class="bi bi-speedometer2"></i>
                 <span>Home</span>
             </a>
 
-            <a class="@isActive("Inventories", "Index")"
-                   asp-controller="Inventories" asp-action="Index">
-                <i class="bi bi-box"></i>
-                <span>Inventory</span>
-            </a>
+            <!-- Inventory -->
+            @if (isAdmin || isSuperAdmin)
+            {
+                <a class="@isActive("Inventories", "Index")"
+                       asp-controller="Inventories" asp-action="Index">
+                    <i class="bi bi-box"></i>
+                    <span>Inventory</span>
+                </a>
+            }
 
-            <a class="@isActive("Employees", "Index")"
-                   asp-controller="Employees" asp-action="Index">
-                <i class="bi bi-people"></i>
-                <span>Employees</span>
-            </a>
+            <!-- Employees -->
+            @if (isSuperAdmin)
+            {
+                <a class="@isActive("Employees", "Index")"
+                       asp-controller="Employees" asp-action="Index">
+                    <i class="bi bi-people"></i>
+                    <span>Employees</span>
+                </a>
+            }
 
-            <a class="@isActive("Productions", "Index")"
-                   asp-controller="Productions" asp-action="Index">
-                <i class="bi bi-gear"></i>
-                <span>Production</span>
-            </a>
+            <!-- Production -->
+            @if (isAdmin || isSuperAdmin)
+            {
+                <a class="@isActive("Productions", "Index")"
+                       asp-controller="Productions" asp-action="Index">
+                    <i class="bi bi-gear"></i>
+                    <span>Production</span>
+                </a>
+            }
 
+            <!-- Orders -->
             <a class="@isActive("Orders", "Index")"
                    asp-controller="Orders" asp-action="Index">
                 <i class="bi bi-cart"></i>
@@ -79,7 +103,7 @@
     }
 
     <!-- MAIN CONTENT -->
-    <div class="main-area">
+    <div class="main-area @(hideNav ? "no-nav" : "")">
 
         <!-- ALERTS -->
         @if (TempData["Warning"] != null)
@@ -103,11 +127,14 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="footer text-center">
-        &copy; @DateTime.Now.Year - LouietexERP - Nabid Ahamed Noushad
-    </footer>
+    @if (!hideNav)
+    {
+        <footer class="footer text-center">
+            &copy; @DateTime.Now.Year - LouietexERP - Nabid Ahamed Noushad
+        </footer>
+    }
 
-    <!-- SCRIPTS (IMPORTANT FIX) -->
+    <!-- SCRIPTS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

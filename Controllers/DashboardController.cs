@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LouietexERP.Controllers
 {
+    [Authorize(Roles = "SuperAdmin")]
     [Authorize]
     public class DashboardController(ApplicationDbContext context) : Controller
     {

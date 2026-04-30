@@ -216,3 +216,31 @@ main {
     padding: 0 !important;
     margin: 0 !important;
 }
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+}
+/* ========================= */
+/* REGISTER PAGE DESIGN */
+/* ========================= */
+
+.register-container {
+    height: 100vh;
+    background: linear-gradient(135deg, #00a8e8, #003459);
+}
+
+.register-card {
+    width: 100%;
+    max-width: 480px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+}
+
+.register-logo {
+    height: 60px;
+}

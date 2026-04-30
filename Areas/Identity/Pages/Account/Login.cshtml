@@ -55,13 +55,21 @@
                         </div>
 
                         <!-- PASSWORD -->
-                        <div class="form-floating mb-3">
+                        <div class="form-floating mb-3 position-relative">
+
                             <input asp-for="Input.Password"
                                    type="password"
-                                   class="form-control rounded-pill px-4"
+                                   class="form-control rounded-pill px-4 pe-5"
+                                   id="passwordField"
                                    placeholder="Password" />
+
                             <label class="ms-3">Password</label>
-                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+
+                            <!-- Eye Icon -->
+                            <span class="toggle-password" onclick="togglePassword()">
+                                <i class="bi bi-eye" id="eyeIcon"></i>
+                            </span>
+
                         </div>
 
                         <!-- REMEMBER -->
@@ -80,9 +88,13 @@
                         </div>
 
                         <!-- BUTTON -->
-                        <button type="submit"
-                                class="w-100 btn btn-primary btn-lg rounded-pill shadow-sm py-3 fw-bold mb-3">
-                            Sign In
+                        <button id="loginBtn"
+                                type="submit"
+                                class="w-100 btn btn-primary btn-lg rounded-pill py-3 fw-bold">
+
+                            <span id="btnText">Sign In</span>
+                            <span id="btnSpinner" class="spinner-border spinner-border-sm d-none"></span>
+
                         </button>
 
                         <!-- REGISTER -->
@@ -105,4 +117,25 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword() {
+            const field = document.getElementById("passwordField");
+            const icon = document.getElementById("eyeIcon");
+
+            if (field.type === "password") {
+                field.type = "text";
+                icon.classList.replace("bi-eye", "bi-eye-slash");
+            } else {
+                field.type = "password";
+                icon.classList.replace("bi-eye-slash", "bi-eye");
+            }
+        }
+    </script>
+    <script>
+        document.getElementById("account").addEventListener("submit", function () {
+            document.getElementById("btnText").textContent = "Signing...";
+            document.getElementById("btnSpinner").classList.remove("d-none");
+            document.getElementById("loginBtn").disabled = true;
+        });
+    </script>
 }
