@@ -75,11 +75,21 @@
             <td>
                 @Html.DisplayFor(modelItem => item.JoiningDate)
             </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-edit">
+                        Edit
+                    </a>
+
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-details">
+                        Details
+                    </a>
+
+                    <a asp-action="Delete" asp-route-id="@item.Id"
+                           class="btn btn-sm btn-delete"
+                           onclick="return confirm('Are you sure?');">
+                        Delete
+                    </a>
+                </td>
         </tr>
 }
     </tbody>

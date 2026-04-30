@@ -18,7 +18,6 @@ body {
 /* ========================= */
 .navbar {
     height: 60px;
-    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -28,18 +27,13 @@ body {
     top: 0;
     left: 0;
     right: 0;
+    z-index: 1000;
 }
 
-.navbar-brand {
-    display: flex;
-    align-items: center;
-    margin: 0;
+.navbar-brand img {
+    height: 38px;
+    margin-top: -6px !important;
 }
-
-    .navbar-brand img {
-        height: 38px;
-        margin-top: -6px !important;
-    }
 
 /* ========================= */
 /* USER INFO */
@@ -70,7 +64,6 @@ body {
     color: #333;
     font-size: 14px;
     font-weight: 500;
-    text-decoration: none;
     border: none;
     cursor: pointer;
     transition: 0.2s;
@@ -79,7 +72,6 @@ body {
     .profile-btn:hover,
     .logout-btn:hover {
         background: #e0e0e0;
-        color: #000;
     }
 
 /* ========================= */
@@ -103,9 +95,8 @@ body {
         padding: 12px 16px;
         margin: 6px 10px;
         color: #ecf0f1;
-        text-decoration: none;
         border-radius: 8px;
-        transition: 0.2s;
+        text-decoration: none;
     }
 
         .sidebar a:hover {
@@ -137,13 +128,12 @@ body {
 }
 
 /* ========================= */
-/* FORM INPUT */
+/* INPUT */
 /* ========================= */
 .custom-input {
     border-radius: 10px;
     padding: 12px;
     border: 1px solid #ddd;
-    transition: 0.2s;
 }
 
     .custom-input:focus {
@@ -152,12 +142,11 @@ body {
     }
 
 /* ========================= */
-/* BUTTON PRIMARY */
+/* PRIMARY BUTTON */
 /* ========================= */
 .btn-primary {
     background: linear-gradient(to right, #00a8e8, #007ea7);
     border: none;
-    transition: 0.2s;
 }
 
     .btn-primary:hover {
@@ -165,7 +154,7 @@ body {
     }
 
 /* ========================= */
-/* LOGIN PAGE */
+/* LOGIN */
 /* ========================= */
 .login-wrapper {
     height: 100vh;
@@ -181,47 +170,8 @@ body {
 }
 
 /* ========================= */
-/* EMPLOYEE PAGE */
+/* EMPLOYEE HEADER */
 /* ========================= */
-
-/* Wide Layout (USE THIS ONE ONLY) */
-.employee-container-wide {
-    padding: 40px;
-    max-width: 900px;
-}
-
-/* Card style */
-.employee-card {
-    background: #fff;
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
-}
-/* SEARCH BAR */
-form input[type="text"] {
-    border-radius: 20px;
-    padding: 10px 15px;
-}
-
-form .btn {
-    border-radius: 20px;
-    padding: 10px 16px;
-}
-/* SEARCH BAR RIGHT STYLE */
-.search-input {
-    border-radius: 25px;
-    padding: 10px 15px;
-}
-
-.search-btn {
-    border-radius: 50%;
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-/* HEADER BAR */
 .employee-header {
     display: flex;
     justify-content: space-between;
@@ -233,7 +183,6 @@ form .btn {
     color: white;
 }
 
-/* LEFT SIDE */
 .header-left {
     display: flex;
     align-items: center;
@@ -242,18 +191,15 @@ form .btn {
     font-weight: 600;
 }
 
-    .header-left i {
-        font-size: 20px;
-    }
-
-/* RIGHT SIDE */
 .header-right {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
+/* ========================= */
 /* SEARCH */
+/* ========================= */
 .search-input {
     border-radius: 20px;
     padding: 8px 12px;
@@ -272,7 +218,9 @@ form .btn {
     justify-content: center;
 }
 
+/* ========================= */
 /* ADD BUTTON */
+/* ========================= */
 .add-btn {
     width: 40px;
     height: 40px;
@@ -282,12 +230,46 @@ form .btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    text-decoration: none;
     font-size: 20px;
-    font-weight: bold;
-    transition: 0.2s;
+    text-decoration: none;
 }
 
     .add-btn:hover {
         background: #ecfdf5;
+    }
+
+/* ========================= */
+/* ACTION BUTTONS */
+/* ========================= */
+.btn-edit {
+    background: #17a2b8;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 6px;
+}
+
+    .btn-edit:hover {
+        background: #138496;
+    }
+
+.btn-details {
+    background: #6c757d;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 6px;
+}
+
+    .btn-details:hover {
+        background: #5a6268;
+    }
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 6px;
+}
+
+    .btn-delete:hover {
+        background: #c82333;
     }
