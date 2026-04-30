@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 namespace LouietexERP.Controllers
 {
     [Authorize(Roles = "SuperAdmin")]
-    [Authorize]
     public class DashboardController(ApplicationDbContext context) : Controller
     {
         public async Task<IActionResult> Index()
@@ -21,16 +20,16 @@ namespace LouietexERP.Controllers
                 LowStockItems = await context.Inventories
                     .CountAsync(i => i.Quantity <= i.MinStockLevel),
 
+                // ✅ FIXED DATE + SAFE SUM
                 TodayProduction = await context.Productions
-                    .Where(p => p.ProductionDate == DateTime.Today)
-                    .SumAsync(p => p.ActualOutput),
+                    .Where(p => p.ProductionDate.Date == DateTime.Today)
+                    .SumAsync(p => (int?)p.ActualOutput) ?? 0,
 
                 RecentOrders = await context.Orders
                     .OrderByDescending(o => o.Id)
                     .Take(5)
                     .ToListAsync(),
 
-                // ✅ ADD THESE TWO LINES (IMPORTANT)
                 PendingUsers = await context.Users
                     .CountAsync(u => !u.IsApproved),
 

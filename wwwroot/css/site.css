@@ -1,3 +1,10 @@
+/* ========================= */
+/* GLOBAL FIX */
+/* ========================= */
+* {
+    box-sizing: border-box;
+}
+
 html, body {
     height: 100%;
     margin: 0;
@@ -30,9 +37,10 @@ body {
     z-index: 1000;
 }
 
-.navbar-brand img {
+/* LOGO */
+.logo {
     height: 38px;
-    margin-top: -6px !important;
+    margin-top: -6px;
 }
 
 /* ========================= */
@@ -94,9 +102,10 @@ body {
         gap: 10px;
         padding: 12px 16px;
         margin: 6px 10px;
-        color: #ecf0f1;
+        color: #ffffff;
         border-radius: 8px;
         text-decoration: none;
+        transition: 0.2s;
     }
 
         .sidebar a:hover {
@@ -134,6 +143,7 @@ body {
     border-radius: 10px;
     padding: 12px;
     border: 1px solid #ddd;
+    transition: 0.2s;
 }
 
     .custom-input:focus {
@@ -147,6 +157,7 @@ body {
 .btn-primary {
     background: linear-gradient(to right, #00a8e8, #007ea7);
     border: none;
+    transition: 0.2s;
 }
 
     .btn-primary:hover {
@@ -203,7 +214,7 @@ body {
 .search-input {
     border-radius: 20px;
     padding: 8px 12px;
-    border: none;
+    border: 1px solid #ddd;
 }
 
 .search-btn {
@@ -232,6 +243,7 @@ body {
     justify-content: center;
     font-size: 20px;
     text-decoration: none;
+    transition: 0.2s;
 }
 
     .add-btn:hover {
@@ -241,11 +253,18 @@ body {
 /* ========================= */
 /* ACTION BUTTONS */
 /* ========================= */
-.btn-edit {
-    background: #17a2b8;
-    color: white;
+.btn-edit,
+.btn-details,
+.btn-delete {
     padding: 5px 12px;
     border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-edit {
+    background: #17a2b8;
 }
 
     .btn-edit:hover {
@@ -254,9 +273,6 @@ body {
 
 .btn-details {
     background: #6c757d;
-    color: white;
-    padding: 5px 12px;
-    border-radius: 6px;
 }
 
     .btn-details:hover {
@@ -265,11 +281,61 @@ body {
 
 .btn-delete {
     background: #dc3545;
-    color: white;
-    padding: 5px 12px;
-    border-radius: 6px;
 }
 
     .btn-delete:hover {
         background: #c82333;
+    }
+
+/* ========================= */
+/* NAVBAR HIDDEN FIX */
+/* ========================= */
+.no-nav-layout .main-area {
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+}
+
+/* ========================= */
+/* RESPONSIVE */
+/* ========================= */
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+
+    .main-area {
+        margin-left: 0;
+    }
+}
+
+/* ========================= */
+/* DASHBOARD HEADER */
+/* ========================= */
+.dashboard-header {
+    background: linear-gradient(135deg, #5b6ee1, #7d4aa3);
+    border-radius: 20px;
+}
+
+/* ========================= */
+/* TIME PILL (FINAL STYLE) */
+/* ========================= */
+.time-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 22px;
+    border-radius: 40px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+    .time-pill i {
+        font-size: 16px;
+        opacity: 0.9;
     }

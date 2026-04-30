@@ -1,38 +1,29 @@
 ﻿@model LouietexERP.Models.DashboardViewModel
 
 <div class="container mt-4">
-    <!-- ✅ SUPER ADMIN BUTTON -->
-    @if (User.Identity.IsAuthenticated && User.IsInRole("SuperAdmin"))
+
+    <!-- SUPER ADMIN BUTTON -->
+    @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("SuperAdmin"))
     {
         <div class="d-flex justify-content-end gap-2 mb-4">
 
-            <!-- Approve Users -->
             <a class="btn btn-outline-danger fw-bold"
                    asp-controller="UserManagement"
                    asp-action="PendingApprovals">
-
                 Approve Users
-
                 @if (Model.PendingUsers > 0)
                 {
-                    <span class="badge bg-danger ms-1">
-                        @Model.PendingUsers
-                    </span>
+                    <span class="badge bg-danger ms-1">@Model.PendingUsers</span>
                 }
             </a>
 
-            <!-- Review Modification Requests -->
             <a class="btn btn-outline-primary fw-bold"
                    asp-controller="UserManagement"
                    asp-action="ViewModifications">
-
-                Review Modification Requests
-
+                Review Requests
                 @if (Model.PendingRequests > 0)
                 {
-                    <span class="badge bg-primary ms-1">
-                        @Model.PendingRequests
-                    </span>
+                    <span class="badge bg-primary ms-1">@Model.PendingRequests</span>
                 }
             </a>
 
@@ -40,6 +31,7 @@
     }
 
     <!-- HEADER -->
+
     <div class="dashboard-header d-flex justify-content-between align-items-center p-4 mb-4">
 
         <!-- LEFT -->
@@ -48,17 +40,14 @@
             <h2 class="text-white mb-0">Dashboard</h2>
         </div>
 
-        <!-- RIGHT (LIVE TIME) -->
-        <div class="time-box text-white px-4 py-2">
-            <i class="bi bi-calendar-event me-2"></i>
-            <span id="liveDateTime"></span>
+        <!-- RIGHT (TIME HERE) -->
+        <div class="time-pill">
+            <i class="bi bi-calendar-event"></i>
+            <span id="live-clock"></span>
         </div>
 
     </div>
 
-    
-
-    <!-- SAFETY CHECK -->
     @if (Model == null)
     {
         <div class="alert alert-danger text-center">
@@ -67,12 +56,12 @@
     }
     else
     {
-        <!-- STATS CARDS -->
+        <!-- STATS -->
         <div class="row">
 
             <div class="col-md-3">
-                <div class="card bg-primary text-white mb-4 shadow-sm">
-                    <div class="card-body text-center">
+                <div class="card bg-primary text-white mb-4 shadow-sm text-center">
+                    <div class="card-body">
                         <h6>Total Orders</h6>
                         <h3>@Model.TotalOrders</h3>
                     </div>
@@ -80,8 +69,8 @@
             </div>
 
             <div class="col-md-3">
-                <div class="card bg-success text-white mb-4 shadow-sm">
-                    <div class="card-body text-center">
+                <div class="card bg-success text-white mb-4 shadow-sm text-center">
+                    <div class="card-body">
                         <h6>Today's Output</h6>
                         <h3>@Model.TodayProduction</h3>
                     </div>
@@ -89,17 +78,17 @@
             </div>
 
             <div class="col-md-3">
-                <div class="card bg-warning text-dark mb-4 shadow-sm">
-                    <div class="card-body text-center">
-                        <h6>Low Stock Alerts</h6>
+                <div class="card bg-warning text-dark mb-4 shadow-sm text-center">
+                    <div class="card-body">
+                        <h6>Low Stock</h6>
                         <h3>@Model.LowStockItems</h3>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-3">
-                <div class="card bg-info text-white mb-4 shadow-sm">
-                    <div class="card-body text-center">
+                <div class="card bg-info text-white mb-4 shadow-sm text-center">
+                    <div class="card-body">
                         <h6>Total Staff</h6>
                         <h3>@Model.TotalEmployees</h3>
                     </div>
@@ -107,30 +96,79 @@
             </div>
 
         </div>
+
+        <!-- CHART -->
+        <div class="card shadow p-4 mt-4">
+            <h4 class="mb-3">Top Products / Items</h4>
+            <canvas id="donutChart"></canvas>
+        </div>
     }
 
 </div>
 
 @section Scripts {
+
     <script>
-        function updateDateTime() {
-            const now = new Date();
+        document.addEventListener("DOMContentLoaded", function () {
 
-            const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            };
+            // ===== CLOCK =====
+            function updateClock() {
+                const now = new Date();
 
-            document.getElementById("liveDateTime").innerText =
-                now.toLocaleString('en-US', options);
-        }
+                const formatted = now.toLocaleString('en-US', {
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+        second: '2-digit',
+                    hour12: true
+                });
 
-        setInterval(updateDateTime, 1000);
-        updateDateTime();
+                const el = document.getElementById("live-clock");
+
+                if (el) {
+                    el.innerText = formatted;
+                } else {
+                    console.log("live-clock NOT FOUND");
+                }
+            }
+
+            updateClock();
+            setInterval(updateClock, 1000);
+
+
+            // ===== SAFE CHART =====
+            try {
+                const ctx = document.getElementById('donutChart');
+
+                if (ctx && typeof Chart !== "undefined") {
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Item A', 'Item B', 'Item C'],
+                            datasets: [{
+                                data: [50, 30, 20],
+                                backgroundColor: ['#5b6ee1', '#7d4aa3', '#d17ddf']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            cutout: '60%',
+                            plugins: {
+                                legend: {
+                                    position: 'right'
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (err) {
+                console.log("Chart failed:", err);
+            }
+
+        });
     </script>
+
 }

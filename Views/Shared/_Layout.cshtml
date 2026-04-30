@@ -8,15 +8,19 @@
     var isAuthPage = path.Contains("/identity/account/login") ||
                      path.Contains("/identity/account/register");
 
-    Func<string, string, string> isActive = (controller, action) =>
-        path.Contains($"/{controller.ToLower()}/{action.ToLower()}") ? "active" : "";
-
-    // Role checks
     var isSuperAdmin = User.IsInRole("SuperAdmin");
     var isAdmin = User.IsInRole("Admin");
 
-    // 🔥 NEW: Hide navbar support
     var hideNav = ViewData["HideNav"] as bool? ?? false;
+
+    // ✅ SAFE ACTIVE MENU (NO STRING MATCH BUG)
+    Func<string, string, string> isActive = (controller, action) =>
+    {
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+        return currentController == controller && currentAction == action ? "active" : "";
+    };
 }
 
 <!DOCTYPE html>
@@ -32,7 +36,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 
-<body>
+<body class="@(hideNav ? "no-nav-layout" : "")">
 
     <!-- NAVBAR -->
     @if (!hideNav)
@@ -103,7 +107,7 @@
     }
 
     <!-- MAIN CONTENT -->
-    <div class="main-area @(hideNav ? "no-nav" : "")">
+    <div class="main-area">
 
         <!-- ALERTS -->
         @if (TempData["Warning"] != null)
@@ -126,12 +130,13 @@
 
     </div>
 
-   
-
     <!-- SCRIPTS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 
