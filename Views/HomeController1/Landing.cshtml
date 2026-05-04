@@ -1,0 +1,221 @@
+﻿@{
+    ViewData["Title"] = "Louietex";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Louietex</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+            body {
+                background-color: #f2f2f2;
+            }
+
+            /* Logo */
+            .logo-section {
+                background: white;
+                padding: 20px 40px;
+            }
+
+                .logo-section img {
+                    height: 60px;
+                }
+
+            /* Menu */
+            .menu-bar {
+                background: #e6e6e6;
+                padding-left: 40px;
+                display: flex;
+                align-items: center;
+            }
+
+                .menu-bar a {
+                    display: block;
+                    padding: 15px 25px;
+                    text-decoration: none;
+                    color: #555;
+                    transition: 0.3s;
+                }
+
+                    .menu-bar a.active {
+                        background: #3fc1b6;
+                        color: white;
+                    }
+
+                    .menu-bar a:hover {
+                        background: #3fc1b6;
+                        color: white;
+                    }
+
+         
+
+            /* Banner */
+            .banner {
+                background: white;
+                text-align: center;
+                padding: 40px 0;
+            }
+
+                .banner img {
+                    width: 70%;
+                }
+
+            /* About Section */
+            .about-section {
+                text-align: center;
+                background: #f5f5f5;
+                padding: 60px 120px;
+            }
+
+                .about-section h2 {
+                    font-weight: 500;
+                    margin-bottom: 20px;
+                }
+
+                .about-section .quote {
+                    font-style: italic;
+                    color: #666;
+                }
+
+                .about-section .line {
+                    width: 150px;
+                    height: 3px;
+                    background: #3fc1b6;
+                    margin: 20px auto;
+                }
+
+                .about-section p {
+                    color: #444;
+                    line-height: 1.8;
+                    margin-top: 10px;
+                }
+
+            /* Footer */
+            .footer-section {
+                background: #2f2f2f;
+                color: white;
+                text-align: center;
+                padding: 50px 20px;
+            }
+
+                .footer-section h3 {
+                    margin-bottom: 30px;
+                    font-weight: 500;
+                }
+
+            .footer-content {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                margin-top: 20px;
+            }
+
+            .footer-item {
+                max-width: 300px;
+            }
+
+                .footer-item p {
+                    margin-top: 10px;
+                    line-height: 1.6;
+                    color: #ddd;
+                }
+
+            .icon {
+                font-size: 28px;
+                margin-bottom: 10px;
+            }
+
+            .footer-line {
+                width: 60%;
+                height: 1px;
+                background: #666;
+                margin: 30px auto;
+            }
+
+            .copyright {
+                font-size: 13px;
+                color: #bbb;
+            }
+    </style>
+</head>
+
+<body>
+
+    <!-- Logo -->
+    <div class="logo-section">
+        <img src="~/images/logo.png" />
+    </div>
+
+    <!-- Menu -->
+    <div class="menu-bar">
+        <a class="active" href="/HomeController1/Landing">ABOUT</a>
+        <a href="/HomeController1/Contact">CONTACT</a>
+        <a href="/HomeController1/Location">LOCATION</a>
+        <a class="login-btn" href="/Identity/Account/Login">LOGIN</a>
+    </div>
+
+    <!-- Banner -->
+    <div class="banner">
+        <img src="~/images/banner.jpg" />
+    </div>
+
+    <!-- About Section -->
+    <div class="about-section">
+        <h2>About Louietex</h2>
+
+        <p class="quote">
+            "To be a strength that is sought, a force unrivalled, and an undisputed catalyst for growth and development."
+        </p>
+
+        <div class="line"></div>
+
+        <p>
+            Louietex was founded in the year of 2013 by two visionaries whose foresight and business acumen paved the way for growth and expansion beyond the apparel industry.
+        </p>
+
+        <p>
+            The organisation currently boasts of a customer base that spreads over continents, and a product range that is diverse in content.
+        </p>
+
+        <p>
+            The company's human resource comprises of skilled textile professionals trained to execute and implement in accordance with customer needs and requirements.
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-section">
+        <h3>Get In Touch With Us</h3>
+
+        <div class="footer-content">
+            <div class="footer-item">
+                <div class="icon">📍</div>
+                <p>
+                    Maleker Bari, Shonda, Sharifpur <br />
+                    National University, Gazipur-1704 <br />
+                    Bangladesh
+                </p>
+            </div>
+
+            <div class="footer-item">
+                <div class="icon">✉️</div>
+                <p>
+                    Email: sunil@louietex-bd.com <br />
+                    Cell: +8801713069578
+                </p>
+            </div>
+        </div>
+
+        <div class="footer-line"></div>
+
+        <p class="copyright">
+            © @DateTime.Now.Year Louietex |Nabid Ahamed Noushad. All rights reserved
+        </p>
+    </div>
+
+</body>
+</html>

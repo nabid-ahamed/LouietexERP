@@ -61,7 +61,7 @@ app.UseAuthorization();
 // ✅ MVC routing
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
+    pattern: "{controller=Homecontroller1}/{action=Landing}/{id?}");
 
 // ✅ Identity pages
 app.MapRazorPages();
