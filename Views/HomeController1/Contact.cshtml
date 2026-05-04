@@ -31,6 +31,7 @@
                 background: #e6e6e6;
                 padding-left: 40px;
                 display: flex;
+                align-items: center;
             }
 
                 .menu-bar a {
@@ -38,18 +39,16 @@
                     padding: 15px 25px;
                     text-decoration: none;
                     color: #555;
-                    transition: 0.3s;
                 }
 
-                    .menu-bar a.active {
-                        background: #3fc1b6;
-                        color: white;
-                    }
-
+                    .menu-bar a.active,
                     .menu-bar a:hover {
                         background: #3fc1b6;
                         color: white;
                     }
+
+          
+
             /* BANNER */
             .banner {
                 background: white;
@@ -60,6 +59,7 @@
                 .banner img {
                     width: 70%;
                 }
+
             /* CONTACT SECTION */
             .contact-section {
                 text-align: center;
@@ -86,36 +86,52 @@
                 color: #3fc1b6;
                 border-bottom: 2px solid #3fc1b6;
                 display: inline-block;
-                padding-bottom: 5px;
             }
 
             /* FORM */
             .form-box {
-                width: 40%;
+                max-width: 500px;
+                width: 100%;
                 margin: 40px auto;
             }
 
-                .form-box input,
-                .form-box textarea {
+            .input-box {
+                display: flex;
+                gap: 15px;
+                margin-bottom: 15px;
+            }
+
+                .input-box input {
                     width: 100%;
-                    margin-bottom: 15px;
-                    padding: 10px;
+                    padding: 12px;
                     border: 1px solid #ccc;
                 }
 
-                .form-box textarea {
-                    height: 120px;
-                }
+            textarea {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #ccc;
+                margin-bottom: 15px;
+            }
 
-                .form-box button {
-                    width: 100%;
-                    background: #e74c3c;
-                    color: white;
-                    border: none;
-                    padding: 12px;
-                }
+            .btn-submit {
+                width: 100%;
+                background: #e74c3c;
+                color: white;
+                border: none;
+                padding: 12px;
+                font-weight: bold;
+                cursor: pointer;
+            }
 
-            /* FOOTER SECTION */
+            /* ✅ FIX: hidden initially */
+            #form-status {
+                margin-top: 15px;
+                color: green;
+                display: none;
+            }
+
+            /* FOOTER */
             .footer-section {
                 background: #333;
                 color: white;
@@ -168,9 +184,9 @@
         <a href="/HomeController1/Landing">ABOUT</a>
         <a class="active" href="/HomeController1/Contact">CONTACT</a>
         <a href="/HomeController1/Location">LOCATION</a>
-         <!-- LOGIN BUTTON -->
-            <a class="login-btn" href="/Identity/Account/Login">LOGIN</a>
+        <a class="login-btn" href="/Identity/Account/Login">LOGIN</a>
     </div>
+
     <!-- BANNER -->
     <div class="banner">
         <img src="~/images/banner.jpg" />
@@ -204,10 +220,31 @@
         <h3 class="mt-5">Send a message</h3>
 
         <div class="form-box">
-            <input type="text" placeholder="Name" />
-            <input type="email" placeholder="Email" />
-            <textarea placeholder="Message"></textarea>
-            <button>SEND</button>
+            <form id="contact-form"
+                  action="https://formspree.io/f/xjgejwbl"
+                  method="POST">
+
+                <!-- ✅ FIXED -->
+                <input type="hidden" name="_subject" value="New message from Louietex ERP">
+                <input type="hidden" name="source" value="This message is coming from Louietex ERP">
+
+                <div class="input-box">
+                    <input type="text" name="name" placeholder="Your Name" required>
+                    <input type="email" name="email" placeholder="Your Email" required>
+                </div>
+
+                <div class="input-box">
+                    <input type="tel" name="phone" placeholder="Phone Number (Optional)">
+                </div>
+
+                <textarea name="message" rows="6" placeholder="Your Message" required></textarea>
+
+                <input type="text" name="_gotcha" style="display:none">
+
+                <button type="submit" class="btn-submit">Send Message</button>
+            </form>
+
+            <p id="form-status">✅ Message sent successfully!</p>
         </div>
 
     </div>
@@ -217,32 +254,44 @@
         <h3>Get In Touch With Us</h3>
 
         <div class="footer-content">
-
             <div class="footer-item">
                 <div class="icon">📍</div>
-                <p>
-                    Maleker Bari, Shonda, Sharifpur <br />
-                    National University, Gazipur-1704 <br />
-                    Bangladesh
-                </p>
+                <p>Gazipur, Bangladesh</p>
             </div>
 
             <div class="footer-item">
                 <div class="icon">✉️</div>
-                <p>
-                    Email: sunil@louietex-bd.com <br />
-                    Cell: +8801713069578
-                </p>
+                <p>Email: sunil@louietex-bd.com</p>
             </div>
-
         </div>
 
         <div class="footer-line"></div>
 
         <p class="copyright">
-            © @DateTime.Now.Year Louietex |Nabid Ahamed Noushad. All rights reserved
+            © @DateTime.Now.Year Louietex | Nabid Ahamed Noushad
         </p>
     </div>
+
+    <script>
+            const form = document.getElementById("contact-form");
+            const status = document.getElementById("form-status");
+
+            form.addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const data = new FormData(form);
+                const response = await fetch(form.action, {
+                    method: form.method,
+                    body: data,
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (response.ok) {
+                    status.style.display = "block";
+                    form.reset();
+                }
+            });
+    </script>
 
 </body>
 </html>
