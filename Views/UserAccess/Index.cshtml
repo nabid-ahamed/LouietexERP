@@ -5,26 +5,74 @@
 }
 
 <style>
-   .table-header-premium {
-    background: #eef2ff;          /* 🔥 stronger than white */
-    border-bottom: 2px solid #dbe3ff;
-}
+    /* 🔥 HEADER BAR */
+    .user-header-bar {
+        background: #28a745;
+        padding: 12px 20px;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .user-header-bar h5 {
+        font-weight: 600;
+        color: white;
+    }
+
+    .user-header-bar i {
+        color: white;
+    }
+
+    /* 🔍 Search */
+    .search-box {
+        background: white;
+        border-radius: 30px;
+        padding: 4px;
+    }
+
+    .search-input {
+        border: none;
+        outline: none;
+        background: transparent;
+        padding: 6px 12px;
+        width: 200px;
+    }
+
+    .search-btn {
+        background: #198754;
+        color: white;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .search-btn:hover {
+        background: #157347;
+    }
+
+    /* TABLE HEADER */
+    .table-header-premium {
+        background: #eef2ff;
+        border-bottom: 2px solid #dbe3ff;
+    }
 
     .table-header-premium th {
-    font-weight: 700 !important;
-    font-size: 15px !important;   /* 🔥 bigger */
-    color: #1f2937 !important;
-    letter-spacing: 1px;
-    padding: 16px 12px;           /* 🔥 taller */
-    text-transform: uppercase;
-    border: none !important;
+        font-weight: 700;
+        font-size: 15px;
+        color: #1f2937;
+        letter-spacing: 1px;
+        padding: 16px 12px;
+        text-transform: uppercase;
+        border: none;
+    }
 
-}
-.table-header-premium i {
-    font-size: 14px;
-    vertical-align: middle;
-}
+    .table-header-premium i {
+        font-size: 14px;
+        vertical-align: middle;
+    }
 
+    /* CARD */
     .card-custom {
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -40,6 +88,7 @@
         color: #222;
     }
 
+    /* ROLE BADGES */
     .role-badge {
         padding: 8px 18px;
         border-radius: 20px;
@@ -55,6 +104,7 @@
     .role-marketing { background: #6610f2; color: #fff; }
     .role-qc { background: #fd7e14; color: #fff; }
 
+    /* ACTION */
     .action-box {
         display: flex;
         justify-content: center;
@@ -66,52 +116,27 @@
     }
 
     .btn-update {
-    background: #4e73df;
-    border: none;
-    color: white;
-}
+        background: #4e73df;
+        border: none;
+        color: white;
+    }
 
-.btn-update:hover {
-    background: #2e59d9;
-}
-    .search-box {
-    background: #f1f3f6;
-    border-radius: 30px;
-    padding: 4px;
-}
-
-.search-input {
-    border: none;
-    outline: none;
-    background: transparent;
-    padding: 6px 12px;
-    width: 200px;
-}
-
-.search-btn {
-    background: #198754;
-    color: white;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.search-btn:hover {
-    background: #157347;
-}
+    .btn-update:hover {
+        background: #2e59d9;
+    }
 </style>
 
-<!-- 🔷 Header -->
-<div class="card card-custom mb-3">
-    <div class="card-body d-flex justify-content-between align-items-center">
+<!-- 🔥 HEADER BAR -->
+<div class="user-header-bar">
+    <div class="d-flex justify-content-between align-items-center">
 
-        <!-- Left: Title -->
-        <h5 class="mb-0 fw-semibold text-dark">User Management</h5>
+        <!-- LEFT -->
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-people-fill"></i>
+            <h5 class="mb-0">User Management</h5>
+        </div>
 
-        <!-- Right: Search Box -->
+        <!-- RIGHT SEARCH -->
         <div class="search-box d-flex align-items-center">
             <input type="text" id="userSearch" class="form-control search-input" placeholder="Search users..." />
             <button class="btn search-btn">
@@ -121,32 +146,33 @@
 
     </div>
 </div>
+
 <div id="alertBox" class="alert d-none mt-2"></div>
-<!-- 🔷 Table -->
-<div class="card card-custom">
+
+<!-- 🔷 TABLE -->
+<div class="card card-custom" style="border-top-left-radius:0; border-top-right-radius:0;">
     <div class="card-body p-0">
 
         <table class="table mb-0">
-          <thead class="table-header-premium">
-    <tr>
-        <th style="padding-left: 20px;">
-            <i class="bi bi-person-fill me-2"></i> Full Name
-        </th>
+            <thead class="table-header-premium">
+                <tr>
+                    <th style="padding-left: 20px;">
+                        <i class="bi bi-person-fill me-2"></i> Full Name
+                    </th>
 
-        <th>
-            <i class="bi bi-envelope-fill me-2"></i> Email
-        </th>
+                    <th>
+                        <i class="bi bi-envelope-fill me-2"></i> Email
+                    </th>
 
-        <th class="text-center">
-            <i class="bi bi-shield-lock-fill me-2"></i> Current Role
-        </th>
+                    <th class="text-center">
+                        <i class="bi bi-shield-lock-fill me-2"></i> Current Role
+                    </th>
 
-        <th class="text-center">
-            <i class="bi bi-arrow-repeat me-2"></i> Change Role
-        </th>
-    </tr>
-
-</thead>
+                    <th class="text-center">
+                        <i class="bi bi-arrow-repeat me-2"></i> Change Role
+                    </th>
+                </tr>
+            </thead>
 
             <tbody>
                 @foreach (var item in Model)
@@ -162,40 +188,36 @@
                     };
 
                     <tr>
-                       <!-- Full Name -->
-<td style="padding-left: 20px;">
-    <span class="email-text">@item.User.FullName</span>
-</td>
+                        <td style="padding-left: 20px;">
+                            <span class="email-text">@item.User.FullName</span>
+                        </td>
 
-<!-- Email -->
-<td>
-    <span class="email-text text-muted">@item.User.Email</span>
-</td>
+                        <td>
+                            <span class="email-text text-muted">@item.User.Email</span>
+                        </td>
 
-                        <!-- Role -->
                         <td class="text-center">
                             <span class="role-badge @roleClass">
                                 @item.Role
                             </span>
                         </td>
 
-                        <!-- Action -->
                         <td class="text-center">
                             <form class="role-form" data-user-id="@item.User.Id">
-    <select name="newRole" class="form-select w-auto role-select">
-        <option value="">Select Role</option>
-        <option value="SuperAdmin">SuperAdmin</option>
-        <option value="Admin">Admin</option>
-        <option value="Manager">Manager</option>
-        <option value="Marketing">Marketing</option>
-        <option value="QC">QC</option>
-        <option value="User">User</option>
-    </select>
+                                <select name="newRole" class="form-select w-auto role-select">
+                                    <option value="">Select Role</option>
+                                    <option value="SuperAdmin">SuperAdmin</option>
+                                    <option value="Admin">Admin</option>
+                                    <option value="Manager">Manager</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="QC">QC</option>
+                                    <option value="User">User</option>
+                                </select>
 
-    <button type="submit" class="btn btn-success btn-update">
-        Update
-    </button>
-</form>
+                                <button type="submit" class="btn btn-update">
+                                    Update
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 }
@@ -204,6 +226,8 @@
 
     </div>
 </div>
+
+<!-- 🔍 SEARCH -->
 <script>
     document.getElementById("userSearch").addEventListener("keyup", function () {
         let value = this.value.toLowerCase();
@@ -215,6 +239,8 @@
         });
     });
 </script>
+
+<!-- ⚡ AJAX ROLE UPDATE -->
 <script>
     document.querySelectorAll(".role-form").forEach(form => {
 
@@ -249,38 +275,24 @@
                 if (data.success) {
                     showAlert(data.message, "success");
 
-                   let badge = form.closest("tr").querySelector(".role-badge");
+                    let badge = form.closest("tr").querySelector(".role-badge");
+                    badge.className = "role-badge";
 
-// Reset class
-badge.className = "role-badge";
+                    switch (newRole.toLowerCase()) {
+                        case "superadmin": badge.classList.add("role-superadmin"); break;
+                        case "admin": badge.classList.add("role-admin"); break;
+                        case "manager": badge.classList.add("role-manager"); break;
+                        case "marketing": badge.classList.add("role-marketing"); break;
+                        case "qc": badge.classList.add("role-qc"); break;
+                        default: badge.classList.add("role-user");
+                    }
 
-// Add correct color class
-switch (newRole.toLowerCase()) {
-    case "superadmin":
-        badge.classList.add("role-superadmin");
-        break;
-    case "admin":
-        badge.classList.add("role-admin");
-        break;
-    case "manager":
-        badge.classList.add("role-manager");
-        break;
-    case "marketing":
-        badge.classList.add("role-marketing");
-        break;
-    case "qc":
-        badge.classList.add("role-qc");
-        break;
-    default:
-        badge.classList.add("role-user");
-}
-
-badge.innerText = newRole;
+                    badge.innerText = newRole;
                 } else {
                     showAlert(data.message, "danger");
                 }
 
-            } catch (error) {
+            } catch {
                 showAlert("Something went wrong", "danger");
             }
 
