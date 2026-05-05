@@ -21,9 +21,20 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Productions
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string search)
         {
-            return View(await _context.Productions.ToListAsync());
+            var productions = from p in _context.Productions
+                              select p;
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                productions = productions.Where(p =>
+                    p.LineNumber.ToString().Contains(search) ||
+                    p.TargetQuantity.ToString().Contains(search) ||
+                    p.ActualOutput.ToString().Contains(search));
+            }
+
+            return View(await productions.ToListAsync());
         }
 
         // GET: Productions/Details/5

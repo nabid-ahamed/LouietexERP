@@ -22,9 +22,20 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Orders
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string search)
         {
-            return View(await _context.Orders.ToListAsync());
+            var orders = _context.Orders.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                orders = orders.Where(o =>
+                    o.BuyerName.Contains(search) ||
+                    o.StyleCode.Contains(search) ||
+                    o.Status.Contains(search)
+                );
+            }
+
+            return View(await orders.ToListAsync());
         }
 
         // GET: Orders/Details/5

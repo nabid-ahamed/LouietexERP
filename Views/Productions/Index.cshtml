@@ -1,59 +1,177 @@
 ﻿@model IEnumerable<LouietexERP.Models.Production>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Production";
 }
 
-<h1>Index</h1>
+<style>
+    /* HEADER */
+    .production-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, #38b000, #2d6a4f);
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        color: white;
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+    .header-left {
+        display: flex;
+        align-items: center;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+        .header-left i {
+            margin-right: 8px;
+            font-size: 20px;
+        }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .search-input {
+        border-radius: 20px;
+        padding: 8px 15px;
+        border: none;
+        outline: none;
+    }
+
+    .search-btn {
+        border-radius: 50%;
+        background: white;
+        border: none;
+        padding: 6px 10px;
+    }
+
+    .add-btn {
+        background: white;
+        color: #2d6a4f;
+        border-radius: 50%;
+        padding: 8px 12px;
+        font-size: 18px;
+        text-decoration: none;
+    }
+
+    /* TABLE */
+    .table thead {
+        background-color: #1e3c72;
+        color: white;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f5f7fa;
+    }
+
+    /* BUTTONS */
+    .btn-edit {
+        background-color: #ffc107;
+        color: black;
+    }
+
+    .btn-details {
+        background-color: #0dcaf0;
+        color: white;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
+<!-- HEADER -->
+<div class="production-header">
+
+    <div class="header-left">
+        <i class="bi bi-gear-fill"></i>
+        <span>Production Management</span>
+    </div>
+
+    <div class="header-right">
+
+        <!-- SEARCH -->
+        <form method="get" asp-action="Index" class="d-flex">
+            <input type="text" name="search"
+                   value="@Context.Request.Query["search"]"
+                   class="form-control search-input"
+                   placeholder="Search..." />
+
+            <button type="submit" class="btn search-btn">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+
+        <!-- ADD BUTTON -->
+        <a asp-action="Create" class="add-btn">
+            <i class="bi bi-plus"></i>
+        </a>
+
+    </div>
+</div>
+
+<!-- TABLE -->
+<table class="table table-hover align-middle">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.LineNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TargetQuantity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ActualOutput)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DefectCount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductionDate)
-            </th>
+            <th>Line</th>
+            <th>Target</th>
+            <th>Actual</th>
+            <th>Defects</th>
+            <th>Date</th>
             <th></th>
         </tr>
     </thead>
+
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.LineNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TargetQuantity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ActualOutput)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DefectCount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductionDate)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="fw-semibold">@item.LineNumber</td>
+
+                <td>
+                    <span class="badge bg-primary">
+                        @item.TargetQuantity
+                    </span>
+                </td>
+
+                <td>
+                    <span class="badge bg-success">
+                        @item.ActualOutput
+                    </span>
+                </td>
+
+                <td>
+                    <span class="badge bg-danger">
+                        @item.DefectCount
+                    </span>
+                </td>
+
+                <td>
+                    @item.ProductionDate.ToString("dd-MMM-yyyy")
+                </td>
+
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-edit">
+                        Edit
+                    </a>
+
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-details">
+                        Details
+                    </a>
+
+                    <a asp-action="Delete" asp-route-id="@item.Id"
+                           class="btn btn-sm btn-delete"
+                           onclick="return confirm('Are you sure?');">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

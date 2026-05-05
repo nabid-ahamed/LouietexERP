@@ -1,59 +1,184 @@
 ﻿@model IEnumerable<LouietexERP.Models.Order>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Orders";
 }
 
-<h1>Index</h1>
+<style>
+    /* HEADER STYLE (same as employee) */
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, #38b000, #2d6a4f);
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        color: white;
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+    .header-left {
+        display: flex;
+        align-items: center;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+        .header-left i {
+            margin-right: 8px;
+            font-size: 20px;
+        }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .search-input {
+        border-radius: 20px;
+        padding: 8px 15px;
+        border: none;
+        outline: none;
+    }
+
+    .search-btn {
+        border-radius: 50%;
+        background: white;
+        border: none;
+        padding: 6px 10px;
+    }
+
+    .add-btn {
+        background: white;
+        color: #2d6a4f;
+        border-radius: 50%;
+        padding: 8px 12px;
+        font-size: 18px;
+        text-decoration: none;
+    }
+
+    /* TABLE */
+    .table thead {
+        background-color: #1e3c72;
+        color: white;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f5f7fa;
+    }
+
+    /* BUTTONS */
+    .btn-edit {
+        background-color: #ffc107;
+        color: black;
+    }
+
+    .btn-details {
+        background-color: #0dcaf0;
+        color: white;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
+<!-- HEADER -->
+<div class="order-header">
+
+    <div class="header-left">
+        <i class="bi bi-box-seam"></i>
+        <span>Order Management</span>
+    </div>
+
+    <div class="header-right">
+
+        <!-- SEARCH -->
+        <form method="get" asp-action="Index" class="d-flex">
+            <input type="text" name="search"
+                   value="@Context.Request.Query["search"]"
+                   class="form-control search-input"
+                   placeholder="Search..." />
+
+            <button type="submit" class="btn search-btn">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+
+        <!-- ADD BUTTON -->
+        <a asp-action="Create" class="add-btn">
+            <i class="bi bi-plus"></i>
+        </a>
+
+    </div>
+</div>
+
+<!-- TABLE -->
+<table class="table table-hover align-middle">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.BuyerName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StyleCode)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TotalQuantity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DeliveryDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
+            <th>Buyer</th>
+            <th>Style Code</th>
+            <th>Quantity</th>
+            <th>Delivery Date</th>
+            <th>Status</th>
             <th></th>
         </tr>
     </thead>
+
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.BuyerName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StyleCode)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TotalQuantity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DeliveryDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.BuyerName</td>
+                <td>@item.StyleCode</td>
+
+                <td>
+                    <span class="badge bg-info text-dark">
+                        @item.TotalQuantity
+                    </span>
+                </td>
+
+                <td>
+                    @item.DeliveryDate.ToString("dd-MMM-yyyy")
+                </td>
+
+                <td>
+                    @{
+                        var status = item.Status ?? "Pending";
+
+                        var badgeClass =
+                            status == "Completed" ? "bg-success" :
+                            status == "Approved" ? "bg-primary" :
+                            status == "In Production" ? "bg-warning text-dark" :
+                            status == "Delivered" ? "bg-success" :
+                            status == "Cancelled" ? "bg-danger" :
+                            "bg-secondary";
+                    }
+
+                    <span class="badge @badgeClass">
+                        @status
+                    </span>
+                </td>
+
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-edit">
+                        Edit
+                    </a>
+
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-details">
+                        Details
+                    </a>
+
+                    <a asp-action="Delete" asp-route-id="@item.Id"
+                           class="btn btn-sm btn-delete"
+                           onclick="return confirm('Are you sure?');">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

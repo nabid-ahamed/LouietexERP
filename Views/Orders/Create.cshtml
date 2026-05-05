@@ -1,53 +1,89 @@
 ﻿@model LouietexERP.Models.Order
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Order";
 }
 
-<h1>Create</h1>
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4">
 
-<h4>Order</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="BuyerName" class="control-label"></label>
-                <input asp-for="BuyerName" class="form-control" />
-                <span asp-validation-for="BuyerName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="StyleCode" class="control-label"></label>
-                <input asp-for="StyleCode" class="form-control" />
-                <span asp-validation-for="StyleCode" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TotalQuantity" class="control-label"></label>
-                <input asp-for="TotalQuantity" class="form-control" />
-                <span asp-validation-for="TotalQuantity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DeliveryDate" class="control-label"></label>
-                <input asp-for="DeliveryDate" class="form-control" />
-                <span asp-validation-for="DeliveryDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        <!-- Header -->
+        <div class="card-header bg-dark text-white rounded-top-4 d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Create New Order</h4>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body p-4">
+
+            <form asp-action="Create">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+
+                    <!-- Buyer -->
+                    <div class="col-md-6">
+                        <label asp-for="BuyerName" class="form-label fw-semibold"></label>
+                        <input asp-for="BuyerName" class="form-control form-control-lg" placeholder="Enter buyer name" />
+                        <span asp-validation-for="BuyerName" class="text-danger"></span>
+                    </div>
+
+                    <!-- Style Code -->
+                    <div class="col-md-6">
+                        <label asp-for="StyleCode" class="form-label fw-semibold"></label>
+                        <input asp-for="StyleCode" class="form-control form-control-lg" placeholder="Enter style/item code" />
+                        <span asp-validation-for="StyleCode" class="text-danger"></span>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="col-md-6">
+                        <label asp-for="TotalQuantity" class="form-label fw-semibold"></label>
+                        <input asp-for="TotalQuantity" class="form-control form-control-lg" placeholder="Enter quantity" />
+                        <span asp-validation-for="TotalQuantity" class="text-danger"></span>
+                    </div>
+
+                    <!-- Delivery Date -->
+                    <div class="col-md-6">
+                        <label asp-for="DeliveryDate" class="form-label fw-semibold"></label>
+                        <input asp-for="DeliveryDate" type="date" class="form-control form-control-lg" />
+                        <span asp-validation-for="DeliveryDate" class="text-danger"></span>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-6">
+                        <label asp-for="Status" class="form-label fw-semibold"></label>
+                        <select asp-for="Status" class="form-select form-select-lg">
+                            <option value="">Select Status</option>
+                            <option>Pending</option>
+                            <option>Approved</option>
+                            <option>In Production</option>
+                            <option>Completed</option>
+                            <option>Delivered</option>
+                            <option>Cancelled</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <!-- Buttons -->
+                <div class="mt-4 d-flex justify-content-end">
+                    <a asp-action="Index" class="btn btn-outline-secondary me-2 px-4">
+                        Back
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        Create Order
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
