@@ -76,7 +76,7 @@ static async Task SeedRolesAndAdmin(IServiceProvider services)
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
     // 🔹 Create roles
-    string[] roles = { "SuperAdmin", "NormalUser" };
+    string[] roles = { "SuperAdmin", "Admin", "Manager", "Marketing", "QC", "User" };
 
     foreach (var role in roles)
     {

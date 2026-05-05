@@ -102,7 +102,14 @@
                 <i class="bi bi-cart"></i>
                 <span>Orders</span>
             </a>
-
+            @if (User.IsInRole("SuperAdmin"))
+            {
+                <a class="@isActive("UserAccess", "Index")"
+                       asp-controller="UserAccess" asp-action="Index">
+                    <i class="bi bi-shield-lock"></i>
+                    <span>User Access Control</span>
+                </a>
+            }
         </div>
     }
 
