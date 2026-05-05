@@ -66,10 +66,14 @@
     }
 
     .btn-update {
-        border-radius: 8px;
-        padding: 6px 16px;
-        font-weight: 500;
-    }
+    background: #4e73df;
+    border: none;
+    color: white;
+}
+
+.btn-update:hover {
+    background: #2e59d9;
+}
     .search-box {
     background: #f1f3f6;
     border-radius: 30px;
@@ -117,7 +121,7 @@
 
     </div>
 </div>
-
+<div id="alertBox" class="alert d-none mt-2"></div>
 <!-- 🔷 Table -->
 <div class="card card-custom">
     <div class="card-body p-0">
@@ -177,23 +181,21 @@
 
                         <!-- Action -->
                         <td class="text-center">
-                            <form asp-action="ChangeRole" method="post" class="action-box">
-                                <input type="hidden" name="userId" value="@item.User.Id" />
+                            <form class="role-form" data-user-id="@item.User.Id">
+    <select name="newRole" class="form-select w-auto role-select">
+        <option value="">Select Role</option>
+        <option value="SuperAdmin">SuperAdmin</option>
+        <option value="Admin">Admin</option>
+        <option value="Manager">Manager</option>
+        <option value="Marketing">Marketing</option>
+        <option value="QC">QC</option>
+        <option value="User">User</option>
+    </select>
 
-                                <select name="newRole" class="form-select w-auto">
-                                    <option value="">Select Role</option>
-                                    <option value="SuperAdmin">SuperAdmin</option>
-                                    <option value="Admin">Admin</option>
-                                    <option value="Manager">Manager</option>
-                                    <option value="Marketing">Marketing</option>
-                                    <option value="QC">QC</option>
-                                    <option value="User">User</option>
-                                </select>
-
-                                <button type="submit" class="btn btn-success btn-update">
-                                    Update
-                                </button>
-                            </form>
+    <button type="submit" class="btn btn-success btn-update">
+        Update
+    </button>
+</form>
                         </td>
                     </tr>
                 }
@@ -212,4 +214,89 @@
             row.style.display = text.includes(value) ? "" : "none";
         });
     });
+</script>
+<script>
+    document.querySelectorAll(".role-form").forEach(form => {
+
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            let userId = form.getAttribute("data-user-id");
+            let select = form.querySelector(".role-select");
+            let button = form.querySelector("button");
+
+            let newRole = select.value;
+
+            if (!newRole) {
+                showAlert("Please select a role", "danger");
+                return;
+            }
+
+            button.disabled = true;
+            button.innerText = "Updating...";
+
+            try {
+                let response = await fetch("/UserAccess/ChangeRole", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `userId=${userId}&newRole=${newRole}`
+                });
+
+                let data = await response.json();
+
+                if (data.success) {
+                    showAlert(data.message, "success");
+
+                   let badge = form.closest("tr").querySelector(".role-badge");
+
+// Reset class
+badge.className = "role-badge";
+
+// Add correct color class
+switch (newRole.toLowerCase()) {
+    case "superadmin":
+        badge.classList.add("role-superadmin");
+        break;
+    case "admin":
+        badge.classList.add("role-admin");
+        break;
+    case "manager":
+        badge.classList.add("role-manager");
+        break;
+    case "marketing":
+        badge.classList.add("role-marketing");
+        break;
+    case "qc":
+        badge.classList.add("role-qc");
+        break;
+    default:
+        badge.classList.add("role-user");
+}
+
+badge.innerText = newRole;
+                } else {
+                    showAlert(data.message, "danger");
+                }
+
+            } catch (error) {
+                showAlert("Something went wrong", "danger");
+            }
+
+            button.disabled = false;
+            button.innerText = "Update";
+        });
+    });
+
+    function showAlert(message, type) {
+        let alertBox = document.getElementById("alertBox");
+        alertBox.className = `alert alert-${type}`;
+        alertBox.innerText = message;
+        alertBox.classList.remove("d-none");
+
+        setTimeout(() => {
+            alertBox.classList.add("d-none");
+        }, 3000);
+    }
 </script>

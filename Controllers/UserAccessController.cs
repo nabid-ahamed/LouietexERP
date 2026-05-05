@@ -33,17 +33,17 @@ public class UserAccessController : Controller
         return View(userRoles);
     }
 
-    // ✅ DEBUG Change Role
     [HttpPost]
     public async Task<IActionResult> ChangeRole(string userId, string newRole)
     {
         var user = await _userManager.FindByIdAsync(userId);
+
         if (user == null)
-            return Content("❌ User NOT found");
+            return Json(new { success = false, message = "User not found" });
 
         var roleExists = await _roleManager.RoleExistsAsync(newRole);
         if (!roleExists)
-            return Content("❌ Role NOT found in database");
+            return Json(new { success = false, message = "Role does not exist" });
 
         var currentRoles = await _userManager.GetRolesAsync(user);
 
@@ -52,8 +52,8 @@ public class UserAccessController : Controller
         var result = await _userManager.AddToRoleAsync(user, newRole);
 
         if (!result.Succeeded)
-            return Content("❌ Failed to assign role");
+            return Json(new { success = false, message = "Failed to assign role" });
 
-        return RedirectToAction("Index");
+        return Json(new { success = true, message = "Role updated successfully" });
     }
 }
