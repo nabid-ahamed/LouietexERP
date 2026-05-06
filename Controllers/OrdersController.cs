@@ -38,6 +38,19 @@ namespace LouietexERP.Controllers
             return View(await orders.ToListAsync());
         }
 
+        // ✅ ADDED: Track Status with filter
+        public async Task<IActionResult> TrackStatus(string status)
+        {
+            var orders = _context.Orders.AsQueryable();
+
+            if (!string.IsNullOrEmpty(status))
+                orders = orders.Where(o => o.Status == status);
+
+            ViewBag.CurrentStatus = status;
+
+            return View(await orders.ToListAsync());
+        }
+
         // GET: Orders/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -63,8 +76,6 @@ namespace LouietexERP.Controllers
         }
 
         // POST: Orders/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,BuyerName,StyleCode,TotalQuantity,DeliveryDate,Status")] Order order)
@@ -95,8 +106,6 @@ namespace LouietexERP.Controllers
         }
 
         // POST: Orders/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,BuyerName,StyleCode,TotalQuantity,DeliveryDate,Status")] Order order)

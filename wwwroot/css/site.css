@@ -339,3 +339,23 @@ body {
         font-size: 16px;
         opacity: 0.9;
     }
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-area {
+    flex: 1;
+}
+
+footer {
+    margin-left: 0 !important;
+}
+/* Hide Two-Factor and Personal Data from menu */
+a[href*="TwoFactorAuthentication"],
+a[href*="two-factor"],
+a[href*="PersonalData"],
+a[href*="personal-data"] {
+    display: none !important;
+}

@@ -11,6 +11,30 @@ namespace LouietexERP.Controllers
     {
         public async Task<IActionResult> Index()
         {
+            // Last 6 months
+            var last6Months = Enumerable.Range(0, 6)
+                .Select(i => DateTime.Now.AddMonths(-i))
+                .Reverse()
+                .ToList();
+
+            var monthlyOrders = new List<int>();
+            var monthlyProduction = new List<int>();
+
+            foreach (var month in last6Months)
+            {
+                var orderCount = await context.Orders
+                    .CountAsync(o => o.DeliveryDate.Month == month.Month
+                                  && o.DeliveryDate.Year == month.Year);
+
+                var productionSum = await context.Productions
+                    .Where(p => p.ProductionDate.Month == month.Month
+                             && p.ProductionDate.Year == month.Year)
+                    .SumAsync(p => (int?)p.ActualOutput) ?? 0;
+
+                monthlyOrders.Add(orderCount);
+                monthlyProduction.Add(productionSum);
+            }
+
             var viewModel = new DashboardViewModel
             {
                 TotalEmployees = await context.Employees.CountAsync(),
@@ -20,7 +44,6 @@ namespace LouietexERP.Controllers
                 LowStockItems = await context.Inventories
                     .CountAsync(i => i.Quantity <= i.MinStockLevel),
 
-                // ✅ FIXED DATE + SAFE SUM
                 TodayProduction = await context.Productions
                     .Where(p => p.ProductionDate.Date == DateTime.Today)
                     .SumAsync(p => (int?)p.ActualOutput) ?? 0,
@@ -34,7 +57,11 @@ namespace LouietexERP.Controllers
                     .CountAsync(u => !u.IsApproved),
 
                 PendingRequests = await context.ProfileRequests
-                    .CountAsync(r => !r.IsProcessed)
+                    .CountAsync(r => !r.IsProcessed),
+
+                MonthLabels = last6Months.Select(m => m.ToString("MMM")).ToList(),
+                MonthlyOrders = monthlyOrders,
+                MonthlyProduction = monthlyProduction
             };
 
             return View(viewModel);

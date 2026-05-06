@@ -1,39 +1,168 @@
 ﻿@model List<LouietexERP.Models.ProfileRequest>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<LouietexERP.Models.ApplicationUser> UserManager
 
-<h2>Profile Modification Requests</h2>
+@{
+    ViewData["Title"] = "Review Requests";
+    var pendingPictures = ViewBag.PendingPictures as List<LouietexERP.Models.ApplicationUser> ?? new();
+}
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>User</th>
-            <th>New Name</th>
-            <th>New Email</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var req in Model)
-        {
-        <tr>
-                <td>@(req.User?.FullName ?? req.UserId)</td>
-                <td>@req.NewFullName</td>
-                <td>@req.NewEmail</td>
-                <td>
-                    <form asp-action="ProcessModification" method="post" style="display:inline;">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="requestId" value="@req.Id" />
-                        <input type="hidden" name="approved" value="true" />
-                        <button class="btn btn-success">Approve</button>
-                    </form>
+<div class="container mt-4">
 
-                    <form asp-action="ProcessModification" method="post" style="display:inline;">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="requestId" value="@req.Id" />
-                        <input type="hidden" name="approved" value="false" />
-                        <button class="btn btn-danger">Reject</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <!-- HEADER -->
+    <div class="dashboard-header d-flex align-items-center gap-3 p-4 mb-4">
+        <i class="bi bi-clipboard-check fs-2 text-white"></i>
+        <h4 class="text-white mb-0">Review Requests</h4>
+    </div>
+
+    <!-- TABS -->
+    <ul class="nav nav-tabs mb-4" id="requestTabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#profileRequests">
+                <i class="bi bi-person-lines-fill me-1"></i>
+                Profile Changes
+                @if (Model.Any())
+                {
+                    <span class="badge bg-danger ms-1">@Model.Count</span>
+                }
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#pictureRequests">
+                <i class="bi bi-image me-1"></i>
+                Profile Pictures
+                @if (pendingPictures.Any())
+                {
+                    <span class="badge bg-danger ms-1">@pendingPictures.Count</span>
+                }
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+
+        <!-- TAB 1: PROFILE CHANGE REQUESTS -->
+        <div class="tab-pane fade show active" id="profileRequests">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-check-circle me-2"></i> No pending profile change requests.
+                </div>
+            }
+            else
+            {
+                <div class="card shadow-sm border-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>User</th>
+                                    <th>New Name</th>
+                                    <th>New Email</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var req in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold">@(req.User?.FullName ?? "Unknown")</div>
+                                            <small class="text-muted">@req.User?.Email</small>
+                                        </td>
+                                        <td>@req.NewFullName</td>
+                                        <td>@req.NewEmail</td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @req.RequestDate.ToString("MMM dd, yyyy")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-clock me-1"></i> Pending
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <form asp-action="ProcessModification" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="requestId" value="@req.Id" />
+                                                <input type="hidden" name="approved" value="true" />
+                                                <button class="btn btn-sm btn-success">
+                                                    <i class="bi bi-check-lg me-1"></i> Approve
+                                                </button>
+                                            </form>
+                                            <form asp-action="ProcessModification" method="post" class="d-inline ms-1">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="requestId" value="@req.Id" />
+                                                <input type="hidden" name="approved" value="false" />
+                                                <button class="btn btn-sm btn-danger">
+                                                    <i class="bi bi-x-lg me-1"></i> Reject
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- TAB 2: PROFILE PICTURE REQUESTS -->
+        <div class="tab-pane fade" id="pictureRequests">
+            @if (!pendingPictures.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-check-circle me-2"></i> No pending profile picture requests.
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var user in pendingPictures)
+                    {
+                        <div class="col-md-3 mb-4">
+                            <div class="card shadow-sm border-0 text-center p-3">
+
+                                <!-- PENDING PICTURE PREVIEW -->
+                                <img src="@user.PendingProfilePicturePath"
+                                     class="rounded-circle mx-auto mb-2 border border-3 border-warning"
+                                     style="width:90px; height:90px; object-fit:cover;" />
+
+                                <p class="fw-semibold mb-0">@user.FullName</p>
+                                <small class="text-muted">@user.Email</small>
+
+                                <span class="badge bg-warning text-dark mt-2">
+                                    <i class="bi bi-clock me-1"></i> Pending
+                                </span>
+
+                                <div class="d-flex gap-2 mt-3 justify-content-center">
+                                    <form method="post" asp-action="ApprovePicture"
+                                          asp-controller="UserManagement">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@user.Id" />
+                                        <button class="btn btn-sm btn-success">
+                                            <i class="bi bi-check"></i> Approve
+                                        </button>
+                                    </form>
+                                    <form method="post" asp-action="RejectPicture"
+                                          asp-controller="UserManagement">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@user.Id" />
+                                        <button class="btn btn-sm btn-danger">
+                                            <i class="bi bi-x"></i> Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+    </div>
+</div>

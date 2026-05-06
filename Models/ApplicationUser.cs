@@ -4,8 +4,12 @@ namespace LouietexERP.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        public bool IsApproved { get; set; } = false; // Default to false for new registrations
-        public string FullName { get; set; }
-        // PreferredTheme removed — theme feature deprecated
+        public bool IsApproved { get; set; } = false;
+        public string FullName { get; set; } = string.Empty;
+
+        // Profile Picture
+        public string? ProfilePicturePath { get; set; }
+        public bool ProfilePictureApproved { get; set; } = false;
+        public string? PendingProfilePicturePath { get; set; } // waiting for admin approval
     }
 }

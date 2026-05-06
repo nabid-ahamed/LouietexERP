@@ -103,6 +103,12 @@
                 <i class="bi bi-cart"></i>
                 <span>Orders</span>
             </a>
+            <!-- Order Status -->
+            <a class="@isActive("Orders", "TrackStatus")"
+                   asp-controller="Orders" asp-action="TrackStatus">
+                <i class="bi bi-truck"></i>
+                <span>Order Status</span>
+            </a>
             @if (User.IsInRole("SuperAdmin"))
             {
                 <a class="@isActive("UserAccess", "Index")"
@@ -148,5 +154,14 @@
 
     @await RenderSectionAsync("Scripts", required: false)
 
+
+    <!-- FOOTER -->
+    <footer class="footer mt-auto py-3 border-top" style="background-color: #2b2b2b;">
+        <div class="text-center">
+            <span style="color: #aaa; font-size: 0.85rem;">
+                © 2026 Louietex |Nabid Ahamed Noushad. All rights reserved
+            </span>
+        </div>
+    </footer>
 </body>
 </html>
