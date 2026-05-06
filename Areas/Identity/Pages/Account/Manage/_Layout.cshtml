@@ -1,0 +1,50 @@
+﻿@{
+    if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout != null)
+    {
+        Layout = parentLayout.ToString();
+    }
+    else
+    {
+        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
+    }
+}
+
+<!-- HEADER BANNER -->
+<div class="py-4 px-4 mb-4 text-white rounded-4 mx-3 mt-3"
+     style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+    <div class="d-flex align-items-center gap-3">
+        <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center"
+             style="width:52px; height:52px;">
+            <i class="bi bi-gear-fill fs-4 text-white"></i>
+        </div>
+        <div>
+            <h4 class="mb-0 fw-bold">Account Settings</h4>
+            <small class="opacity-75">Manage your personal information and preferences</small>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row g-4">
+
+        <!-- SIDEBAR NAV -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-0">
+                    <partial name="_ManageNav" />
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="col-md-9">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    @RenderBody()
+                    @await RenderSectionAsync("Scripts", required: false)
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
