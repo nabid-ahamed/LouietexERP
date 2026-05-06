@@ -1,4 +1,4 @@
-﻿using LouietexERP.Data;
+using LouietexERP.Data;
 using LouietexERP.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -36,8 +36,8 @@ namespace LouietexERP.Controllers
 
             var model = new ProfileRequest
             {
-                NewFullName = user.FullName,
-                NewEmail = user.Email
+                NewFullName = user.FullName ?? string.Empty,
+                NewEmail = user.Email ?? string.Empty
             };
 
             return View(model);

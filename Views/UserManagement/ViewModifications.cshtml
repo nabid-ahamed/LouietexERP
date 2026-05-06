@@ -1,10 +1,14 @@
-﻿@model List<LouietexERP.Models.ProfileRequest>
+@model List<LouietexERP.Models.ProfileRequest>
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<LouietexERP.Models.ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Review Requests";
     var pendingPictures = ViewBag.PendingPictures as List<LouietexERP.Models.ApplicationUser> ?? new();
+    
+    // Group requests into pending vs processed for better viewing
+    var pendingRequests = Model.Where(r => !r.IsProcessed).ToList();
+    var processedRequests = Model.Where(r => r.IsProcessed).ToList();
 }
 
 <div class="container mt-4">
@@ -12,25 +16,31 @@
     <!-- HEADER -->
     <div class="dashboard-header d-flex align-items-center gap-3 p-4 mb-4">
         <i class="bi bi-clipboard-check fs-2 text-white"></i>
-        <h4 class="text-white mb-0">Review Requests</h4>
+        <h4 class="text-white mb-0">Review Profile Requests</h4>
     </div>
 
     <!-- TABS -->
     <ul class="nav nav-tabs mb-4" id="requestTabs">
         <li class="nav-item">
-            <a class="nav-link active" data-bs-toggle="tab" href="#profileRequests">
-                <i class="bi bi-person-lines-fill me-1"></i>
-                Profile Changes
-                @if (Model.Any())
+            <a class="nav-link active" data-bs-toggle="tab" href="#pendingRequests">
+                <i class="bi bi-hourglass-split me-1"></i>
+                Pending Requests
+                @if (pendingRequests.Any())
                 {
-                    <span class="badge bg-danger ms-1">@Model.Count</span>
+                    <span class="badge bg-danger ms-1">@pendingRequests.Count</span>
                 }
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#pictureRequests">
+            <a class="nav-link" data-bs-toggle="tab" href="#processedRequests">
+                <i class="bi bi-clock-history me-1"></i>
+                Request History
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#legacyPictureRequests">
                 <i class="bi bi-image me-1"></i>
-                Profile Pictures
+                Legacy Picture Uploads
                 @if (pendingPictures.Any())
                 {
                     <span class="badge bg-danger ms-1">@pendingPictures.Count</span>
@@ -41,11 +51,11 @@
 
     <div class="tab-content">
 
-        <!-- TAB 1: PROFILE CHANGE REQUESTS -->
-        <div class="tab-pane fade show active" id="profileRequests">
-            @if (!Model.Any())
+        <!-- TAB 1: PENDING REQUESTS -->
+        <div class="tab-pane fade show active" id="pendingRequests">
+            @if (!pendingRequests.Any())
             {
-                <div class="alert alert-info">
+                <div class="alert alert-info shadow-sm border-0">
                     <i class="bi bi-check-circle me-2"></i> No pending profile change requests.
                 </div>
             }
@@ -57,26 +67,70 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>User</th>
-                                    <th>New Name</th>
-                                    <th>New Email</th>
+                                    <th>Field</th>
+                                    <th>Current Value</th>
+                                    <th>Requested Value</th>
                                     <th>Date</th>
                                     <th>Status</th>
                                     <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var req in Model)
+                                @foreach (var req in pendingRequests)
                                 {
                                     <tr>
                                         <td>
-                                            <div class="fw-semibold">@(req.User?.FullName ?? "Unknown")</div>
+                                            <div class="fw-semibold">@req.User?.FullName</div>
                                             <small class="text-muted">@req.User?.Email</small>
                                         </td>
-                                        <td>@req.NewFullName</td>
-                                        <td>@req.NewEmail</td>
+                                        <td>
+                                            <ul class="list-unstyled mb-0 small">
+                                                <li><strong>Name</strong></li>
+                                                <li><strong>Email</strong></li>
+                                                <li><strong>Phone</strong></li>
+                                                <li><strong>Picture</strong></li>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul class="list-unstyled mb-0 small text-muted">
+                                                <li>@(req.User?.FullName ?? "-")</li>
+                                                <li>@(req.User?.Email ?? "-")</li>
+                                                <li>@(req.User?.PhoneNumber ?? "-")</li>
+                                                <li>
+                                                    @if (!string.IsNullOrEmpty(req.User?.ProfilePicturePath))
+                                                    {
+                                                        <i class="bi bi-image"></i> <span>Present</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>None</span>
+                                                    }
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul class="list-unstyled mb-0 small text-primary fw-medium">
+                                                <li>@(req.NewFullName ?? "-")</li>
+                                                <li>@(req.NewEmail ?? "-")</li>
+                                                <li>@(req.NewPhoneNumber ?? "-")</li>
+                                                <li>
+                                                    @if (!string.IsNullOrEmpty(req.NewProfilePicturePath))
+                                                    {
+                                                        <a href="@req.NewProfilePicturePath" target="_blank" class="text-decoration-none">
+                                                            <i class="bi bi-eye"></i> View New Picture
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No Change</span>
+                                                    }
+                                                </li>
+                                            </ul>
+                                        </td>
                                         <td>
                                             <small class="text-muted">
-                                                @req.RequestDate.ToString("MMM dd, yyyy")
+                                                @req.RequestDate.ToString("MMM dd, yyyy")<br/>
+                                                @req.RequestDate.ToString("hh:mm tt")
                                             </small>
                                         </td>
                                         <td>
@@ -85,22 +139,24 @@
                                             </span>
                                         </td>
                                         <td class="text-center">
-                                            <form asp-action="ProcessModification" method="post" class="d-inline">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="requestId" value="@req.Id" />
-                                                <input type="hidden" name="approved" value="true" />
-                                                <button class="btn btn-sm btn-success">
-                                                    <i class="bi bi-check-lg me-1"></i> Approve
-                                                </button>
-                                            </form>
-                                            <form asp-action="ProcessModification" method="post" class="d-inline ms-1">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="requestId" value="@req.Id" />
-                                                <input type="hidden" name="approved" value="false" />
-                                                <button class="btn btn-sm btn-danger">
-                                                    <i class="bi bi-x-lg me-1"></i> Reject
-                                                </button>
-                                            </form>
+                                            <div class="d-flex flex-column gap-2 align-items-center">
+                                                <form asp-action="ProcessModification" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="requestId" value="@req.Id" />
+                                                    <input type="hidden" name="approved" value="true" />
+                                                    <button class="btn btn-sm btn-success w-100">
+                                                        <i class="bi bi-check-lg me-1"></i> Approve
+                                                    </button>
+                                                </form>
+                                                <form asp-action="ProcessModification" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="requestId" value="@req.Id" />
+                                                    <input type="hidden" name="approved" value="false" />
+                                                    <button class="btn btn-sm btn-danger w-100">
+                                                        <i class="bi bi-x-lg me-1"></i> Reject
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 }
@@ -111,12 +167,84 @@
             }
         </div>
 
-        <!-- TAB 2: PROFILE PICTURE REQUESTS -->
-        <div class="tab-pane fade" id="pictureRequests">
+        <!-- TAB 2: PROCESSED REQUESTS (HISTORY) -->
+        <div class="tab-pane fade" id="processedRequests">
+            @if (!processedRequests.Any())
+            {
+                <div class="alert alert-info shadow-sm border-0">
+                    <i class="bi bi-info-circle me-2"></i> No processed requests history.
+                </div>
+            }
+            else
+            {
+                <div class="card shadow-sm border-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>User</th>
+                                    <th>Requested Changes Summary</th>
+                                    <th>Date Requested</th>
+                                    <th>Processed On</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var req in processedRequests)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold">@(req.User?.FullName ?? "Unknown User")</div>
+                                            <small class="text-muted">@(req.User?.Email)</small>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                Name: @req.NewFullName <br/>
+                                                Email: @req.NewEmail <br/>
+                                                Phone: @(req.NewPhoneNumber ?? "-")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">@req.RequestDate.ToString("MMM dd, yyyy")</small>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @(req.ProcessedDate?.ToString("MMM dd, yyyy") ?? "-")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            @if (req.Status == "Approved")
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle me-1"></i> Approved
+                                                </span>
+                                            }
+                                            else if (req.Status == "Rejected")
+                                            {
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-x-circle me-1"></i> Rejected
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">@req.Status</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- TAB 3: LEGACY PROFILE PICTURE REQUESTS -->
+        <div class="tab-pane fade" id="legacyPictureRequests">
             @if (!pendingPictures.Any())
             {
-                <div class="alert alert-info">
-                    <i class="bi bi-check-circle me-2"></i> No pending profile picture requests.
+                <div class="alert alert-info shadow-sm border-0">
+                    <i class="bi bi-check-circle me-2"></i> No legacy pending profile picture requests.
                 </div>
             }
             else
@@ -136,7 +264,7 @@
                                 <small class="text-muted">@user.Email</small>
 
                                 <span class="badge bg-warning text-dark mt-2">
-                                    <i class="bi bi-clock me-1"></i> Pending
+                                    <i class="bi bi-clock me-1"></i> Pending Legacy
                                 </span>
 
                                 <div class="d-flex gap-2 mt-3 justify-content-center">

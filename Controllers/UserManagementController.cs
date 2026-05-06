@@ -1,4 +1,4 @@
-﻿using LouietexERP.Data;
+using LouietexERP.Data;
 using LouietexERP.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -47,23 +47,44 @@ namespace LouietexERP.Controllers
             var user = await _userManager.FindByIdAsync(request.UserId);
             if (user == null) return NotFound();
 
+            var currentUserId = _userManager.GetUserId(User);
+
             if (approved)
             {
                 user.FullName = request.NewFullName;
-                user.Email = request.NewEmail;
-                user.UserName = request.NewEmail;
-                user.NormalizedEmail = request.NewEmail.ToUpper();
-                user.NormalizedUserName = request.NewEmail.ToUpper();
-                request.Status = "Approved";
+                if (!string.IsNullOrEmpty(request.NewEmail) && request.NewEmail != user.Email)
+                {
+                    user.Email = request.NewEmail;
+                    user.UserName = request.NewEmail;
+                    user.NormalizedEmail = request.NewEmail.ToUpper();
+                    user.NormalizedUserName = request.NewEmail.ToUpper();
+                }
+
+                if (request.NewPhoneNumber != user.PhoneNumber)
+                {
+                    await _userManager.SetPhoneNumberAsync(user, request.NewPhoneNumber);
+                }
+
+                if (!string.IsNullOrEmpty(request.NewProfilePicturePath))
+                {
+                    user.ProfilePicturePath = request.NewProfilePicturePath;
+                    user.ProfilePictureApproved = true;
+                }
+
+                request.Status = ProfileRequestStatus.Approved;
                 TempData["Message"] = "Profile change approved!";
             }
             else
             {
-                request.Status = "Rejected";
+                request.Status = ProfileRequestStatus.Rejected;
                 TempData["Warning"] = "Profile change rejected.";
             }
 
             request.IsProcessed = true;
+            request.ProcessedDate = DateTime.UtcNow;
+            request.ProcessedByUserId = currentUserId;
+
+            await _userManager.UpdateAsync(user);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(ViewModifications));

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
@@ -34,6 +34,13 @@ namespace LouietexERP.Models
         [Display(Name = "Requested New Email")]
         public string NewEmail { get; set; }
 
+        [Phone]
+        [Display(Name = "Requested New Phone Number")]
+        public string? NewPhoneNumber { get; set; }
+
+        [Display(Name = "Requested Profile Picture")]
+        public string? NewProfilePicturePath { get; set; }
+
         // 📅 Metadata
         public DateTime RequestDate { get; set; } = DateTime.UtcNow;
 
@@ -41,5 +48,14 @@ namespace LouietexERP.Models
 
         // 📌 Status
         public string Status { get; set; } = ProfileRequestStatus.Pending;
+
+        // 🛡 Audit Tracking
+        public DateTime? ProcessedDate { get; set; }
+
+        public string? ProcessedByUserId { get; set; }
+
+        [ForeignKey("ProcessedByUserId")]
+        [ValidateNever]
+        public ApplicationUser? ProcessedByUser { get; set; }
     }
 }

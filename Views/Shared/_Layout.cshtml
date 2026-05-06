@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @using LouietexERP.Models
 @inject UserManager<ApplicationUser> UserManager
 
@@ -115,6 +115,16 @@
                        asp-controller="UserAccess" asp-action="Index">
                     <i class="bi bi-shield-lock"></i>
                     <span>User Access Control</span>
+                </a>
+            }
+            
+            <!-- Review Requests -->
+            @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+            {
+                <a class="@isActive("UserManagement", "ViewModifications")"
+                       asp-controller="UserManagement" asp-action="ViewModifications">
+                    <i class="bi bi-clipboard-check"></i>
+                    <span>Review Requests</span>
                 </a>
             }
         </div>
