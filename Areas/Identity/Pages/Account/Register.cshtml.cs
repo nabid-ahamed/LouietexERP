@@ -104,7 +104,7 @@ namespace LouietexERP.Areas.Identity.Pages.Account
                     _logger.LogInformation("User created a new account with password.");
 
                     // ✅ Assign NormalUser role
-                    await _userManager.AddToRoleAsync(user, "NormalUser");
+                    await _userManager.AddToRoleAsync(user, "User");
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

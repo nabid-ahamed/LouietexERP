@@ -11,15 +11,16 @@ builder.Services.AddRazorPages();
 
 // ✅ Configure EF Core
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ✅ Identity with roles + UI
+// ✅ Identity Configuration
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.User.RequireUniqueEmail = true;
     options.SignIn.RequireConfirmedAccount = false;
 
-    // Optional: make password simple (for testing)
+    // Password settings
     options.Password.RequireDigit = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
@@ -33,16 +34,16 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 var app = builder.Build();
 
 
-// ✅ RUN SEEDING (IMPORTANT FIX)
+// ✅ SEED ROLES + ADMIN
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
 
-    SeedRolesAndAdmin(services).GetAwaiter().GetResult();
+    await SeedRolesAndAdminAsync(services);
 }
 
 
-// ✅ Configure pipeline
+// ✅ Configure Middleware Pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -54,30 +55,44 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// ✅ Identity middleware
+// ✅ Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ✅ MVC routing
+
+// ✅ MVC ROUTING
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Homecontroller1}/{action=Landing}/{id?}");
 
-// ✅ Identity pages
+
+// ✅ Identity Razor Pages
 app.MapRazorPages();
 
 app.Run();
 
 
-// ✅ SEEDING METHOD (ADMIN + ROLES)
-static async Task SeedRolesAndAdmin(IServiceProvider services)
+// =======================================================
+// ✅ ROLE + ADMIN SEEDING
+// =======================================================
+
+static async Task SeedRolesAndAdminAsync(IServiceProvider services)
 {
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
-    // 🔹 Create roles
-    string[] roles = { "SuperAdmin", "Admin", "Manager", "Marketing", "QC", "User" };
+    // ✅ SYSTEM ROLES
+    string[] roles =
+    {
+        "SuperAdmin",
+        "Admin",
+        "Manager",
+        "Marketing",
+        "QC",
+        "User"
+    };
 
+    // ✅ CREATE ROLES
     foreach (var role in roles)
     {
         if (!await roleManager.RoleExistsAsync(role))
@@ -86,7 +101,7 @@ static async Task SeedRolesAndAdmin(IServiceProvider services)
         }
     }
 
-    // 🔹 Admin credentials
+    // ✅ ADMIN ACCOUNT
     string adminEmail = "admin@louietex.com";
     string adminPassword = "Admin@123";
 
@@ -107,23 +122,31 @@ static async Task SeedRolesAndAdmin(IServiceProvider services)
 
         if (!result.Succeeded)
         {
-            throw new Exception("Admin creation failed: " +
+            throw new Exception(
+                "Admin creation failed: " +
                 string.Join(", ", result.Errors.Select(e => e.Description)));
         }
 
+        // ✅ Assign SuperAdmin Role
         await userManager.AddToRoleAsync(admin, "SuperAdmin");
     }
     else
     {
-        // 🔥 Ensure admin is always usable
-        var token = await userManager.GeneratePasswordResetTokenAsync(adminUser);
-        await userManager.ResetPasswordAsync(adminUser, token, adminPassword);
+        // ✅ Ensure admin stays valid
+        var token =
+            await userManager.GeneratePasswordResetTokenAsync(adminUser);
+
+        await userManager.ResetPasswordAsync(
+            adminUser,
+            token,
+            adminPassword);
 
         adminUser.IsApproved = true;
         adminUser.EmailConfirmed = true;
 
         await userManager.UpdateAsync(adminUser);
 
+        // ✅ Ensure role exists
         if (!await userManager.IsInRoleAsync(adminUser, "SuperAdmin"))
         {
             await userManager.AddToRoleAsync(adminUser, "SuperAdmin");
