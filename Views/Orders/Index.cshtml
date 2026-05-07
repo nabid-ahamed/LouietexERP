@@ -1,184 +1,116 @@
-﻿@model IEnumerable<LouietexERP.Models.Order>
+@model IEnumerable<LouietexERP.Models.Order>
 
 @{
     ViewData["Title"] = "Orders";
 }
 
-<style>
-    /* HEADER STYLE (same as employee) */
-    .order-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: linear-gradient(135deg, #38b000, #2d6a4f);
-        padding: 15px 20px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        color: white;
-    }
-
-    .header-left {
-        display: flex;
-        align-items: center;
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-        .header-left i {
-            margin-right: 8px;
-            font-size: 20px;
-        }
-
-    .header-right {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .search-input {
-        border-radius: 20px;
-        padding: 8px 15px;
-        border: none;
-        outline: none;
-    }
-
-    .search-btn {
-        border-radius: 50%;
-        background: white;
-        border: none;
-        padding: 6px 10px;
-    }
-
-    .add-btn {
-        background: white;
-        color: #2d6a4f;
-        border-radius: 50%;
-        padding: 8px 12px;
-        font-size: 18px;
-        text-decoration: none;
-    }
-
-    /* TABLE */
-    .table thead {
-        background-color: #1e3c72;
-        color: white;
-    }
-
-    .table tbody tr:hover {
-        background-color: #f5f7fa;
-    }
-
-    /* BUTTONS */
-    .btn-edit {
-        background-color: #ffc107;
-        color: black;
-    }
-
-    .btn-details {
-        background-color: #0dcaf0;
-        color: white;
-    }
-
-    .btn-delete {
-        background-color: #dc3545;
-        color: white;
-    }
-</style>
-
-<!-- HEADER -->
-<div class="order-header">
-
-    <div class="header-left">
-        <i class="bi bi-box-seam"></i>
-        <span>Order Management</span>
-    </div>
-
-    <div class="header-right">
-
-        <!-- SEARCH -->
-        <form method="get" asp-action="Index" class="d-flex">
-            <input type="text" name="search"
-                   value="@Context.Request.Query["search"]"
-                   class="form-control search-input"
-                   placeholder="Search..." />
-
-            <button type="submit" class="btn search-btn">
-                <i class="bi bi-search"></i>
-            </button>
-        </form>
-
-        <!-- ADD BUTTON -->
-        <a asp-action="Create" class="add-btn">
-            <i class="bi bi-plus"></i>
+<div class="fade-in-up">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Order Management</h2>
+            <p class="text-muted small mb-0">Track and manage buyer orders and delivery schedules</p>
+        </div>
+        <a asp-action="Create" class="btn-premium btn-premium-primary">
+            <i class="bi bi-cart-plus-fill"></i> Create New Order
         </a>
-
     </div>
-</div>
 
-<!-- TABLE -->
-<table class="table table-hover align-middle">
-    <thead>
-        <tr>
-            <th>Buyer</th>
-            <th>Style Code</th>
-            <th>Quantity</th>
-            <th>Delivery Date</th>
-            <th>Status</th>
-            <th></th>
-        </tr>
-    </thead>
+    <!-- Main Card -->
+    <div class="erp-card">
+        <div class="erp-card-header">
+            <div class="d-flex align-items-center gap-3 w-100">
+                <div class="flex-grow-1">
+                    <form method="get" asp-action="Index" class="position-relative">
+                        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" name="search" value="@Context.Request.Query["search"]" 
+                               class="form-control premium-input ps-5 w-100" placeholder="Search by buyer or style code..." />
+                    </form>
+                </div>
+            </div>
+        </div>
 
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.BuyerName</td>
-                <td>@item.StyleCode</td>
-
-                <td>
-                    <span class="badge bg-info text-dark">
-                        @item.TotalQuantity
-                    </span>
-                </td>
-
-                <td>
-                    @item.DeliveryDate.ToString("dd-MMM-yyyy")
-                </td>
-
-                <td>
-                    @{
-                        var status = item.Status ?? "Pending";
-
-                        var badgeClass =
-                            status == "Completed" ? "bg-success" :
-                            status == "Approved" ? "bg-primary" :
-                            status == "In Production" ? "bg-warning text-dark" :
-                            status == "Delivered" ? "bg-success" :
-                            status == "Cancelled" ? "bg-danger" :
-                            "bg-secondary";
+        <div class="table-responsive">
+            <table class="erp-table">
+                <thead>
+                    <tr>
+                        <th>Buyer & Style</th>
+                        <th>Quantity</th>
+                        <th>Delivery Deadline</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div>
+                                    <div class="fw-bold text-dark">@item.BuyerName</div>
+                                    <div class="text-primary small fw-semibold">@item.StyleCode</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="fw-bold text-dark me-2">@item.TotalQuantity.ToString("N0")</span>
+                                    <span class="text-muted small">pcs</span>
+                                </div>
+                            </td>
+                            <td>
+                                @{
+                                    var daysRemaining = (item.DeliveryDate - DateTime.Now).Days;
+                                    var dateClass = daysRemaining < 0 ? "text-danger" : (daysRemaining < 7 ? "text-warning" : "text-success");
+                                }
+                                <div class="@dateClass fw-medium">
+                                    <i class="bi bi-calendar3 me-1"></i> @item.DeliveryDate.ToString("dd MMM, yyyy")
+                                    <div class="small opacity-75">
+                                        @(daysRemaining < 0 ? "Overdue" : $"{daysRemaining} days left")
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @{
+                                    var status = item.Status ?? "Pending";
+                                    var badgeStyle = status switch
+                                    {
+                                        "Completed" => "background: rgba(28, 200, 138, 0.1); color: #1cc88a; border: 1px solid rgba(28, 200, 138, 0.2);",
+                                        "Shipped" => "background: rgba(78, 115, 223, 0.1); color: #4e73df; border: 1px solid rgba(78, 115, 223, 0.2);",
+                                        "In Production" => "background: rgba(246, 194, 62, 0.1); color: #f6c23e; border: 1px solid rgba(246, 194, 62, 0.2);",
+                                        "Pending" => "background: rgba(133, 135, 150, 0.1); color: #858796; border: 1px solid rgba(133, 135, 150, 0.2);",
+                                        "Approved" => "background: rgba(54, 185, 204, 0.1); color: #36b9cc; border: 1px solid rgba(54, 185, 204, 0.2);",
+                                        _ => "background: #f8f9fc; color: #5a5c69; border: 1px solid #e3e6f0;"
+                                    };
+                                }
+                                <span class="status-badge" style="@badgeStyle">
+                                    <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i> @status
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="action-icon action-edit" title="Edit">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="action-icon action-details" title="Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="action-icon action-delete" title="Delete">
+                                        <i class="bi bi-trash3"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                     }
+                </tbody>
+            </table>
+        </div>
 
-                    <span class="badge @badgeClass">
-                        @status
-                    </span>
-                </td>
-
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-edit">
-                        Edit
-                    </a>
-
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-details">
-                        Details
-                    </a>
-
-                    <a asp-action="Delete" asp-route-id="@item.Id"
-                           class="btn btn-sm btn-delete"
-                           onclick="return confirm('Are you sure?');">
-                        Delete
-                    </a>
-                </td>
-            </tr>
+        @if (!Model.Any())
+        {
+            <div class="p-5 text-center">
+                <i class="bi bi-box-seam text-muted display-1 opacity-25"></i>
+                <p class="mt-3 text-muted">No orders found.</p>
+            </div>
         }
-    </tbody>
-</table>
+    </div>
+</div>

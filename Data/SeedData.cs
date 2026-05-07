@@ -52,128 +52,142 @@ namespace LouietexERP.Data
 
         private static async Task SeedEmployeesAsync(ApplicationDbContext context)
         {
-            if (await context.Employees.AnyAsync()) return;
+            // Clear existing for fresh start as requested
+            var existing = await context.Employees.ToListAsync();
+            if (existing.Count >= 30) return; // Keep if already seeded with 30+
 
-            var employees = new List<Employee>
+            if (existing.Any())
             {
-                new() { FullName = "Md. Rafiqul Islam", Email = "rafiqul@louietex.com", Department = "Cutting", Role = "Supervisor", JoiningDate = new DateTime(2019, 3, 15) },
-                new() { FullName = "Fatema Akter", Email = "fatema@louietex.com", Department = "Sewing", Role = "Operator", JoiningDate = new DateTime(2020, 6, 1) },
-                new() { FullName = "Md. Karim Hossain", Email = "karim@louietex.com", Department = "Finishing", Role = "Supervisor", JoiningDate = new DateTime(2018, 11, 20) },
-                new() { FullName = "Sumaiya Begum", Email = "sumaiya@louietex.com", Department = "QC", Role = "QC Officer", JoiningDate = new DateTime(2021, 2, 10) },
-                new() { FullName = "Md. Jahangir Alam", Email = "jahangir@louietex.com", Department = "Sewing", Role = "Operator", JoiningDate = new DateTime(2022, 4, 5) },
-                new() { FullName = "Rehana Parvin", Email = "rehana@louietex.com", Department = "Embroidery", Role = "Operator", JoiningDate = new DateTime(2020, 9, 14) },
-                new() { FullName = "Md. Arif Billah", Email = "arif@louietex.com", Department = "Cutting", Role = "Operator", JoiningDate = new DateTime(2023, 1, 22) },
-                new() { FullName = "Nargis Sultana", Email = "nargis@louietex.com", Department = "Packing", Role = "Operator", JoiningDate = new DateTime(2021, 7, 30) },
-                new() { FullName = "Md. Shafiqul Haque", Email = "shafiq@louietex.com", Department = "Production", Role = "Manager", JoiningDate = new DateTime(2017, 5, 8) },
-                new() { FullName = "Sabina Yasmin", Email = "sabina@louietex.com", Department = "HR", Role = "HR Officer", JoiningDate = new DateTime(2019, 8, 19) },
-                new() { FullName = "Md. Robiul Awal", Email = "robiul@louietex.com", Department = "Sewing", Role = "Operator", JoiningDate = new DateTime(2022, 11, 3) },
-                new() { FullName = "Taslima Khanam", Email = "taslima@louietex.com", Department = "Finishing", Role = "Operator", JoiningDate = new DateTime(2020, 3, 27) },
-                new() { FullName = "Md. Nurul Islam", Email = "nurul@louietex.com", Department = "Merchandising", Role = "Merchandiser", JoiningDate = new DateTime(2018, 7, 12) },
-                new() { FullName = "Halima Khatun", Email = "halima@louietex.com", Department = "QC", Role = "QC Officer", JoiningDate = new DateTime(2021, 9, 6) },
-                new() { FullName = "Md. Zakir Hossain", Email = "zakir@louietex.com", Department = "Cutting", Role = "Helper", JoiningDate = new DateTime(2023, 3, 18) },
-                new() { FullName = "Roksana Akter", Email = "roksana@louietex.com", Department = "Sewing", Role = "Operator", JoiningDate = new DateTime(2022, 6, 25) },
-                new() { FullName = "Md. Anwar Hossain", Email = "anwar@louietex.com", Department = "Finishing", Role = "Helper", JoiningDate = new DateTime(2023, 5, 10) },
-                new() { FullName = "Jesmin Akter", Email = "jesmin@louietex.com", Department = "Packing", Role = "Supervisor", JoiningDate = new DateTime(2019, 12, 2) },
-                new() { FullName = "Md. Sohel Rana", Email = "sohel@louietex.com", Department = "Production", Role = "Line Chief", JoiningDate = new DateTime(2020, 1, 15) },
-                new() { FullName = "Champa Begum", Email = "champa@louietex.com", Department = "Embroidery", Role = "Supervisor", JoiningDate = new DateTime(2018, 4, 22) },
-                new() { FullName = "Md. Delwar Hossain", Email = "delwar@louietex.com", Department = "Sewing", Role = "Operator", JoiningDate = new DateTime(2024, 1, 8) },
-                new() { FullName = "Nasrin Begum", Email = "nasrin@louietex.com", Department = "QC", Role = "QC Inspector", JoiningDate = new DateTime(2022, 8, 17) },
-            };
+                context.Employees.RemoveRange(existing);
+                await context.SaveChangesAsync();
+            }
+
+            var employees = new List<Employee>();
+            var firstNames = new[] { "Md. Rafiqul", "Fatema", "Md. Karim", "Sumaiya", "Md. Jahangir", "Rehana", "Md. Arif", "Nargis", "Md. Shafiqul", "Sabina", "Md. Robiul", "Taslima", "Md. Nurul", "Halima", "Md. Zakir", "Roksana", "Md. Anwar", "Jesmin", "Md. Sohel", "Champa", "Md. Delwar", "Nasrin", "Abul", "Farhana", "Mizanur", "Lucky", "Shahidul", "Munmun", "Habibur", "Rozina", "Kamrul", "Shamima" };
+            var lastNames = new[] { "Islam", "Akter", "Hossain", "Begum", "Alam", "Parvin", "Billah", "Sultana", "Haque", "Yasmin", "Awal", "Khanam", "Khatun", "Rana", "Khan", "Ahmed", "Rahman" };
+            var departments = new[] { "Cutting", "Sewing", "Finishing", "QC", "HR", "Production", "Merchandising", "Packing", "Embroidery" };
+            var roles = new[] { "Operator", "Supervisor", "Manager", "QC Officer", "Helper", "Line Chief", "HR Officer", "Merchandiser" };
+
+            var random = new Random();
+            for (int i = 0; i < 35; i++)
+            {
+                var fName = firstNames[i % firstNames.Length];
+                var lName = lastNames[random.Next(lastNames.Length)];
+                var fullName = $"{fName} {lName}";
+                var email = $"{fName.ToLower().Replace(".", "").Replace(" ", "")}.{lName.ToLower()}@louietex.com";
+                
+                employees.Add(new Employee
+                {
+                    FullName = fullName,
+                    Email = email,
+                    Department = departments[random.Next(departments.Length)],
+                    Role = roles[random.Next(roles.Length)],
+                    JoiningDate = DateTime.Now.AddDays(-random.Next(30, 1500))
+                });
+            }
+
             await context.Employees.AddRangeAsync(employees);
             await context.SaveChangesAsync();
         }
 
         private static async Task SeedOrdersAsync(ApplicationDbContext context)
         {
-            if (await context.Orders.AnyAsync()) return;
+            // Clear existing for fresh start as requested
+            var existing = await context.Orders.ToListAsync();
+            if (existing.Count >= 30) return;
 
-            var now = DateTime.UtcNow;
-            var orders = new List<Order>
+            if (existing.Any())
             {
-                new() { BuyerName = "H&M", StyleCode = "HM-TS-2401", TotalQuantity = 5000, DeliveryDate = now.AddDays(30), Status = "Pending", CreatedAt = now.AddDays(-5) },
-                new() { BuyerName = "Zara", StyleCode = "ZR-PL-2402", TotalQuantity = 3200, DeliveryDate = now.AddDays(45), Status = "In Production", CreatedAt = now.AddDays(-20) },
-                new() { BuyerName = "Uniqlo", StyleCode = "UQ-JK-2403", TotalQuantity = 2000, DeliveryDate = now.AddDays(60), Status = "In Production", CreatedAt = now.AddDays(-30) },
-                new() { BuyerName = "GAP", StyleCode = "GAP-DN-2404", TotalQuantity = 4500, DeliveryDate = now.AddDays(-10), Status = "Completed", CreatedAt = now.AddDays(-60) },
-                new() { BuyerName = "Next", StyleCode = "NXT-SW-2405", TotalQuantity = 1800, DeliveryDate = now.AddDays(-5), Status = "Shipped", CreatedAt = now.AddDays(-50) },
-                new() { BuyerName = "H&M", StyleCode = "HM-HD-2406", TotalQuantity = 6000, DeliveryDate = now.AddDays(20), Status = "In Production", CreatedAt = now.AddDays(-15) },
-                new() { BuyerName = "Primark", StyleCode = "PRM-TRS-2407", TotalQuantity = 8000, DeliveryDate = now.AddDays(75), Status = "Pending", CreatedAt = now.AddDays(-3) },
-                new() { BuyerName = "Zara", StyleCode = "ZR-BZ-2408", TotalQuantity = 2500, DeliveryDate = now.AddDays(-20), Status = "Shipped", CreatedAt = now.AddDays(-70) },
-                new() { BuyerName = "M&S", StyleCode = "MS-SK-2409", TotalQuantity = 3000, DeliveryDate = now.AddDays(15), Status = "In Production", CreatedAt = now.AddDays(-25) },
-                new() { BuyerName = "GAP", StyleCode = "GAP-PL-2410", TotalQuantity = 3500, DeliveryDate = now.AddDays(-30), Status = "Completed", CreatedAt = now.AddDays(-80) },
-                new() { BuyerName = "Uniqlo", StyleCode = "UQ-FLC-2411", TotalQuantity = 4000, DeliveryDate = now.AddDays(50), Status = "Pending", CreatedAt = now.AddDays(-8) },
-                new() { BuyerName = "H&M", StyleCode = "HM-JN-2412", TotalQuantity = 5500, DeliveryDate = now.AddDays(-15), Status = "Completed", CreatedAt = now.AddDays(-90) },
-                new() { BuyerName = "Next", StyleCode = "NXT-CT-2413", TotalQuantity = 1500, DeliveryDate = now.AddDays(35), Status = "Pending", CreatedAt = now.AddDays(-2) },
-                new() { BuyerName = "Primark", StyleCode = "PRM-SH-2414", TotalQuantity = 7000, DeliveryDate = now.AddDays(-40), Status = "Shipped", CreatedAt = now.AddDays(-100) },
-                new() { BuyerName = "M&S", StyleCode = "MS-DS-2415", TotalQuantity = 2200, DeliveryDate = now.AddDays(28), Status = "In Production", CreatedAt = now.AddDays(-18) },
-                new() { BuyerName = "Zara", StyleCode = "ZR-TS-2416", TotalQuantity = 4800, DeliveryDate = now.AddDays(55), Status = "Pending", CreatedAt = now.AddDays(-4) },
-                new() { BuyerName = "GAP", StyleCode = "GAP-JK-2417", TotalQuantity = 2800, DeliveryDate = now.AddDays(-50), Status = "Shipped", CreatedAt = now.AddDays(-110) },
-                new() { BuyerName = "H&M", StyleCode = "HM-SW-2418", TotalQuantity = 3800, DeliveryDate = now.AddDays(40), Status = "In Production", CreatedAt = now.AddDays(-22) },
-                new() { BuyerName = "Uniqlo", StyleCode = "UQ-TRS-2419", TotalQuantity = 6500, DeliveryDate = now.AddDays(-60), Status = "Completed", CreatedAt = now.AddDays(-120) },
-                new() { BuyerName = "Next", StyleCode = "NXT-BZ-2420", TotalQuantity = 1200, DeliveryDate = now.AddDays(70), Status = "Pending", CreatedAt = now.AddDays(-1) },
-                new() { BuyerName = "Primark", StyleCode = "PRM-JN-2421", TotalQuantity = 9000, DeliveryDate = now.AddDays(-35), Status = "Shipped", CreatedAt = now.AddDays(-95) },
-                new() { BuyerName = "M&S", StyleCode = "MS-PL-2422", TotalQuantity = 2600, DeliveryDate = now.AddDays(22), Status = "In Production", CreatedAt = now.AddDays(-12) },
-            };
+                context.Orders.RemoveRange(existing);
+                await context.SaveChangesAsync();
+            }
+
+            var buyers = new[] { "H&M", "Zara", "Uniqlo", "GAP", "Next", "Primark", "M&S", "Levis", "Adidas", "Nike", "Puma" };
+            var categories = new[] { "TS", "PL", "JK", "DN", "SW", "HD", "TRS", "BZ", "SK", "FLC", "JN", "CT", "SH", "DS" };
+            var statuses = new[] { "Pending", "In Production", "In Production", "Shipped", "Completed", "Approved" };
+
+            var random = new Random();
+            var now = DateTime.UtcNow;
+            var orders = new List<Order>();
+
+            for (int i = 0; i < 35; i++)
+            {
+                var buyer = buyers[random.Next(buyers.Length)];
+                var cat = categories[random.Next(categories.Length)];
+                var year = 24;
+                var code = i + 1;
+                var styleCode = $"{buyer.Substring(0, 2).ToUpper()}-{cat}-{year}{code:D2}";
+                var status = statuses[random.Next(statuses.Length)];
+                
+                orders.Add(new Order
+                {
+                    BuyerName = buyer,
+                    StyleCode = styleCode,
+                    TotalQuantity = random.Next(1, 10) * 1000,
+                    DeliveryDate = now.AddDays(random.Next(-30, 90)),
+                    Status = status,
+                    CreatedAt = now.AddDays(-random.Next(5, 120))
+                });
+            }
+
             await context.Orders.AddRangeAsync(orders);
             await context.SaveChangesAsync();
         }
 
-        private static async Task SeedProductionsAsync(ApplicationDbContext context)
+            private static async Task SeedProductionsAsync(ApplicationDbContext context)
         {
-            if (await context.Productions.AnyAsync()) return;
+            // Always refresh productions if we refreshed orders
+            var existing = await context.Productions.ToListAsync();
+            if (existing.Any())
+            {
+                context.Productions.RemoveRange(existing);
+                await context.SaveChangesAsync();
+            }
 
             var orders = await context.Orders.ToListAsync();
             if (!orders.Any()) return;
 
-            var now = DateTime.UtcNow;
+            var employees = await context.Employees.Where(e => e.Role == "Supervisor" || e.Role == "Manager" || e.Role == "Line Chief").ToListAsync();
+            var supervisorNames = employees.Select(e => e.FullName).ToList();
+            if (!supervisorNames.Any()) supervisorNames.Add("Md. Shafiqul Haque");
 
-            Production Prod(Order o, string line, string supervisor, int target, int actual, string status, int? daysAgo = null, int? daysAhead = null)
+            var now = DateTime.UtcNow;
+            var random = new Random();
+            var prods = new List<Production>();
+
+            foreach (var order in orders.Take(25))
             {
-                var start = now.AddDays(-(daysAgo ?? 20));
-                var end = status == "Completed" ? start.AddDays(daysAhead ?? 15) : (DateTime?)null;
-                return new Production
+                var line = $"Line-{random.Next(1, 10):D2}";
+                var supervisor = supervisorNames[random.Next(supervisorNames.Count)];
+                var target = order.TotalQuantity / 2;
+                var status = order.Status == "Completed" ? "Completed" : (order.Status == "Shipped" ? "Completed" : "Running");
+                var actual = status == "Completed" ? target : (int)(target * random.NextDouble());
+                
+                var start = order.CreatedAt.AddDays(2);
+                var end = status == "Completed" ? start.AddDays(random.Next(10, 30)) : (DateTime?)null;
+
+                prods.Add(new Production
                 {
-                    OrderId = o.Id, LineNumber = line, Supervisor = supervisor,
-                    TargetQuantity = target, ActualOutput = actual,
-                    DefectCount = actual > 0 ? (int)(actual * 0.02) : 0,
-                    StartDate = start, EndDate = end, Status = status,
-                    CreatedAt = start, UpdatedAt = now
-                };
+                    OrderId = order.Id,
+                    LineNumber = line,
+                    Supervisor = supervisor,
+                    TargetQuantity = target,
+                    ActualOutput = actual,
+                    DefectCount = (int)(actual * 0.015),
+                    StartDate = start,
+                    EndDate = end,
+                    Status = status,
+                    CreatedAt = start,
+                    UpdatedAt = now
+                });
             }
 
-            Order OAt(int i) => orders[Math.Min(i, orders.Count - 1)];
-
-            var prods = new List<Production>
-            {
-                Prod(OAt(1),  "Line-01", "Md. Shafiqul Haque", 3200, 2800, "Running",    20),
-                Prod(OAt(2),  "Line-02", "Md. Sohel Rana",     2000, 1400, "Running",    25),
-                Prod(OAt(5),  "Line-03", "Md. Rafiqul Islam",  6000, 5800, "Completed",  50, 20),
-                Prod(OAt(3),  "Line-01", "Md. Shafiqul Haque", 4500, 4500, "Completed",  65, 25),
-                Prod(OAt(4),  "Line-02", "Md. Sohel Rana",     1800, 1800, "Completed",  55, 18),
-                Prod(OAt(7),  "Line-04", "Md. Rafiqul Islam",  2500, 2500, "Completed",  75, 22),
-                Prod(OAt(8),  "Line-03", "Md. Shafiqul Haque", 3000, 2600, "Running",    18),
-                Prod(OAt(9),  "Line-05", "Champa Begum",       3500, 3500, "Completed",  85, 30),
-                Prod(OAt(11), "Line-04", "Md. Sohel Rana",     5500, 5500, "Completed",  95, 35),
-                Prod(OAt(12), "Line-02", "Md. Rafiqul Islam",  1500, 1200, "Running",    6), // Recent
-                Prod(OAt(14), "Line-01", "Md. Shafiqul Haque", 7000, 7000, "Completed", 105, 40),
-                Prod(OAt(15), "Line-05", "Md. Sohel Rana",     2200, 1800, "Running",    5), // Recent
-                Prod(OAt(17), "Line-03", "Champa Begum",       2800, 2800, "Completed", 115, 42),
-                Prod(OAt(17), "Line-06", "Md. Rafiqul Islam",  3800, 3100, "Running",    4), // Recent
-                Prod(OAt(18), "Line-04", "Md. Shafiqul Haque", 6500, 6500, "Completed", 125, 45),
-                Prod(OAt(20), "Line-02", "Md. Sohel Rana",     9000, 9000, "Completed", 100, 38),
-                Prod(OAt(21), "Line-05", "Champa Begum",       2600, 2400, "Running",    3), // Recent
-                Prod(OAt(0),  "Line-06", "Md. Rafiqul Islam",  5000, 4200, "Running",    2), // Recent
-                Prod(OAt(6),  "Line-01", "Md. Shafiqul Haque", 8000, 3500, "Running",    1), // Recent
-                Prod(OAt(10), "Line-07", "Md. Sohel Rana",     4000, 0,    "Pending",     3),
-                Prod(OAt(13), "Line-03", "Champa Begum",       1200, 0,    "Pending",     1),
-                Prod(OAt(19), "Line-07", "Md. Rafiqul Islam",  1200, 0,    "Delayed",     8),
-            };
             await context.Productions.AddRangeAsync(prods);
             await context.SaveChangesAsync();
         }
 
         private static async Task SeedQCAsync(ApplicationDbContext context)
         {
-            // Clear existing for a clean refresh as requested
             var existing = await context.QCInspections.ToListAsync();
             if (existing.Any())
             {
@@ -181,47 +195,22 @@ namespace LouietexERP.Data
                 await context.SaveChangesAsync();
             }
 
-            var productions = await context.Productions
-                .Where(p => p.Status == "Completed" || p.Status == "Running")
-                .ToListAsync();
+            var productions = await context.Productions.ToListAsync();
             if (!productions.Any()) return;
 
+            var qcOfficers = await context.Employees.Where(e => e.Role == "QC Officer" || e.Role == "QC Inspector").ToListAsync();
+            var inspectorNames = qcOfficers.Select(e => e.FullName).ToList();
+            if (!inspectorNames.Any()) inspectorNames.AddRange(new[] { "Abdul Karim", "Mohammad Rafiq", "Suraiya Begum" });
+
             var now = DateTime.UtcNow;
-            var bengaliNames = new[] { 
-                "Abdul Karim", "Mohammad Rafiq", "Suraiya Begum", "Zahidul Islam", "Fatema Akter",
-                "Abul Hasan", "Nazmul Haque", "Rehana Sultana", "Kamrul Hasan", "Shamima Nasrin",
-                "Ariful Islam", "Taslima Begum", "Zahirul Alam", "Salma Akter", "Shahadat Hossain",
-                "Morshed Alam", "Rasheda Begum", "Anwar Hossain", "Nasrin Akter", "Shafiqul Islam",
-                "Parvin Akter", "Rozina Begum", "Jahangir Alam", "Rubi Akter", "Mizanur Rahman",
-                "Shahidul Islam", "Lucky Akter", "Ahmed Ali", "Munmun Begum", "Habibur Rahman"
-            };
-
-            QCInspection QC(Production p, int defects, string status, string remarks, int daysAgo, string inspector)
-            {
-                var date = now.AddDays(-daysAgo);
-                return new QCInspection
-                {
-                    ProductionId = p.Id,
-                    InspectorName = inspector,
-                    DefectCount = defects,
-                    QCStatus = status,
-                    Remarks = remarks,
-                    InspectionDate = date,
-                    CreatedAt = date,
-                    UpdatedAt = date
-                };
-            }
-
             var random = new Random();
             var qcRecords = new List<QCInspection>();
 
-            // Generate 30+ records
-            for (int i = 0; i < 35; i++)
+            for (int i = 0; i < 40; i++)
             {
                 var prod = productions[random.Next(productions.Count)];
-                var inspector = bengaliNames[i % bengaliNames.Length];
+                var inspector = inspectorNames[random.Next(inspectorNames.Count)];
                 
-                // Randomize results
                 int defectProb = random.Next(100);
                 string status = "Passed";
                 int defects = 0;
@@ -240,7 +229,18 @@ namespace LouietexERP.Data
                     remarks = "QC passed. General quality standard maintained.";
                 }
 
-                qcRecords.Add(QC(prod, defects, status, remarks, random.Next(1, 90), inspector));
+                var date = prod.CreatedAt.AddDays(random.Next(1, 10));
+                qcRecords.Add(new QCInspection
+                {
+                    ProductionId = prod.Id,
+                    InspectorName = inspector,
+                    DefectCount = defects,
+                    QCStatus = status,
+                    Remarks = remarks,
+                    InspectionDate = date,
+                    CreatedAt = date,
+                    UpdatedAt = date
+                });
             }
 
             await context.QCInspections.AddRangeAsync(qcRecords);

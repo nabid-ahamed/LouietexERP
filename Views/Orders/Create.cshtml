@@ -1,89 +1,90 @@
-﻿@model LouietexERP.Models.Order
+@model LouietexERP.Models.Order
 
 @{
     ViewData["Title"] = "Create Order";
 }
 
-<div class="container mt-5">
-    <div class="card shadow-lg border-0 rounded-4">
-
-        <!-- Header -->
-        <div class="card-header bg-dark text-white rounded-top-4 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Create New Order</h4>
+<div class="fade-in-up container" style="max-width: 900px;">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Create New Order</h2>
+            <p class="text-muted small mb-0">Register a new buyer order and set delivery milestones</p>
         </div>
+    </div>
 
-        <!-- Body -->
-        <div class="card-body p-4">
+    <div class="erp-card p-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
 
-            <form asp-action="Create">
-
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                <div class="row g-3">
-
-                    <!-- Buyer -->
-                    <div class="col-md-6">
-                        <label asp-for="BuyerName" class="form-label fw-semibold"></label>
-                        <input asp-for="BuyerName" class="form-control form-control-lg" placeholder="Enter buyer name" />
-                        <span asp-validation-for="BuyerName" class="text-danger"></span>
+            <div class="row g-4">
+                <!-- Buyer Name -->
+                <div class="col-md-12">
+                    <label asp-for="BuyerName" class="form-label fw-bold text-dark"></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-briefcase"></i></span>
+                        <input asp-for="BuyerName" class="form-control premium-input border-start-0" placeholder="e.g. H&M, Zara, Uniqlo" />
                     </div>
-
-                    <!-- Style Code -->
-                    <div class="col-md-6">
-                        <label asp-for="StyleCode" class="form-label fw-semibold"></label>
-                        <input asp-for="StyleCode" class="form-control form-control-lg" placeholder="Enter style/item code" />
-                        <span asp-validation-for="StyleCode" class="text-danger"></span>
-                    </div>
-
-                    <!-- Quantity -->
-                    <div class="col-md-6">
-                        <label asp-for="TotalQuantity" class="form-label fw-semibold"></label>
-                        <input asp-for="TotalQuantity" class="form-control form-control-lg" placeholder="Enter quantity" />
-                        <span asp-validation-for="TotalQuantity" class="text-danger"></span>
-                    </div>
-
-                    <!-- Delivery Date -->
-                    <div class="col-md-6">
-                        <label asp-for="DeliveryDate" class="form-label fw-semibold"></label>
-                        <input asp-for="DeliveryDate" type="date" class="form-control form-control-lg" />
-                        <span asp-validation-for="DeliveryDate" class="text-danger"></span>
-                    </div>
-
-                    <!-- Status -->
-                    <div class="col-md-6">
-                        <label asp-for="Status" class="form-label fw-semibold"></label>
-                        <select asp-for="Status" class="form-select form-select-lg">
-                            <option value="">Select Status</option>
-                            <option>Pending</option>
-                            <option>Approved</option>
-                            <option>In Production</option>
-                            <option>Completed</option>
-                            <option>Delivered</option>
-                            <option>Cancelled</option>
-                        </select>
-                        <span asp-validation-for="Status" class="text-danger"></span>
-                    </div>
-
+                    <span asp-validation-for="BuyerName" class="text-danger small"></span>
                 </div>
 
-                <!-- Buttons -->
-                <div class="mt-4 d-flex justify-content-end">
-                    <a asp-action="Index" class="btn btn-outline-secondary me-2 px-4">
-                        Back
-                    </a>
-                    <button type="submit" class="btn btn-primary px-4">
-                        Create Order
-                    </button>
+                <!-- Style Code -->
+                <div class="col-md-6">
+                    <label asp-for="StyleCode" class="form-label fw-bold text-dark"></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-qr-code"></i></span>
+                        <input asp-for="StyleCode" class="form-control premium-input border-start-0" placeholder="e.g. TS-2024-BLK" />
+                    </div>
+                    <span asp-validation-for="StyleCode" class="text-danger small"></span>
                 </div>
 
-            </form>
+                <!-- Total Quantity -->
+                <div class="col-md-6">
+                    <label asp-for="TotalQuantity" class="form-label fw-bold text-dark"></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-hash"></i></span>
+                        <input asp-for="TotalQuantity" type="number" class="form-control premium-input border-start-0" placeholder="Enter quantity" />
+                    </div>
+                    <span asp-validation-for="TotalQuantity" class="text-danger small"></span>
+                </div>
 
-        </div>
+                <!-- Delivery Date -->
+                <div class="col-md-6">
+                    <label asp-for="DeliveryDate" class="form-label fw-bold text-dark"></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-check"></i></span>
+                        <input asp-for="DeliveryDate" type="date" class="form-control premium-input border-start-0" />
+                    </div>
+                    <span asp-validation-for="DeliveryDate" class="text-danger small"></span>
+                </div>
+
+                <!-- Order Status -->
+                <div class="col-md-6">
+                    <label asp-for="Status" class="form-label fw-bold text-dark"></label>
+                    <select asp-for="Status" class="form-select premium-input">
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="In Production">In Production</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mt-5 d-flex gap-3">
+                <button type="submit" class="btn-premium btn-premium-primary flex-grow-1 justify-content-center py-3">
+                    <i class="bi bi-cart-plus"></i> Finalize and Create Order
+                </button>
+                <a asp-action="Index" class="btn btn-light px-4 border py-3 rounded-3 fw-bold">Discard</a>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

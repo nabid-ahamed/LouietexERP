@@ -1,52 +1,116 @@
-﻿@model LouietexERP.Models.Order
+@model LouietexERP.Models.Order
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Order";
 }
 
-<h1>Edit</h1>
+<div class="fade-in-up container" style="max-width: 900px;">
+    <!-- Header -->
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Modify Order Details</h2>
+            <p class="text-muted small mb-0">Update buyer specifications, quantities, and delivery milestones</p>
+        </div>
+    </div>
 
-<h4>Order</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+    <div class="erp-card p-4">
         <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="BuyerName" class="control-label"></label>
-                <input asp-for="BuyerName" class="form-control" />
-                <span asp-validation-for="BuyerName" class="text-danger"></span>
+
+            <div class="row g-4">
+                <!-- Order Identity Summary -->
+                <div class="col-md-12">
+                    <div class="d-flex align-items-center bg-light rounded-4 p-3 mb-2 border border-white">
+                        <div class="action-icon bg-primary text-white me-3" style="width: 50px; height: 50px; border-radius: 12px;">
+                            <i class="bi bi-box-seam fs-4"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 1px;">CURRENT ORDER</div>
+                            <div class="h5 fw-bold text-dark mb-0">@Model.BuyerName <span class="text-primary mx-2">|</span> @Model.StyleCode</div>
+                        </div>
+                        <div class="ms-auto text-end">
+                            <div class="text-muted small">Tracking ID</div>
+                            <div class="fw-bold text-dark">#ORD-@Model.Id.ToString("D5")</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buyer Name -->
+                <div class="col-md-12">
+                    <label asp-for="BuyerName" class="form-label fw-bold text-dark">Buyer Name</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-briefcase"></i></span>
+                        <input asp-for="BuyerName" class="form-control premium-input border-start-0" placeholder="Update buyer name" />
+                    </div>
+                    <span asp-validation-for="BuyerName" class="text-danger small"></span>
+                </div>
+
+                <!-- Style Code -->
+                <div class="col-md-6">
+                    <label asp-for="StyleCode" class="form-label fw-bold text-dark">Style / Item Code</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-qr-code"></i></span>
+                        <input asp-for="StyleCode" class="form-control premium-input border-start-0" placeholder="Update style code" />
+                    </div>
+                    <span asp-validation-for="StyleCode" class="text-danger small"></span>
+                </div>
+
+                <!-- Total Quantity -->
+                <div class="col-md-6">
+                    <label asp-for="TotalQuantity" class="form-label fw-bold text-dark">Order Quantity (pcs)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-hash"></i></span>
+                        <input asp-for="TotalQuantity" type="number" class="form-control premium-input border-start-0" placeholder="Update quantity" />
+                    </div>
+                    <span asp-validation-for="TotalQuantity" class="text-danger small"></span>
+                </div>
+
+                <!-- Delivery Date -->
+                <div class="col-md-6">
+                    <label asp-for="DeliveryDate" class="form-label fw-bold text-dark">Final Delivery Date</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-event"></i></span>
+                        <input asp-for="DeliveryDate" type="date" class="form-control premium-input border-start-0" />
+                    </div>
+                    <span asp-validation-for="DeliveryDate" class="text-danger small"></span>
+                </div>
+
+                <!-- Order Status -->
+                <div class="col-md-6">
+                    <label asp-for="Status" class="form-label fw-bold text-dark">Current Logistics Status</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-arrow-repeat"></i></span>
+                        <select asp-for="Status" class="form-select premium-input border-start-0">
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="In Production">In Production</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="Status" class="text-danger small"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="StyleCode" class="control-label"></label>
-                <input asp-for="StyleCode" class="form-control" />
-                <span asp-validation-for="StyleCode" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TotalQuantity" class="control-label"></label>
-                <input asp-for="TotalQuantity" class="form-control" />
-                <span asp-validation-for="TotalQuantity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DeliveryDate" class="control-label"></label>
-                <input asp-for="DeliveryDate" class="form-control" />
-                <span asp-validation-for="DeliveryDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <div class="mt-5 d-flex gap-3">
+                <button type="submit" class="btn-premium btn-premium-primary flex-grow-1 justify-content-center py-3 shadow-sm">
+                    <i class="bi bi-check-circle-fill"></i> Save Order Changes
+                </button>
+                <a asp-action="Index" class="btn btn-light px-4 border py-3 rounded-3 fw-bold text-muted">Discard</a>
             </div>
         </form>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+    <div class="mt-4 text-center">
+        <p class="text-muted small">
+            <i class="bi bi-info-circle-fill me-1"></i> Changing the status to <strong>'Completed'</strong> will archive this order from active production reports.
+        </p>
+    </div>
 </div>
 
 @section Scripts {

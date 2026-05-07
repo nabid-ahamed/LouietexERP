@@ -146,6 +146,171 @@ body {
     transition: 0.2s;
 }
 
+ /* ==========================================================================
+   PREMIUM ERP DESIGN SYSTEM
+   ========================================================================== */
+
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --premium-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --primary-gradient: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    --success-gradient: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+    --danger-gradient: linear-gradient(135deg, #e74a3b 0%, #be2617 100%);
+    --info-gradient: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
+}
+
+/* Glassmorphism Cards */
+.erp-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--premium-shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.erp-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+.erp-card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    background: rgba(255,255,255,0.4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Premium Tables */
+.erp-table-container {
+    background: white;
+    border-radius: 12px;
+    padding: 0;
+    margin-top: 1.5rem;
+}
+
+.erp-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.erp-table th {
+    background: #f8f9fc;
+    color: #4e73df;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    padding: 1.2rem 1.5rem;
+    border-bottom: 2px solid #e3e6f0;
+}
+
+.erp-table td {
+    padding: 1.2rem 1.5rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f1f1;
+    color: #5a5c69;
+    font-size: 0.9rem;
+}
+
+.erp-table tr:last-child td {
+    border-bottom: none;
+}
+
+.erp-table tr:hover td {
+    background: #fdfdff;
+}
+
+/* Custom Buttons */
+.btn-premium {
+    padding: 0.6rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-premium-primary {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.btn-premium-primary:hover {
+    background: linear-gradient(135deg, #224abe 0%, #4e73df 100%);
+    box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4);
+    color: white;
+}
+
+.btn-premium-danger {
+    background: var(--danger-gradient);
+    color: white;
+}
+
+.btn-premium-danger:hover {
+    box-shadow: 0 4px 15px rgba(231, 74, 59, 0.4);
+    color: white;
+}
+
+/* Action Icons */
+.action-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    text-decoration: none !important;
+}
+
+.action-edit { color: #4e73df; background: rgba(78, 115, 223, 0.1); }
+.action-edit:hover { background: #4e73df; color: white; }
+
+.action-details { color: #36b9cc; background: rgba(54, 185, 204, 0.1); }
+.action-details:hover { background: #36b9cc; color: white; }
+
+.action-delete { color: #e74a3b; background: rgba(231, 74, 59, 0.1); }
+.action-delete:hover { background: #e74a3b; color: white; }
+
+/* Status Badges */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+/* Form Styling */
+.premium-input {
+    border: 1px solid #d1d3e2;
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.premium-input:focus {
+    border-color: #bac8f3;
+    box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in-up {
+    animation: fadeIn 0.5s ease forwards;
+}
     .custom-input:focus {
         border-color: #00a8e8;
         box-shadow: 0 0 0 0.2rem rgba(0,168,232,0.2);

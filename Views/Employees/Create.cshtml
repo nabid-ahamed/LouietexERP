@@ -1,96 +1,91 @@
-﻿@model LouietexERP.Models.Employee
+@model LouietexERP.Models.Employee
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Add Employee";
 }
 
-<h1>Create</h1>
-
-<h4>Employee</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <div class="employee-container">
-            <div class="employee-container-wide">
-
-                <h2>Create Employee</h2>
-                <p class="text-muted mb-4">Add new employee information</p>
-
-                <form method="post">
-
-                    <div class="row">
-
-                        <!-- LEFT SIDE -->
-                        <div class="col-md-6">
-
-                            <div class="mb-3">
-                                <label>Full Name</label>
-                                <input asp-for="FullName" class="form-control custom-input" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label>Department</label>
-                                <select asp-for="Department" class="form-control custom-input">
-                                    <option>Select Department</option>
-                                    <option>HR</option>
-                                    <option>QC</option>
-                                    <option>Production</option>
-                                    <option>Accounts</option>
-                                    <option>Sales</option>
-                                    <option>IT</option>
-                                </select>
-                            </div>
-
-                        </div>
-
-                        <!-- RIGHT SIDE -->
-                        <div class="col-md-6">
-
-                            <div class="mb-3">
-                                <label>Email</label>
-                                <input asp-for="Email" class="form-control custom-input" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label>Role</label>
-                                <select asp-for="Role" class="form-control custom-input">
-                                    <option>Select Role</option>
-                                    <option>Admin</option>
-                                    <option>Manager</option>
-                                    <option>Employee</option>
-                                </select>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- FULL WIDTH FIELD -->
-                    <div class="mb-3">
-                        <label>Joining Date</label>
-                        <input asp-for="JoiningDate" type="date" class="form-control custom-input" />
-                    </div>
-
-                    <!-- SUBMIT BUTTON CENTER -->
-                    <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-primary px-5 py-2">
-                            Create Employee
-                        </button>
-                    </div>
-
-                    <div class="text-center mt-3">
-                        <a asp-action="Index">Back to List</a>
-                    </div>
-
-                </form>
-
-            </div>
+<div class="fade-in-up container" style="max-width: 800px;">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Add New Employee</h2>
+            <p class="text-muted small mb-0">Fill in the details to register a new factory staff member</p>
         </div>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+    <div class="erp-card p-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+
+            <div class="row g-4">
+                <div class="col-md-12">
+                    <label asp-for="FullName" class="form-label fw-bold text-dark"></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-person"></i></span>
+                        <input asp-for="FullName" class="form-control premium-input border-start-0" placeholder="e.g. Mohammad Rafiq" />
+                    </div>
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label fw-bold text-dark"></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
+                        <input asp-for="Email" class="form-control premium-input border-start-0" placeholder="email@louietex.com" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="JoiningDate" class="form-label fw-bold text-dark"></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-event"></i></span>
+                        <input asp-for="JoiningDate" type="date" class="form-control premium-input border-start-0" />
+                    </div>
+                    <span asp-validation-for="JoiningDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Department" class="form-label fw-bold text-dark"></label>
+                    <select asp-for="Department" class="form-select premium-input">
+                        <option value="">Select Department</option>
+                        <option>Cutting</option>
+                        <option>Sewing</option>
+                        <option>Finishing</option>
+                        <option>QC</option>
+                        <option>HR</option>
+                        <option>Production</option>
+                        <option>Merchandising</option>
+                        <option>Packing</option>
+                    </select>
+                    <span asp-validation-for="Department" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Role" class="form-label fw-bold text-dark"></label>
+                    <select asp-for="Role" class="form-select premium-input">
+                        <option value="">Select Role</option>
+                        <option>Operator</option>
+                        <option>Supervisor</option>
+                        <option>Manager</option>
+                        <option>QC Officer</option>
+                        <option>Helper</option>
+                        <option>Line Chief</option>
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mt-5 d-flex gap-3">
+                <button type="submit" class="btn-premium btn-premium-primary flex-grow-1 justify-content-center py-3">
+                    <i class="bi bi-check2-circle"></i> Save Employee Profile
+                </button>
+                <a asp-action="Index" class="btn btn-light px-4 border py-3 rounded-3 fw-bold">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section Scripts {

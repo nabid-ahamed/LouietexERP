@@ -1,76 +1,148 @@
-﻿@model LouietexERP.Models.Order
+@model LouietexERP.Models.Order
 
 @{
     ViewData["Title"] = "Order Details";
+    var status = Model.Status ?? "Pending";
+    var progress = status switch
+    {
+        "Pending" => 10,
+        "Approved" => 30,
+        "In Production" => 60,
+        "Shipped" => 90,
+        "Completed" => 100,
+        "Cancelled" => 0,
+        _ => 5
+    };
 }
 
-<div class="container mt-5">
-    <div class="card shadow-lg border-0 rounded-4">
-
-        <!-- Header -->
-        <div class="card-header bg-dark text-white rounded-top-4 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Order Details</h4>
+<div class="fade-in-up container" style="max-width: 1000px;">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Orders</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Details</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold text-dark mb-0">Order Tracking</h2>
         </div>
-
-        <!-- Body -->
-        <div class="card-body p-4">
-
-            <div class="row mb-3">
-                <div class="col-md-4 fw-semibold text-muted">Buyer Name</div>
-                <div class="col-md-8">@Model.BuyerName</div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-4 fw-semibold text-muted">Style / Item Code</div>
-                <div class="col-md-8">@Model.StyleCode</div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-4 fw-semibold text-muted">Total Quantity</div>
-                <div class="col-md-8">
-                    <span class="badge bg-info text-dark fs-6 px-3 py-2">
-                        @Model.TotalQuantity
-                    </span>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-4 fw-semibold text-muted">Delivery Date</div>
-                <div class="col-md-8">
-                    @Model.DeliveryDate.ToString("dd-MMM-yyyy")
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-4 fw-semibold text-muted">Order Status</div>
-                <div class="col-md-8">
-                    @{
-                        var status = Model.Status ?? "Pending";
-                        var badgeClass = status == "Completed" ? "bg-success" :
-                                         status == "Approved" ? "bg-primary" :
-                                         status == "In Production" ? "bg-warning text-dark" :
-                                         status == "Delivered" ? "bg-success" :
-                                         status == "Cancelled" ? "bg-danger" :
-                                         "bg-secondary";
-                    }
-
-                    <span class="badge @badgeClass fs-6 px-3 py-2">
-                        @status
-                    </span>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Footer -->
-        <div class="card-footer bg-light d-flex justify-content-end">
-            <a asp-action="Index" class="btn btn-outline-secondary me-2">
-                Back
+        <div class="d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary px-4 rounded-3 fw-bold">
+                <i class="bi bi-pencil-square me-2"></i>Edit Order
             </a>
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
-                Edit
+            <a asp-action="Index" class="btn btn-light px-4 border rounded-3 fw-bold text-muted">
+                <i class="bi bi-arrow-left me-2"></i>Back to List
             </a>
         </div>
-
     </div>
-</div>
+
+    <div class="row g-4">
+        <!-- Main Info Card -->
+        <div class="col-lg-8">
+            <div class="erp-card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <span class="text-muted small uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 1px;">ORDER ID: #ORD-@Model.Id.ToString("D5")</span>
+                        <h3 class="fw-bold text-dark mb-0">@Model.BuyerName</h3>
+                        <p class="text-primary fw-bold mb-0">@Model.StyleCode</p>
+                    </div>
+                    @{
+                        var badgeStyle = status switch
+                        {
+                            "Completed" => "background: rgba(28, 200, 138, 0.1); color: #1cc88a; border: 1px solid rgba(28, 200, 138, 0.2);",
+                            "Shipped" => "background: rgba(78, 115, 223, 0.1); color: #4e73df; border: 1px solid rgba(78, 115, 223, 0.2);",
+                            "In Production" => "background: rgba(246, 194, 62, 0.1); color: #f6c23e; border: 1px solid rgba(246, 194, 62, 0.2);",
+                            "Pending" => "background: rgba(133, 135, 150, 0.1); color: #858796; border: 1px solid rgba(133, 135, 150, 0.2);",
+                            "Approved" => "background: rgba(54, 185, 204, 0.1); color: #36b9cc; border: 1px solid rgba(54, 185, 204, 0.2);",
+                            _ => "background: #f8f9fc; color: #5a5c69; border: 1px solid #e3e6f0;"
+                        };
+                    }
+                    <span class="status-badge px-4 py-2 fs-6" style="@badgeStyle">
+                        <i class="bi bi-circle-fill me-2" style="font-size: 0.6rem;"></i> @status
+                    </span>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold text-dark small">Production Progress</span>
+                        <span class="fw-bold text-primary small">@progress%</span>
+                    </div>
+                    <div class="progress" style="height: 10px; border-radius: 5px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated @(status == "Cancelled" ? "bg-danger" : (status == "Completed" ? "bg-success" : "bg-primary"))" 
+                             role="progressbar" style="width: @progress%" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="bg-light rounded-3 p-3">
+                            <div class="text-muted small mb-1">Total Quantity</div>
+                            <div class="h5 fw-bold mb-0 text-dark">@Model.TotalQuantity.ToString("N0") <small class="text-muted">pcs</small></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-light rounded-3 p-3">
+                            <div class="text-muted small mb-1">Delivery Date</div>
+                            <div class="h5 fw-bold mb-0 text-dark">@Model.DeliveryDate.ToString("dd MMM, yyyy")</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-light rounded-3 p-3">
+                            <div class="text-muted small mb-1">Created At</div>
+                            <div class="h5 fw-bold mb-0 text-dark">@Model.CreatedAt.ToString("dd MMM, yyyy")</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="erp-card p-4">
+                <h5 class="fw-bold text-dark mb-3">Order Description & Specs</h5>
+                <p class="text-muted">Standard export quality production for @Model.BuyerName. Style @Model.StyleCode includes comprehensive QC requirements and specific stitching standards as per buyer manual.</p>
+                
+                <div class="alert alert-info border-0 rounded-3 d-flex align-items-center mb-0">
+                    <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                    <div>
+                        <strong>Production Note:</strong> This order is currently in the @status phase. Ensure all materials are staged 48 hours before production starts.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar / Actions -->
+        <div class="col-lg-4">
+            <div class="erp-card p-4 mb-4">
+                <h5 class="fw-bold text-dark mb-4">Actions</h5>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary py-2 rounded-3 fw-bold"><i class="bi bi-printer me-2"></i>Print Work Order</button>
+                    <button class="btn btn-outline-secondary py-2 rounded-3 fw-bold"><i class="bi bi-download me-2"></i>Download Invoice</button>
+                    <hr class="my-3 opacity-10">
+                    <button class="btn btn-light py-2 rounded-3 fw-bold text-danger border"><i class="bi bi-x-circle me-2"></i>Cancel Order</button>
+                </div>
+            </div>
+
+            <div class="erp-card p-4">
+                <h5 class="fw-bold text-dark mb-3">Recent Activity</h5>
+                <div class="timeline small">
+                    <div class="d-flex gap-3 mb-3">
+                        <div class="text-primary"><i class="bi bi-check-circle-fill"></i></div>
+                        <div>
+                            <div class="fw-bold text-dark">Order Created</div>
+                            <div class="text-muted">@Model.CreatedAt.ToString("dd MMM, hh:mm tt")</div>
+                        </div>
+                    </div>
+                    @if (status != "Pending")
+                    {
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="text-success"><i class="bi bi-check-circle-fill"></i></div>
+                            <div>
+                                <div class="fw-bold text-dark">Status Changed to @status</div>
+                                <div class="text-muted">@DateTime.Now.AddDays(-1).ToString("dd MMM, hh:mm tt")</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
