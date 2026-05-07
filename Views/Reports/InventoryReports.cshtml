@@ -1,0 +1,106 @@
+@model IEnumerable<LouietexERP.Models.Inventory>
+@{
+    ViewData["Title"] = "Inventory Analytics";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex align-items-center mb-4">
+        <a href="/Reports/Index" class="btn btn-light rounded-circle p-3 me-3 shadow-sm border"><i class="bi bi-arrow-left fs-5"></i></a>
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Inventory Analytics</h2>
+            <p class="text-muted mb-0">Stock health, low stock analysis, and material distribution.</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="text-muted small text-uppercase fw-bold">Stock Health</h6>
+                    <i class="bi bi-heart-pulse text-success"></i>
+                </div>
+                <h2 class="fw-bold text-dark mb-0">@((Model.Count() - ViewBag.LowStockCount - ViewBag.OutStockCount)) Healthy</h2>
+                <p class="text-muted small mt-2">@(((double)(Model.Count() - ViewBag.LowStockCount - ViewBag.OutStockCount) / Model.Count() * 100).ToString("F0"))% of total inventory items are above threshold.</p>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white border-start border-4 border-warning">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="text-muted small text-uppercase fw-bold">Low Stock Alert</h6>
+                    <i class="bi bi-exclamation-triangle text-warning"></i>
+                </div>
+                <h2 class="fw-bold text-dark mb-0">@ViewBag.LowStockCount Items</h2>
+                <p class="text-muted small mt-2">Critical items needing replenishment.</p>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white border-start border-4 border-danger">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="text-muted small text-uppercase fw-bold">Out of Stock</h6>
+                    <i class="bi bi-x-octagon text-danger"></i>
+                </div>
+                <h2 class="fw-bold text-dark mb-0">@ViewBag.OutStockCount Items</h2>
+                <p class="text-muted small mt-2">Items currently unavailable in warehouse.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <h6 class="fw-bold m-0 text-dark">Category Distribution</h6>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="categoryChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <h6 class="fw-bold m-0 text-dark">Stock Levels (Top 5 Items)</h6>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="stockBarChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Category Pie
+            new Chart(document.getElementById('categoryChart'), {
+                type: 'polarArea',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.GroupBy(i => i.Category).Select(g => g.Key))),
+                    datasets: [{
+                        data: @Html.Raw(Json.Serialize(Model.GroupBy(i => i.Category).Select(g => g.Count()))),
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
+                    }]
+                }
+            });
+
+            // Stock Bar
+            new Chart(document.getElementById('stockBarChart'), {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.Take(5).Select(i => i.Name))),
+                    datasets: [{
+                        label: 'Quantity',
+                        data: @Html.Raw(Json.Serialize(Model.Take(5).Select(i => i.Quantity))),
+                        backgroundColor: '#36b9cc'
+                    }, {
+                        label: 'Min Level',
+                        data: @Html.Raw(Json.Serialize(Model.Take(5).Select(i => i.MinStockLevel))),
+                        backgroundColor: '#f6c23e'
+                    }]
+                }
+            });
+        });
+    </script>
+}

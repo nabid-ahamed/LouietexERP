@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LouietexERP.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_SuperAdmin + "," + SD.Role_ProductionManager)]
     public class InventoriesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,9 +21,17 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Inventories
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            return View(await _context.Inventories.ToListAsync());
+            var inventory = from i in _context.Inventories
+                             select i;
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                inventory = inventory.Where(s => s.Name.Contains(searchString) || s.Category.Contains(searchString));
+            }
+
+            return View(await inventory.ToListAsync());
         }
 
         // GET: Inventories/Details/5

@@ -15,9 +15,8 @@ namespace LouietexERP.Models
         [ForeignKey("ProductionId")]
         public Production? Production { get; set; }
 
-        [Required]
         [Display(Name = "Inspected By (User ID)")]
-        public string CheckedByUserId { get; set; } = string.Empty;
+        public string? CheckedByUserId { get; set; }
 
         [ForeignKey("CheckedByUserId")]
         public ApplicationUser? CheckedByUser { get; set; }
@@ -39,6 +38,9 @@ namespace LouietexERP.Models
 
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [Display(Name = "Inspector Name (Optional)")]
+        public string? InspectorName { get; set; }
 
         [Display(Name = "Updated At")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

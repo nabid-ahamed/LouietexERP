@@ -1,0 +1,115 @@
+@model IEnumerable<LouietexERP.Models.Order>
+@{
+    ViewData["Title"] = "Order & Sales Analytics";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex align-items-center mb-4">
+        <a href="/Reports/Index" class="btn btn-light rounded-circle p-3 me-3 shadow-sm border"><i class="bi bi-arrow-left fs-5"></i></a>
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Order & Sales Analytics</h2>
+            <p class="text-muted mb-0">Sales trends, buyer statistics, and order fulfillment reports.</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h6 class="text-muted small text-uppercase fw-bold mb-3">Total Orders</h6>
+                <div class="d-flex align-items-center">
+                    <h2 class="fw-bold mb-0">@ViewBag.TotalOrders</h2>
+                    <i class="bi bi-cart ms-auto fs-3 text-primary"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h6 class="text-muted small text-uppercase fw-bold mb-3">Shipped Orders</h6>
+                <div class="d-flex align-items-center">
+                    <h2 class="fw-bold mb-0 text-success">@ViewBag.ShippedCount</h2>
+                    <i class="bi bi-truck ms-auto fs-3 text-success"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h6 class="text-muted small text-uppercase fw-bold mb-3">Pending Delivery</h6>
+                <div class="d-flex align-items-center">
+                    <h2 class="fw-bold mb-0 text-warning">@ViewBag.PendingCount</h2>
+                    <i class="bi bi-clock-history ms-auto fs-3 text-warning"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-primary text-white">
+                <h6 class="text-white-50 small text-uppercase fw-bold mb-3">Fulfillment Rate</h6>
+                <h2 class="fw-bold mb-0">@(((double)ViewBag.ShippedCount / ViewBag.TotalOrders * 100).ToString("F1"))%</h2>
+                <div class="progress mt-3 bg-white bg-opacity-25" style="height: 6px;">
+                    <div class="progress-bar bg-white" style="width: @(((double)ViewBag.ShippedCount / ViewBag.TotalOrders * 100))%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <h6 class="fw-bold m-0 text-dark">Order Volume by Buyer</h6>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="buyerChart" style="height: 350px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <h6 class="fw-bold m-0 text-dark">Status Overview</h6>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="orderStatusChart" style="height: 250px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Buyer Bar
+            new Chart(document.getElementById('buyerChart'), {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.GroupBy(o => o.BuyerName).Select(g => g.Key))),
+                    datasets: [{
+                        label: 'Orders',
+                        data: @Html.Raw(Json.Serialize(Model.GroupBy(o => o.BuyerName).Select(g => g.Count()))),
+                        backgroundColor: '#4e73df',
+                        borderRadius: 8
+                    }]
+                },
+                options: { maintainAspectRatio: false }
+            });
+
+            // Order Status Doughnut
+            new Chart(document.getElementById('orderStatusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Shipped', 'Pending', 'In Production'],
+                    datasets: [{
+                        data: [
+                            @Model.Count(o => o.Status == "Shipped"),
+                            @Model.Count(o => o.Status == "Pending"),
+                            @Model.Count(o => o.Status == "In Production")
+                        ],
+                        backgroundColor: ['#1cc88a', '#f6c23e', '#4e73df']
+                    }]
+                },
+                options: { cutout: '70%', maintainAspectRatio: false }
+            });
+        });
+    </script>
+}

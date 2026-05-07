@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LouietexERP.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = SD.Role_HR + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
     public class EmployeesController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -1,0 +1,146 @@
+@using LouietexERP.Models
+@{
+    ViewData["Title"] = "Reports Dashboard";
+    bool isSuperAdmin = User.IsInRole(SD.Role_SuperAdmin);
+    bool isAdmin = User.IsInRole(SD.Role_Admin);
+    bool isHR = User.IsInRole(SD.Role_HR);
+    bool isMerchandiser = User.IsInRole(SD.Role_Merchandiser);
+    bool isProductionManager = User.IsInRole(SD.Role_ProductionManager);
+    bool isQC = User.IsInRole(SD.Role_QC);
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Business Intelligence & Reports</h2>
+            <p class="text-muted mb-0">Select a module to view detailed operational analytics.</p>
+        </div>
+        <div class="dash-time-pill shadow-sm">
+            <i class="bi bi-calendar3 me-2 text-primary"></i> @DateTime.Now.ToString("MMMM dd, yyyy")
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+        <!-- Production Reports -->
+        @if (isSuperAdmin || isAdmin || isProductionManager)
+        {
+            <div class="col-xl-4 col-md-6">
+                <a href="/Reports/ProductionReports" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 report-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="report-icon bg-light-success me-3"><i class="bi bi-gear-wide-connected"></i></div>
+                                <h5 class="fw-bold mb-0 text-dark">Production Reports</h5>
+                            </div>
+                            <p class="text-muted small">Target vs Actual, Line Efficiency, and Completion Analytics.</p>
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                <span class="text-primary small fw-bold">View Reports <i class="bi bi-arrow-right"></i></span>
+                                <i class="bi bi-graph-up text-success fs-3 opacity-25"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+
+        <!-- QC Reports -->
+        @if (isSuperAdmin || isAdmin || isQC)
+        {
+            <div class="col-xl-4 col-md-6">
+                <a href="/Reports/QCReports" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 report-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="report-icon bg-light-primary me-3"><i class="bi bi-shield-check"></i></div>
+                                <h5 class="fw-bold mb-0 text-dark">QC & Quality Reports</h5>
+                            </div>
+                            <p class="text-muted small">Pass/Fail Statistics, Defect Analysis, and Quality Trends.</p>
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                <span class="text-primary small fw-bold">View Reports <i class="bi bi-arrow-right"></i></span>
+                                <i class="bi bi-check2-circle text-primary fs-3 opacity-25"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+
+        <!-- Inventory Reports -->
+        @if (isSuperAdmin || isAdmin || isProductionManager)
+        {
+            <div class="col-xl-4 col-md-6">
+                <a href="/Reports/InventoryReports" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 report-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="report-icon bg-light-warning me-3"><i class="bi bi-box-seam"></i></div>
+                                <h5 class="fw-bold mb-0 text-dark">Inventory Reports</h5>
+                            </div>
+                            <p class="text-muted small">Stock Health, Low Stock Alerts, and Material Movement.</p>
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                <span class="text-primary small fw-bold">View Reports <i class="bi bi-arrow-right"></i></span>
+                                <i class="bi bi-pie-chart text-warning fs-3 opacity-25"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+
+        <!-- Order Reports -->
+        @if (isSuperAdmin || isAdmin || isMerchandiser)
+        {
+            <div class="col-xl-4 col-md-6">
+                <a href="/Reports/OrderReports" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 report-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="report-icon bg-light-info me-3"><i class="bi bi-cart2"></i></div>
+                                <h5 class="fw-bold mb-0 text-dark">Order Reports</h5>
+                            </div>
+                            <p class="text-muted small">Sales Trends, Buyer Statistics, and Delivery Performance.</p>
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                <span class="text-primary small fw-bold">View Reports <i class="bi bi-arrow-right"></i></span>
+                                <i class="bi bi-bag-check text-info fs-3 opacity-25"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+
+        <!-- Employee Reports -->
+        @if (isSuperAdmin || isAdmin || isHR)
+        {
+            <div class="col-xl-4 col-md-6">
+                <a href="/Reports/EmployeeReports" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 report-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="report-icon bg-light-danger me-3"><i class="bi bi-people"></i></div>
+                                <h5 class="fw-bold mb-0 text-dark">HR & Workforce Reports</h5>
+                            </div>
+                            <p class="text-muted small">Department Distribution, Workforce Growth, and Staffing.</p>
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                <span class="text-primary small fw-bold">View Reports <i class="bi bi-arrow-right"></i></span>
+                                <i class="bi bi-person-badge text-danger fs-3 opacity-25"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .report-card { transition: all 0.3s ease; border: 1px solid transparent !important; }
+    .report-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; border-color: rgba(78, 115, 223, 0.2) !important; }
+    .report-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .bg-light-success { background: #e8f9f2; color: #1cc88a; }
+    .bg-light-primary { background: #eef2ff; color: #4e73df; }
+    .bg-light-warning { background: #fff8e8; color: #f6c23e; }
+    .bg-light-info { background: #e6fbfe; color: #36b9cc; }
+    .bg-light-danger { background: #fdf0f0; color: #e74a3b; }
+    .dash-time-pill { background: white; padding: 8px 20px; border-radius: 50px; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; }
+</style>

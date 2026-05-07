@@ -24,14 +24,21 @@ namespace LouietexERP.Controllers
         }
 
         // GET: QC
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? status)
         {
-            var qcInspections = _context.QCInspections
-                .Include(q => q.Production)
-                .ThenInclude(p => p.Order)
-                .Include(q => q.CheckedByUser);
-            
-            return View(await qcInspections.ToListAsync());
+            var query = _context.QCInspections
+                .Include(q => q.Production).ThenInclude(p => p!.Order)
+                .Include(q => q.CheckedByUser)
+                .AsQueryable();
+
+            // Map "Pending" to the combined pending+recheck filter
+            if (status == "Pending")
+                query = query.Where(q => q.QCStatus == "Pending" || q.QCStatus == "Recheck Required");
+            else if (!string.IsNullOrEmpty(status))
+                query = query.Where(q => q.QCStatus == status);
+
+            ViewBag.CurrentStatus = status;
+            return View(await query.OrderByDescending(q => q.InspectionDate).ToListAsync());
         }
 
         // GET: QC/Details/5

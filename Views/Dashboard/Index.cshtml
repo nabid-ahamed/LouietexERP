@@ -102,11 +102,14 @@
     .bg-light-danger { background: #fdf0f0; color: #e74a3b; }
     .bg-light-info { background: #e6fbfe; color: #36b9cc; }
     
-    .kpi-title { font-size: 12px; text-transform: uppercase; color: #858796; font-weight: 700; margin-bottom: 5px; }
-    .kpi-value { font-size: 28px; font-weight: 700; color: #3a3b45; margin-bottom: 5px; line-height: 1; }
+    .kpi-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #858796; font-weight: 700; margin-bottom: 6px; }
+    .kpi-value { font-size: 32px; font-weight: 800; color: #2d2f3e; margin-bottom: 8px; line-height: 1; }
     .kpi-trend { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-    .trend-up { color: #1cc88a; }
+    .trend-up   { color: #1cc88a; }
     .trend-down { color: #e74a3b; }
+    .trend-warn { color: #f6c23e; }
+    .trend-info { color: #4e73df; }
+    .trend-muted{ color: #858796; }
 
     .panel-card {
         background: white;
@@ -172,146 +175,129 @@
 </div>
 
 <!-- 2. KPI Cards -->
+<style>
+    .kpi-card-link { text-decoration: none; color: inherit; display: block; }
+    .kpi-card-link:hover .kpi-card { transform: translateY(-6px); box-shadow: 0 10px 30px rgba(0,0,0,0.12); }
+    .kpi-card-link .kpi-card { cursor: pointer; }
+</style>
+
 <div class="row g-4 mb-4">
-    <!-- Total Orders (Merch/Admin) -->
+    <!-- Total Orders -->
     @if (isMerchandiser || isAdmin || isSuperAdmin)
     {
         <div class="col-xl-3 col-md-6">
-            <div class="kpi-card d-flex align-items-center">
-                <div class="kpi-icon bg-light-primary me-3">
-                    <i class="bi bi-cart2"></i>
+            <a href="/Orders/Index" class="kpi-card-link">
+                <div class="kpi-card d-flex align-items-center gap-3">
+                    <div class="kpi-icon bg-light-primary flex-shrink-0"><i class="bi bi-cart2"></i></div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="kpi-title">Total Orders</div>
+                        <div class="kpi-value">@ViewBag.TotalOrders</div>
+                        <div class="kpi-trend trend-up"><i class="bi bi-arrow-up-right"></i> @ViewBag.TrendOrders</div>
+                    </div>
                 </div>
-                <div>
-                    <div class="kpi-title">Total Orders</div>
-                    <div class="kpi-value">@ViewBag.TotalOrders</div>
-                    <div class="kpi-trend trend-up"><i class="bi bi-arrow-up-right"></i> @ViewBag.GrowthOrders from last month</div>
-                </div>
-            </div>
+            </a>
         </div>
     }
 
-    <!-- Running Production (Prod/Admin) -->
+    <!-- Running Production -->
     @if (isProductionManager || isAdmin || isSuperAdmin)
     {
         <div class="col-xl-3 col-md-6">
-            <div class="kpi-card d-flex align-items-center">
-                <div class="kpi-icon bg-light-success me-3">
-                    <i class="bi bi-gear-wide-connected"></i>
+            <a href="/Productions/Index?status=Running" class="kpi-card-link">
+                <div class="kpi-card d-flex align-items-center gap-3">
+                    <div class="kpi-icon bg-light-success flex-shrink-0"><i class="bi bi-gear-wide-connected"></i></div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="kpi-title">Running Production</div>
+                        <div class="kpi-value">@ViewBag.RunningProductions</div>
+                        <div class="kpi-trend trend-info"><i class="bi bi-activity"></i> @ViewBag.TrendRunning</div>
+                    </div>
                 </div>
-                <div>
-                    <div class="kpi-title">Running Production</div>
-                    <div class="kpi-value">@ViewBag.RunningProductions</div>
-                    <div class="kpi-trend trend-up"><i class="bi bi-arrow-up-right"></i> @ViewBag.GrowthProd from last month</div>
-                </div>
-            </div>
+            </a>
         </div>
 
         <div class="col-xl-3 col-md-6">
-            <div class="kpi-card d-flex align-items-center">
-                <div class="kpi-icon bg-light-warning me-3">
-                    <i class="bi bi-check-circle"></i>
+            <a href="/Productions/Index?status=Completed" class="kpi-card-link">
+                <div class="kpi-card d-flex align-items-center gap-3">
+                    <div class="kpi-icon bg-light-warning flex-shrink-0"><i class="bi bi-check-circle"></i></div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="kpi-title">Completed Production</div>
+                        <div class="kpi-value">@ViewBag.CompletedProductions</div>
+                        <div class="kpi-trend trend-up"><i class="bi bi-arrow-up-right"></i> @ViewBag.TrendCompleted</div>
+                    </div>
                 </div>
-                <div>
-                    <div class="kpi-title">Completed Production</div>
-                    <div class="kpi-value">@ViewBag.CompletedProductions</div>
-                    <div class="kpi-trend trend-up"><i class="bi bi-dash"></i> Consistent rate</div>
-                </div>
-            </div>
+            </a>
         </div>
     }
 
-    <!-- QC Stats (QC/Admin) -->
+    <!-- QC Stats -->
     @if (isQC || isAdmin || isSuperAdmin)
     {
         <div class="col-xl-3 col-md-6">
-            <div class="kpi-card d-flex align-items-center">
-                <div class="kpi-icon bg-light-primary me-3" style="background:#f3e8ff; color:#7d4aa3;">
-                    <i class="bi bi-shield-check"></i>
+            <a href="/QC/Index?status=Pending" class="kpi-card-link">
+                <div class="kpi-card d-flex align-items-center gap-3">
+                    <div class="kpi-icon flex-shrink-0" style="background:#f3e8ff; color:#7d4aa3;"><i class="bi bi-shield-check"></i></div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="kpi-title">Pending QC</div>
+                        <div class="kpi-value">@ViewBag.PendingQC</div>
+                        <div class="kpi-trend @(ViewBag.PendingQC > 0 ? "trend-warn" : "trend-up")">
+                            <i class="bi @(ViewBag.PendingQC > 0 ? "bi-exclamation-triangle" : "bi-check2-circle")"></i> @ViewBag.TrendQC
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <div class="kpi-title">Pending QC</div>
-                    <div class="kpi-value">@ViewBag.PendingQC</div>
-                    <div class="kpi-trend text-muted"><i class="bi bi-activity"></i> Needs action</div>
-                </div>
-            </div>
+            </a>
         </div>
 
         <div class="col-xl-3 col-md-6">
-            <div class="kpi-card d-flex align-items-center">
-                <div class="kpi-icon bg-light-danger me-3">
-                    <i class="bi bi-shield-x"></i>
+            <a href="/QC/Index?status=Failed" class="kpi-card-link">
+                <div class="kpi-card d-flex align-items-center gap-3">
+                    <div class="kpi-icon bg-light-danger flex-shrink-0"><i class="bi bi-shield-x"></i></div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="kpi-title">QC Failed Batches</div>
+                        <div class="kpi-value">@ViewBag.QCFailedItems</div>
+                        <div class="kpi-trend @((bool)ViewBag.IsQCHealthy ? "trend-up" : "trend-down")">
+                            <i class="bi @((bool)ViewBag.IsQCHealthy ? "bi-check2-circle" : "bi-arrow-down-right")"></i> @ViewBag.TrendQCFailed
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <div class="kpi-title">QC Failed Items</div>
-                    <div class="kpi-value">@ViewBag.QCFailedItems</div>
-                    <div class="kpi-trend trend-down"><i class="bi bi-arrow-down-right"></i> 5.4% from last month</div>
-                </div>
-            </div>
+            </a>
         </div>
     }
 
-    <!-- Employee / Admin Data -->
+    <!-- Employees -->
     @if (isHR || isAdmin || isSuperAdmin)
     {
         <div class="col-xl-3 col-md-6">
-            <div class="kpi-card d-flex align-items-center">
-                <div class="kpi-icon bg-light-info me-3">
-                    <i class="bi bi-people"></i>
+            <a href="/Employees/Index" class="kpi-card-link">
+                <div class="kpi-card d-flex align-items-center gap-3">
+                    <div class="kpi-icon bg-light-info flex-shrink-0"><i class="bi bi-people"></i></div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="kpi-title">Total Employees</div>
+                        <div class="kpi-value">@ViewBag.TotalEmployees</div>
+                        <div class="kpi-trend trend-info"><i class="bi bi-person-check"></i> @ViewBag.TrendEmployees</div>
+                    </div>
                 </div>
-                <div>
-                    <div class="kpi-title">Total Employees</div>
-                    <div class="kpi-value">@ViewBag.TotalEmployees</div>
-                    <div class="kpi-trend trend-up"><i class="bi bi-arrow-up-right"></i> Stable workforce</div>
-                </div>
-            </div>
+            </a>
         </div>
     }
 
     @if (isAdmin || isSuperAdmin)
     {
-        <div class="col-xl-3 col-md-6">
-            <div class="kpi-card d-flex align-items-center position-relative">
-                <div class="kpi-icon bg-light-danger me-3">
-                    <i class="bi bi-person-plus"></i>
-                </div>
-                <div>
-                    <div class="kpi-title">Pending Approvals</div>
-                    <div class="kpi-value">@ViewBag.PendingUsersCount</div>
-                    <a href="/UserManagement/PendingApprovals" class="kpi-trend text-danger text-decoration-none fw-bold">Review users <i class="bi bi-arrow-right"></i></a>
-                </div>
-                @if (ViewBag.PendingUsersCount > 0)
-                {
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm" style="margin-top: 10px; margin-left: -20px;">
-                        @(ViewBag.PendingUsersCount > 99 ? "99+" : ViewBag.PendingUsersCount)
-                    </span>
-                }
-            </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6">
-            <div class="kpi-card d-flex align-items-center">
-                <div class="kpi-icon bg-light-primary me-3" style="background:#e0e7ff; color:#4338ca;">
-                    <i class="bi bi-clipboard-data"></i>
-                </div>
-                <div>
-                    <div class="kpi-title">Pending Requests</div>
-                    <div class="kpi-value">@ViewBag.PendingRequests</div>
-                    <a href="/UserManagement/ViewModifications" class="kpi-trend text-primary text-decoration-none">View all requests <i class="bi bi-arrow-right"></i></a>
-                </div>
-            </div>
-        </div>
 
+        <!-- Low Stock -->
         <div class="col-xl-3 col-md-6">
-            <div class="kpi-card d-flex align-items-center">
-                <div class="kpi-icon bg-light-primary me-3">
-                    <i class="bi bi-box-seam"></i>
+            <a href="/Inventories/LowStock" class="kpi-card-link">
+                <div class="kpi-card d-flex align-items-center gap-3">
+                    <div class="kpi-icon bg-light-primary flex-shrink-0"><i class="bi bi-box-seam"></i></div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="kpi-title">Low Stock Items</div>
+                        <div class="kpi-value">@ViewBag.LowStockItems</div>
+                        <div class="kpi-trend @((bool)ViewBag.IsStockHealthy ? "trend-up" : "trend-down")">
+                            <i class="bi @((bool)ViewBag.IsStockHealthy ? "bi-check2-circle" : "bi-exclamation-triangle")"></i> @ViewBag.TrendLowStock
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <div class="kpi-title">Low Stock Items</div>
-                    <div class="kpi-value">@ViewBag.LowStockItems</div>
-                    <a href="/Inventories" class="kpi-trend text-primary text-decoration-none">View inventory <i class="bi bi-arrow-right"></i></a>
-                </div>
-            </div>
+            </a>
         </div>
     }
 </div>
@@ -341,14 +327,23 @@
                     <h6 class="panel-title"><i class="bi bi-pie-chart text-primary"></i> Order Status</h6>
                 </div>
                 <div class="panel-body d-flex flex-column justify-content-center align-items-center">
-                    <div style="height: 250px; width: 100%; position: relative;">
+                    <div style="min-height: 250px; width: 100%;">
                         @if (ViewBag.OrderChartCounts != null && ((List<int>)ViewBag.OrderChartCounts).Sum() > 0)
                         {
-                            <canvas id="orderChart"></canvas>
+                            <div class="row align-items-center h-100">
+                                <div class="col-sm-6">
+                                    <div style="height: 220px; position: relative;">
+                                        <canvas id="orderChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div id="orderChartLegend" class="mt-3 mt-sm-0"></div>
+                                </div>
+                            </div>
                         }
                         else
                         {
-                            <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted">
+                            <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted py-5">
                                 <i class="bi bi-pie-chart fs-1 mb-2 text-light"></i>
                                 <p>No orders available</p>
                             </div>
@@ -369,7 +364,7 @@
             <div class="panel-card">
                 <div class="panel-header">
                     <h6 class="panel-title"><i class="bi bi-receipt text-primary"></i> Recent Orders</h6>
-                    <a href="/Orders" class="btn btn-sm btn-link text-decoration-none">View all orders <i class="bi bi-arrow-right"></i></a>
+                    <a href="/Orders/Index" class="btn btn-sm btn-link text-decoration-none">View all orders <i class="bi bi-arrow-right"></i></a>
                 </div>
                 <div class="panel-body p-0">
                     <div class="table-responsive">
@@ -421,7 +416,7 @@
             <div class="panel-card">
                 <div class="panel-header">
                     <h6 class="panel-title"><i class="bi bi-shield-check text-primary"></i> QC Inspection Summary</h6>
-                    <a href="/QC" class="btn btn-sm btn-link text-decoration-none">View all QC <i class="bi bi-arrow-right"></i></a>
+                    <a href="/QC/Index" class="btn btn-sm btn-link text-decoration-none">View all QC <i class="bi bi-arrow-right"></i></a>
                 </div>
                 <div class="panel-body">
                     <table class="table table-borderless table-modern mb-0 w-100">
@@ -578,6 +573,11 @@
             // 1. Line Chart (Production)
             const prodCtx = document.getElementById('productionChart');
             if (prodCtx) {
+                const ctx = prodCtx.getContext('2d');
+                const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, 'rgba(78, 115, 223, 0.2)');
+                gradient.addColorStop(1, 'rgba(78, 115, 223, 0.0)');
+
                 new Chart(prodCtx, {
                     type: 'line',
                     data: {
@@ -587,13 +587,23 @@
                                 label: 'Actual Output',
                                 data: @Html.Raw(prodActual),
                                 borderColor: '#4e73df',
-                                backgroundColor: 'rgba(78, 115, 223, 0.1)',
-                                borderWidth: 2,
+                                backgroundColor: gradient,
+                                borderWidth: 3,
                                 fill: true,
                                 tension: 0.4,
-                                pointBackgroundColor: '#4e73df',
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: '#4e73df',
                                 pointBorderWidth: 2,
-                                pointRadius: 3
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                pointHoverBackgroundColor: '#4e73df',
+                                pointHoverBorderColor: '#fff',
+                                pointHoverBorderWidth: 2,
+                                // Adding a subtle shadow
+                                segment: {
+                                    borderColor: ctx => '#4e73df',
+                                    borderWidth: 3
+                                }
                             },
                             {
                                 label: 'Target Output',
@@ -610,15 +620,48 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        animation: {
+                            duration: 2000,
+                            easing: 'easeOutQuart'
+                        },
                         plugins: {
                             legend: {
                                 position: 'top',
-                                labels: { boxWidth: 12, usePointStyle: true }
+                                align: 'end',
+                                labels: { 
+                                    boxWidth: 8, 
+                                    usePointStyle: true,
+                                    padding: 20,
+                                    font: { size: 12, weight: '600' }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#fff',
+                                titleColor: '#333',
+                                bodyColor: '#666',
+                                borderColor: '#e3e6f0',
+                                borderWidth: 1,
+                                xPadding: 15,
+                                yPadding: 15,
+                                displayColors: false,
+                                caretPadding: 10,
+                                callbacks: {
+                                    label: function(item) {
+                                        return item.dataset.label + ': ' + item.formattedValue + ' units';
+                                    }
+                                }
                             }
                         },
                         scales: {
-                            x: { grid: { display: false } },
-                            y: { grid: { borderDash: [2, 4], color: '#eaecf4' }, beginAtZero: true }
+                            x: { 
+                                grid: { display: false },
+                                ticks: { font: { size: 11 } }
+                            },
+                            y: { 
+                                grid: { borderDash: [3, 3], color: '#f0f0f0', drawBorder: false },
+                                ticks: { font: { size: 11 }, padding: 10 },
+                                beginAtZero: true
+                            }
                         }
                     }
                 });
@@ -627,14 +670,20 @@
             // 2. Doughnut Chart (Orders)
             const orderCtx = document.getElementById('orderChart');
             if (orderCtx) {
-                new Chart(orderCtx, {
+                const labels = @Html.Raw(orderLabels);
+                const data = @Html.Raw(orderCounts);
+                const colors = [
+                    '#4e73df', '#1cc88a', '#f6c23e', '#36b9cc', '#e74a3b', 
+                    '#6f42c1', '#fd7e14', '#20c997', '#d63384', '#0dcaf0'
+                ];
+
+                const chart = new Chart(orderCtx, {
                     type: 'doughnut',
                     data: {
-                        labels: @Html.Raw(orderLabels),
+                        labels: labels,
                         datasets: [{
-                            data: @Html.Raw(orderCounts),
-                            backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e', '#36b9cc', '#e74a3b'],
-                            hoverBackgroundColor: ['#2e59d9', '#17a673', '#dda20a', '#2c9faf', '#e02d1b'],
+                            data: data,
+                            backgroundColor: colors,
                             hoverBorderColor: "rgba(234, 236, 244, 1)",
                             borderWidth: 2
                         }]
@@ -642,15 +691,49 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        cutout: '70%',
+                        cutout: '75%',
                         plugins: {
                             legend: {
-                                position: 'right',
-                                labels: { boxWidth: 12, usePointStyle: true, padding: 20 }
+                                display: false // Disable default legend
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                titleColor: '#333',
+                                bodyColor: '#666',
+                                borderColor: '#e3e6f0',
+                                borderWidth: 1,
+                                padding: 12,
+                                cornerRadius: 8
                             }
                         }
                     }
                 });
+
+                // Generate Custom Legend
+                const legendContainer = document.getElementById('orderChartLegend');
+                if (legendContainer) {
+                    const total = data.reduce((a, b) => a + b, 0);
+                    let html = '<div class="d-flex flex-column gap-2">';
+                    
+                    labels.forEach((label, i) => {
+                        const val = data[i];
+                        const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                        const color = colors[i % colors.length];
+                        
+                        html += `
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle me-2" style="width: 10px; height: 10px; background-color: ${color}"></div>
+                                    <span class="small text-muted fw-bold">${label}</span>
+                                </div>
+                                <span class="small fw-bold text-dark">${val} (${pct}%)</span>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    legendContainer.innerHTML = html;
+                }
             }
         });
     </script>

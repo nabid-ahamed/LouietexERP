@@ -1,0 +1,139 @@
+@model IEnumerable<LouietexERP.Models.Production>
+@{
+    ViewData["Title"] = "Production Analytics";
+    var totalQty = ViewBag.TotalQty;
+    var completedQty = ViewBag.CompletedQty;
+    double completionRate = totalQty > 0 ? (double)completedQty / totalQty * 100 : 0;
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex align-items-center mb-4">
+        <a href="/Reports/Index" class="btn btn-light rounded-circle p-3 me-3 shadow-sm border"><i class="bi bi-arrow-left fs-5"></i></a>
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Production Analytics</h2>
+            <p class="text-muted mb-0">Operational efficiency and line performance reports.</p>
+        </div>
+    </div>
+
+    <!-- Stats Summary -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h6 class="text-muted small text-uppercase fw-bold mb-3">Total Target Qty</h6>
+                <div class="d-flex align-items-center">
+                    <h2 class="fw-bold mb-0 me-3">@totalQty.ToString("N0")</h2>
+                    <span class="badge bg-light-primary text-primary rounded-pill">Total Units</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 border-start border-4 border-success">
+                <h6 class="text-muted small text-uppercase fw-bold mb-3">Completed Production</h6>
+                <div class="d-flex align-items-center">
+                    <h2 class="fw-bold mb-0 me-3 text-success">@completedQty.ToString("N0")</h2>
+                    <span class="badge bg-light-success text-success rounded-pill">Units</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 border-start border-4 border-info">
+                <h6 class="text-muted small text-uppercase fw-bold mb-3">Completion Rate</h6>
+                <div class="d-flex align-items-center">
+                    <h2 class="fw-bold mb-0 me-3 text-info">@completionRate.ToString("F1")%</h2>
+                    <div class="progress flex-grow-1" style="height: 6px;">
+                        <div class="progress-bar bg-info" style="width: @completionRate%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h6 class="text-muted small text-uppercase fw-bold mb-3">Active Lines</h6>
+                <div class="d-flex align-items-center">
+                    <h2 class="fw-bold mb-0 me-3 text-dark">@ViewBag.RunningLines</h2>
+                    <span class="badge bg-light text-muted rounded-pill">Running</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Line Performance Chart -->
+        <div class="col-xl-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <h6 class="fw-bold m-0 text-dark"><i class="bi bi-bar-chart me-2"></i> Production Volume by Order</h6>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="prodChart" style="height: 350px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Distribution -->
+        <div class="col-xl-4">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <h6 class="fw-bold m-0 text-dark"><i class="bi bi-pie-chart me-2"></i> Status Distribution</h6>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <canvas id="statusChart" style="height: 250px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-light-success { background: #e8f9f2; color: #1cc88a; }
+    .bg-light-primary { background: #eef2ff; color: #4e73df; }
+    .rounded-4 { border-radius: 1rem !important; }
+</style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const prodLabels = @Html.Raw(Json.Serialize(Model.Take(7).Select(p => p.Order?.StyleCode ?? "N/A")));
+            const prodData = @Html.Raw(Json.Serialize(Model.Take(7).Select(p => p.TargetQuantity)));
+
+            new Chart(document.getElementById('prodChart'), {
+                type: 'bar',
+                data: {
+                    labels: prodLabels,
+                    datasets: [{
+                        label: 'Target Quantity',
+                        data: prodData,
+                        backgroundColor: '#4e73df',
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Running', 'Completed', 'Pending'],
+                    datasets: [{
+                        data: [
+                            @Model.Count(p => p.Status == "Running"),
+                            @Model.Count(p => p.Status == "Completed"),
+                            @Model.Count(p => p.Status == "Pending")
+                        ],
+                        backgroundColor: ['#36b9cc', '#1cc88a', '#f6c23e']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%'
+                }
+            });
+        });
+    </script>
+}

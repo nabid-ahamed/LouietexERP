@@ -22,10 +22,15 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Productions
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? status)
         {
-            var applicationDbContext = _context.Productions.Include(p => p.Order);
-            return View(await applicationDbContext.ToListAsync());
+            var query = _context.Productions.Include(p => p.Order).AsQueryable();
+
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(p => p.Status == status);
+
+            ViewBag.CurrentStatus = status;
+            return View(await query.OrderByDescending(p => p.CreatedAt).ToListAsync());
         }
 
         // GET: Productions/Details/5

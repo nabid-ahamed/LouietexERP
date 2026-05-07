@@ -252,10 +252,17 @@
                     </a>
                 }
 
-                @if (isAdmin || isSuperAdmin)
+                @if (isAdmin || isSuperAdmin || isProductionManager)
                 {
                     <a class="erp-menu-item @isActive("Inventories", "")" asp-controller="Inventories" asp-action="Index">
                         <i class="bi bi-box-seam"></i> Inventory
+                    </a>
+                }
+
+                @if (isSuperAdmin || isAdmin || isHR || isMerchandiser || isProductionManager || isQC)
+                {
+                    <a class="erp-menu-item @isActive("Reports", "")" asp-controller="Reports" asp-action="Index">
+                        <i class="bi bi-bar-chart-line"></i> Reports
                     </a>
                 }
 

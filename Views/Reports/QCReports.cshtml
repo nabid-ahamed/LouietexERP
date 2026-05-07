@@ -1,0 +1,108 @@
+@model IEnumerable<LouietexERP.Models.QCInspection>
+@{
+    ViewData["Title"] = "QC Quality Analytics";
+    int total = ViewBag.TotalChecked;
+    int passed = ViewBag.Passed;
+    int failed = ViewBag.Failed;
+    double passRate = total > 0 ? (double)passed / total * 100 : 0;
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex align-items-center mb-4">
+        <a href="/Reports/Index" class="btn btn-light rounded-circle p-3 me-3 shadow-sm border"><i class="bi bi-arrow-left fs-5"></i></a>
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Quality Analytics</h2>
+            <p class="text-muted mb-0">QC pass/fail statistics and inspection trends.</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h6 class="text-muted small text-uppercase fw-bold mb-3">Inspections Done</h6>
+                <div class="d-flex align-items-center">
+                    <h2 class="fw-bold mb-0 me-3">@total</h2>
+                    <i class="bi bi-shield-check text-primary fs-3"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 border-top border-4 border-success">
+                <h6 class="text-muted small text-uppercase fw-bold mb-3">Passed Units</h6>
+                <h2 class="fw-bold mb-0 text-success">@passed</h2>
+                <div class="small text-muted mt-2">@passRate.ToString("F1")% success rate</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 border-top border-4 border-danger">
+                <h6 class="text-muted small text-uppercase fw-bold mb-3">Failed Units</h6>
+                <h2 class="fw-bold mb-0 text-danger">@failed</h2>
+                <div class="small text-muted mt-2">@(total > 0 ? ((double)failed/total*100).ToString("F1") : "0")% defect rate</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-primary text-white">
+                <h6 class="text-white-50 small text-uppercase fw-bold mb-3">Quality Index</h6>
+                <h2 class="fw-bold mb-0">A+</h2>
+                <div class="progress mt-3 bg-white bg-opacity-25" style="height: 6px;">
+                    <div class="progress-bar bg-white" style="width: @passRate%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-7">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <h6 class="fw-bold m-0 text-dark">Defect Distribution by Order</h6>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="qcBarChart" style="height: 350px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-5">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-bottom py-3 px-4 text-center">
+                    <h6 class="fw-bold m-0 text-dark">Overall Quality Rating</h6>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <canvas id="qcPieChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            new Chart(document.getElementById('qcPieChart'), {
+                type: 'pie',
+                data: {
+                    labels: ['Passed', 'Failed', 'Recheck'],
+                    datasets: [{
+                        data: [@passed, @failed, @Model.Count(q => q.QCStatus == "Recheck")],
+                        backgroundColor: ['#1cc88a', '#e74a3b', '#f6c23e']
+                    }]
+                }
+            });
+
+            new Chart(document.getElementById('qcBarChart'), {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.Take(5).Select(q => q.Production?.Order?.StyleCode ?? "N/A"))),
+                    datasets: [{
+                        label: 'Defect Qty',
+                        data: @Html.Raw(Json.Serialize(Model.Take(5).Select(q => q.DefectCount))),
+                        backgroundColor: '#e74a3b',
+                        borderRadius: 5
+                    }]
+                },
+                options: { maintainAspectRatio: false }
+            });
+        });
+    </script>
+}

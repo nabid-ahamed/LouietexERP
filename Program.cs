@@ -47,6 +47,10 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
 
     await SeedRolesAndAdminAsync(services);
+
+    // ✅ SEED OPERATIONAL/BUSINESS DATA (idempotent)
+    var dbContext = services.GetRequiredService<ApplicationDbContext>();
+    await SeedData.SeedAsync(dbContext);
 }
 
 
