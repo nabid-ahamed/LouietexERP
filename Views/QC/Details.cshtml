@@ -1,0 +1,88 @@
+@model LouietexERP.Models.QCInspection
+
+@{
+    ViewData["Title"] = "QC Details";
+    var statusClass = Model.QCStatus switch {
+        "Passed" => "qc-passed",
+        "Failed" => "qc-failed",
+        "Recheck Required" => "qc-recheck",
+        _ => "qc-recheck"
+    };
+}
+
+<style>
+    .card-custom { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .header-gradient { background: linear-gradient(135deg, #fd7e14 0%, #e06500 100%); color: white; border-radius: 12px 12px 0 0; padding: 25px; }
+    .info-label { font-size: 12px; text-transform: uppercase; color: #6c757d; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 5px; }
+    .info-value { font-size: 16px; font-weight: 600; color: #212529; }
+    
+    .qc-badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .qc-passed { background: #d1e7dd; color: #0f5132; }
+    .qc-failed { background: #f8d7da; color: #842029; }
+    .qc-recheck { background: #fff3cd; color: #664d03; }
+</style>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-custom">
+                <div class="header-gradient d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-1 fw-bold">Inspection #@Model.Id</h4>
+                        <div class="text-white-50"><i class="bi bi-calendar-event me-1"></i> @Model.InspectionDate.ToString("MMMM dd, yyyy")</div>
+                    </div>
+                    <div>
+                        <span class="qc-badge @statusClass fs-6">@Model.QCStatus</span>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    
+                    <h5 class="fw-bold mb-4 text-warning border-bottom pb-2">Production Context</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="info-label">Production Line</div>
+                            <div class="info-value">@(Model.Production?.LineNumber ?? "Unknown")</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-label">Style / Order</div>
+                            <div class="info-value">@(Model.Production?.Order?.StyleCode ?? "N/A")</div>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-4 text-warning border-bottom pb-2">Inspection Details</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="info-label">Inspector</div>
+                            <div class="info-value"><i class="bi bi-person-badge text-muted me-1"></i> @(Model.CheckedByUser?.FullName ?? "Unknown User")</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-label">Defects Found</div>
+                            <div class="info-value @(Model.DefectCount > 0 ? "text-danger fw-bold" : "text-success fw-bold")">
+                                @Model.DefectCount
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3 mt-2">
+                            <div class="info-label">Remarks</div>
+                            <div class="info-value p-3 bg-light rounded-3 mt-1" style="min-height: 80px;">
+                                @(string.IsNullOrEmpty(Model.Remarks) ? "No remarks provided." : Model.Remarks)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-5 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-arrow-left me-2"></i> Back to List
+                        </a>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning px-4 text-dark fw-bold">
+                                <i class="bi bi-pencil me-2"></i> Edit Result
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

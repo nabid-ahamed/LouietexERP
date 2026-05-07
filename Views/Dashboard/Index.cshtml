@@ -1,207 +1,562 @@
-@model LouietexERP.Models.DashboardViewModel
-@using LouietexERP.Models
+@{
+    ViewData["Title"] = "Dashboard";
+    
+    // Roles
+    var isSuperAdmin = User.IsInRole("SuperAdmin");
+    var isAdmin = User.IsInRole("Admin");
+    var isHR = User.IsInRole("HR");
+    var isMerchandiser = User.IsInRole("Merchandiser");
+    var isProductionManager = User.IsInRole("ProductionManager");
+    var isQC = User.IsInRole("QC");
 
-<div class="container" >
+    // Greeting Logic
+    var currentHour = DateTime.Now.Hour;
+    string greeting = "Hello";
+    if (currentHour >= 6 && currentHour < 12) greeting = "Good morning";
+    else if (currentHour >= 12 && currentHour < 18) greeting = "Good afternoon";
+    else if (currentHour >= 18 && currentHour < 24) greeting = "Good evening";
 
-    <!-- HEADER + BUTTONS IN ONE ROW -->
-    <div class="d-flex align-items-center gap-3 mb-4">
+    // Chart Data serialization
+    var prodLabels = Json.Serialize(ViewBag.ProdChartLabels ?? new List<string>());
+    var prodTarget = Json.Serialize(ViewBag.ProdTargetData ?? new List<int>());
+    var prodActual = Json.Serialize(ViewBag.ProdActualData ?? new List<int>());
+    
+    var orderLabels = Json.Serialize(ViewBag.OrderChartLabels ?? new List<string>());
+    var orderCounts = Json.Serialize(ViewBag.OrderChartCounts ?? new List<int>());
+    
+    var recentOrders = ViewBag.RecentOrders as List<LouietexERP.Models.Order> ?? new List<LouietexERP.Models.Order>();
+    
+    // QC Calculation
+    int totalQC = ViewBag.TotalQC ?? 0;
+    int qcPassed = ViewBag.QCPassed ?? 0;
+    int qcFailed = ViewBag.QCFailed ?? 0;
+    int qcRecheck = ViewBag.QCRecheck ?? 0;
 
-        <!-- DASHBOARD BANNER -->
-        <div class="dashboard-header d-flex justify-content-between align-items-center p-4 flex-grow-1">
+    double pctPassed = totalQC > 0 ? ((double)qcPassed / totalQC) * 100 : 0;
+    double pctFailed = totalQC > 0 ? ((double)qcFailed / totalQC) * 100 : 0;
+    double pctRecheck = totalQC > 0 ? ((double)qcRecheck / totalQC) * 100 : 0;
+}
 
-            <!-- LEFT -->
-            <div class="d-flex align-items-center gap-3">
-                <i class="bi bi-speedometer2 fs-2 text-white"></i>
-                <h2 class="text-white mb-0">Dashboard</h2>
-            </div>
-
-            <!-- RIGHT (TIME) -->
-            <div class="time-pill">
-                <i class="bi bi-calendar-event"></i>
-                <span id="live-clock"></span>
-            </div>
-
-        </div><!-- END dashboard-header -->
-
-    </div><!-- END d-flex header row -->
-
-    @if (Model == null)
-    {
-        <div class="alert alert-danger text-center">
-            Dashboard data not available.
-        </div>
+<style>
+    /* Dashboard specific variables & overrides */
+    :root {
+        --dash-card-radius: 14px;
+        --dash-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
-    else
-    {
-        <!-- STATS -->
-        <div class="row" style="margin-top: 2.5rem;">
-
-            @if (User.IsInRole(SD.Role_Merchandiser) || User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_SuperAdmin))
-            {
-                <div class="col-md-3">
-                    <div class="card bg-primary text-white mb-4 shadow-sm text-center">
-                        <div class="card-body">
-                            <h6>Total Orders</h6>
-                            <h3>@Model.TotalOrders</h3>
-                        </div>
-                    </div>
-                </div>
-            }
-
-            @if (User.IsInRole(SD.Role_ProductionManager) || User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_SuperAdmin))
-            {
-                <div class="col-md-3">
-                    <div class="card bg-success text-white mb-4 shadow-sm text-center">
-                        <div class="card-body">
-                            <h6>Today's Output</h6>
-                            <h3>@Model.TodayProduction</h3>
-                        </div>
-                    </div>
-                </div>
-            }
-
-            @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_SuperAdmin))
-            {
-                <div class="col-md-3">
-                    <div class="card bg-warning text-dark mb-4 shadow-sm text-center">
-                        <div class="card-body">
-                            <h6>Low Stock</h6>
-                            <h3>@Model.LowStockItems</h3>
-                        </div>
-                    </div>
-                </div>
-            }
-
-            @if (User.IsInRole(SD.Role_HR) || User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_SuperAdmin))
-            {
-                <div class="col-md-3">
-                    <div class="card bg-info text-white mb-4 shadow-sm text-center">
-                        <div class="card-body">
-                            <h6>Total Staff</h6>
-                            <h3>@Model.TotalEmployees</h3>
-                        </div>
-                    </div>
-                </div>
-            }
-
-        </div>
-
-        <!-- CHARTS ROW -->
-        <div class="row mt-3">
-
-            <!-- Bar + Line Chart -->
-            <div class="col-md-8">
-                <div class="card shadow-sm p-4">
-                    <h6 class="text-muted mb-3">Monthly Orders & Production</h6>
-                    <canvas id="barChart" height="120"></canvas>
-                </div>
-            </div>
-
-            <!-- Donut Chart -->
-            <div class="col-md-4">
-                <div class="card shadow-sm p-4">
-                    <h6 class="text-muted mb-3">Top Products</h6>
-                    <canvas id="donutChart" height="120"></canvas>
-                </div>
-            </div>
-
-        </div>
+    
+    .dash-gradient-header {
+        background: linear-gradient(135deg, #5b6ee1 0%, #7d4aa3 100%);
+        border-radius: 20px;
+        padding: 30px;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(91, 110, 225, 0.2);
+    }
+    
+    .dash-time-pill {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
 
+    .kpi-card {
+        background: white;
+        border-radius: var(--dash-card-radius);
+        padding: 24px;
+        box-shadow: var(--dash-shadow);
+        height: 100%;
+        border: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .kpi-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+    .bg-light-primary { background: #eef2ff; color: #4e73df; }
+    .bg-light-success { background: #e8f9f2; color: #1cc88a; }
+    .bg-light-warning { background: #fff8e8; color: #f6c23e; }
+    .bg-light-danger { background: #fdf0f0; color: #e74a3b; }
+    .bg-light-info { background: #e6fbfe; color: #36b9cc; }
+    
+    .kpi-title { font-size: 12px; text-transform: uppercase; color: #858796; font-weight: 700; margin-bottom: 5px; }
+    .kpi-value { font-size: 28px; font-weight: 700; color: #3a3b45; margin-bottom: 5px; line-height: 1; }
+    .kpi-trend { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .trend-up { color: #1cc88a; }
+    .trend-down { color: #e74a3b; }
+
+    .panel-card {
+        background: white;
+        border-radius: var(--dash-card-radius);
+        box-shadow: var(--dash-shadow);
+        border: none;
+        height: 100%;
+    }
+    .panel-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #f0f0f5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .panel-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #4e73df;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .panel-body { padding: 24px; }
+
+    .table-modern th {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #858796;
+        font-weight: 600;
+        border-bottom: 1px solid #e3e6f0;
+        padding-bottom: 12px;
+    }
+    .table-modern td {
+        padding: 16px 8px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f8f9fa;
+        color: #5a5c69;
+        font-size: 14px;
+    }
+    
+    .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .status-pending { background: #eef2ff; color: #4e73df; }
+    .status-production { background: #fff8e8; color: #f6c23e; }
+    .status-completed { background: #e8f9f2; color: #1cc88a; }
+    .status-shipped { background: #e6fbfe; color: #36b9cc; }
+</style>
+
+<!-- 1. Gradient Header -->
+<div class="dash-gradient-header d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+    <div>
+        @{
+            var dashRawName = User.Identity?.Name ?? "User";
+            var dashDisplayName = dashRawName;
+            if (dashDisplayName.Contains("@")) {
+                dashDisplayName = dashDisplayName.Split('@')[0];
+                if (dashDisplayName.Length > 0)
+                    dashDisplayName = char.ToUpper(dashDisplayName[0]) + dashDisplayName.Substring(1);
+            }
+        }
+        <h2 class="fw-bold mb-2">@greeting, @dashDisplayName! 👋</h2>
+        <p class="mb-0 text-white-50 fs-6">Here’s what’s happening with your business today.</p>
+    </div>
+    <div class="mt-3 mt-md-0">
+        <div class="dash-time-pill">
+            <i class="bi bi-calendar3"></i>
+            <span id="liveDateTime">@DateTime.Now.ToString("dddd, MMMM d, yyyy 'at' h:mm tt")</span>
+        </div>
+    </div>
+</div>
+
+<!-- 2. KPI Cards -->
+<div class="row g-4 mb-4">
+    <!-- Total Orders (Merch/Admin) -->
+    @if (isMerchandiser || isAdmin || isSuperAdmin)
+    {
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card d-flex align-items-center">
+                <div class="kpi-icon bg-light-primary me-3">
+                    <i class="bi bi-cart2"></i>
+                </div>
+                <div>
+                    <div class="kpi-title">Total Orders</div>
+                    <div class="kpi-value">@ViewBag.TotalOrders</div>
+                    <div class="kpi-trend trend-up"><i class="bi bi-arrow-up-right"></i> @ViewBag.GrowthOrders from last month</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Running Production (Prod/Admin) -->
+    @if (isProductionManager || isAdmin || isSuperAdmin)
+    {
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card d-flex align-items-center">
+                <div class="kpi-icon bg-light-success me-3">
+                    <i class="bi bi-gear-wide-connected"></i>
+                </div>
+                <div>
+                    <div class="kpi-title">Running Production</div>
+                    <div class="kpi-value">@ViewBag.RunningProductions</div>
+                    <div class="kpi-trend trend-up"><i class="bi bi-arrow-up-right"></i> @ViewBag.GrowthProd from last month</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card d-flex align-items-center">
+                <div class="kpi-icon bg-light-warning me-3">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div>
+                    <div class="kpi-title">Completed Production</div>
+                    <div class="kpi-value">@ViewBag.CompletedProductions</div>
+                    <div class="kpi-trend trend-up"><i class="bi bi-dash"></i> Consistent rate</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- QC Stats (QC/Admin) -->
+    @if (isQC || isAdmin || isSuperAdmin)
+    {
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card d-flex align-items-center">
+                <div class="kpi-icon bg-light-primary me-3" style="background:#f3e8ff; color:#7d4aa3;">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div>
+                    <div class="kpi-title">Pending QC</div>
+                    <div class="kpi-value">@ViewBag.PendingQC</div>
+                    <div class="kpi-trend text-muted"><i class="bi bi-activity"></i> Needs action</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card d-flex align-items-center">
+                <div class="kpi-icon bg-light-danger me-3">
+                    <i class="bi bi-shield-x"></i>
+                </div>
+                <div>
+                    <div class="kpi-title">QC Failed Items</div>
+                    <div class="kpi-value">@ViewBag.QCFailedItems</div>
+                    <div class="kpi-trend trend-down"><i class="bi bi-arrow-down-right"></i> 5.4% from last month</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Employee / Admin Data -->
+    @if (isHR || isAdmin || isSuperAdmin)
+    {
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card d-flex align-items-center">
+                <div class="kpi-icon bg-light-info me-3">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div>
+                    <div class="kpi-title">Total Employees</div>
+                    <div class="kpi-value">@ViewBag.TotalEmployees</div>
+                    <div class="kpi-trend trend-up"><i class="bi bi-arrow-up-right"></i> Stable workforce</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (isAdmin || isSuperAdmin)
+    {
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card d-flex align-items-center">
+                <div class="kpi-icon bg-light-primary me-3" style="background:#e0e7ff; color:#4338ca;">
+                    <i class="bi bi-clipboard-data"></i>
+                </div>
+                <div>
+                    <div class="kpi-title">Pending Requests</div>
+                    <div class="kpi-value">@ViewBag.PendingRequests</div>
+                    <a href="/UserManagement/ViewModifications" class="kpi-trend text-primary text-decoration-none">View all requests <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card d-flex align-items-center">
+                <div class="kpi-icon bg-light-primary me-3">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div>
+                    <div class="kpi-title">Low Stock Items</div>
+                    <div class="kpi-value">@ViewBag.LowStockItems</div>
+                    <a href="/Inventories" class="kpi-trend text-primary text-decoration-none">View inventory <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- 3. Charts Row -->
+@if (isAdmin || isSuperAdmin || isProductionManager || isMerchandiser)
+{
+    <div class="row g-4 mb-4">
+        <!-- Production Line Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <h6 class="panel-title"><i class="bi bi-graph-up text-primary"></i> Production Overview (Last 7 Days)</h6>
+                </div>
+                <div class="panel-body">
+                    <div style="height: 300px; width: 100%;">
+                        <canvas id="productionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Doughnut Chart -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <h6 class="panel-title"><i class="bi bi-pie-chart text-primary"></i> Order Status</h6>
+                </div>
+                <div class="panel-body d-flex flex-column justify-content-center align-items-center">
+                    <div style="height: 250px; width: 100%; position: relative;">
+                        @if (ViewBag.OrderChartCounts != null && ((List<int>)ViewBag.OrderChartCounts).Sum() > 0)
+                        {
+                            <canvas id="orderChart"></canvas>
+                        }
+                        else
+                        {
+                            <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted">
+                                <i class="bi bi-pie-chart fs-1 mb-2 text-light"></i>
+                                <p>No orders available</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- 4. Bottom Data Panels Row -->
+<div class="row g-4">
+    <!-- Recent Orders -->
+    @if (isAdmin || isSuperAdmin || isMerchandiser)
+    {
+        <div class="col-xl-7 col-lg-6">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <h6 class="panel-title"><i class="bi bi-receipt text-primary"></i> Recent Orders</h6>
+                    <a href="/Orders" class="btn btn-sm btn-link text-decoration-none">View all orders <i class="bi bi-arrow-right"></i></a>
+                </div>
+                <div class="panel-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-modern table-borderless mb-0 w-100 px-4 d-block d-md-table">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Order No.</th>
+                                    <th>Buyer</th>
+                                    <th>Style</th>
+                                    <th>Status</th>
+                                    <th class="pe-4">Due Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (recentOrders.Any())
+                                {
+                                    foreach(var order in recentOrders)
+                                    {
+                                        string badgeClass = order.Status.Contains("Pending") ? "status-pending" :
+                                                            order.Status.Contains("Production") ? "status-production" :
+                                                            order.Status.Contains("Shipped") ? "status-shipped" : "status-completed";
+                                        <tr>
+                                            <td class="ps-4 fw-bold text-dark">ORD-@order.Id.ToString("D4")</td>
+                                            <td>@order.BuyerName</td>
+                                            <td>@order.StyleCode</td>
+                                            <td><span class="status-badge @badgeClass">@order.Status</span></td>
+                                            <td class="pe-4">@order.DeliveryDate.ToString("MMM dd, yyyy")</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">No recent orders found.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- QC Summary -->
+    @if (isAdmin || isSuperAdmin || isQC)
+    {
+        <div class="col-xl-5 col-lg-6">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <h6 class="panel-title"><i class="bi bi-shield-check text-primary"></i> QC Inspection Summary</h6>
+                    <a href="/QC" class="btn btn-sm btn-link text-decoration-none">View all QC <i class="bi bi-arrow-right"></i></a>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-borderless table-modern mb-0 w-100">
+                        <thead>
+                            <tr>
+                                <th>QC Status</th>
+                                <th class="text-center">Count</th>
+                                <th class="text-end" style="width: 50%;">Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Passed -->
+                            <tr>
+                                <td class="fw-bold text-dark">Passed</td>
+                                <td class="text-center fw-bold">@qcPassed</td>
+                                <td class="text-end">
+                                    <div class="d-flex align-items-center justify-content-end gap-3">
+                                        <div class="progress w-100" style="height: 6px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: @pctPassed.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)%" aria-valuenow="@pctPassed" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="text-muted" style="min-width: 45px;">@pctPassed.ToString("0.0")%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Failed -->
+                            <tr>
+                                <td class="fw-bold text-dark">Failed</td>
+                                <td class="text-center fw-bold">@qcFailed</td>
+                                <td class="text-end">
+                                    <div class="d-flex align-items-center justify-content-end gap-3">
+                                        <div class="progress w-100" style="height: 6px;">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: @pctFailed.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)%" aria-valuenow="@pctFailed" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="text-muted" style="min-width: 45px;">@pctFailed.ToString("0.0")%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Recheck -->
+                            <tr>
+                                <td class="fw-bold text-dark">Recheck Required</td>
+                                <td class="text-center fw-bold">@qcRecheck</td>
+                                <td class="text-end">
+                                    <div class="d-flex align-items-center justify-content-end gap-3">
+                                        <div class="progress w-100" style="height: 6px;">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: @pctRecheck.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)%" aria-valuenow="@pctRecheck" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="text-muted" style="min-width: 45px;">@pctRecheck.ToString("0.0")%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 @section Scripts {
-
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-
-            // ===== CLOCK =====
-            function updateClock() {
+        // Set dynamic date in header interval
+        setInterval(() => {
+            const el = document.getElementById('liveDateTime');
+            if(el) {
                 const now = new Date();
-                const formatted = now.toLocaleString('en-US', {
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: true
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' };
+                el.innerText = now.toLocaleDateString('en-US', options).replace(' at', ' at'); // fallback formatting
+            }
+        }, 60000);
+
+        // Chart.js Implementations
+        document.addEventListener("DOMContentLoaded", function () {
+            
+            Chart.defaults.font.family = "'Inter', 'Segoe UI', Roboto, sans-serif";
+            Chart.defaults.color = '#858796';
+
+            // 1. Line Chart (Production)
+            const prodCtx = document.getElementById('productionChart');
+            if (prodCtx) {
+                new Chart(prodCtx, {
+                    type: 'line',
+                    data: {
+                        labels: @Html.Raw(prodLabels),
+                        datasets: [
+                            {
+                                label: 'Actual Output',
+                                data: @Html.Raw(prodActual),
+                                borderColor: '#4e73df',
+                                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#4e73df',
+                                pointBorderWidth: 2,
+                                pointRadius: 3
+                            },
+                            {
+                                label: 'Target Output',
+                                data: @Html.Raw(prodTarget),
+                                borderColor: '#b2baff',
+                                borderDash: [5, 5],
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0.4,
+                                pointRadius: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: { boxWidth: 12, usePointStyle: true }
+                            }
+                        },
+                        scales: {
+                            x: { grid: { display: false } },
+                            y: { grid: { borderDash: [2, 4], color: '#eaecf4' }, beginAtZero: true }
+                        }
+                    }
                 });
-                const el = document.getElementById("live-clock");
-                if (el) el.innerText = formatted;
             }
 
-            updateClock();
-            setInterval(updateClock, 1000);
-
-            // ===== BAR + LINE CHART (REAL DATA) =====
-            try {
-                const barCtx = document.getElementById('barChart');
-                if (barCtx && typeof Chart !== "undefined") {
-
-                    const monthLabels = @Html.Raw(Json.Serialize(Model.MonthLabels ?? new List<string>()));
-                    const monthlyOrders = @Html.Raw(Json.Serialize(Model.MonthlyOrders ?? new List<int>()));
-                    const monthlyProduction = @Html.Raw(Json.Serialize(Model.MonthlyProduction ?? new List<int>()));
-
-                    new Chart(barCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: monthLabels,
-                            datasets: [
-                                {
-                                    label: 'Orders',
-                                    data: monthlyOrders,
-                                    backgroundColor: '#5b6ee1',
-                                    borderRadius: 6
-                                },
-                                {
-                                    label: 'Production',
-                                    data: monthlyProduction,
-                                    type: 'line',
-                                    borderColor: '#d17ddf',
-                                    backgroundColor: 'transparent',
-                                    tension: 0.4,
-                                    pointRadius: 4
-                                }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: { legend: { position: 'top' } },
-                            scales: { y: { beginAtZero: true } }
+            // 2. Doughnut Chart (Orders)
+            const orderCtx = document.getElementById('orderChart');
+            if (orderCtx) {
+                new Chart(orderCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: @Html.Raw(orderLabels),
+                        datasets: [{
+                            data: @Html.Raw(orderCounts),
+                            backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e', '#36b9cc', '#e74a3b'],
+                            hoverBackgroundColor: ['#2e59d9', '#17a673', '#dda20a', '#2c9faf', '#e02d1b'],
+                            hoverBorderColor: "rgba(234, 236, 244, 1)",
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: { boxWidth: 12, usePointStyle: true, padding: 20 }
+                            }
                         }
-                    });
-                }
-            } catch (err) {
-                console.log("Bar chart failed:", err);
+                    }
+                });
             }
-
-            // ===== DONUT CHART =====
-            try {
-                const donutCtx = document.getElementById('donutChart');
-                if (donutCtx && typeof Chart !== "undefined") {
-                    new Chart(donutCtx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['Item A', 'Item B', 'Item C'],
-                            datasets: [{
-                                data: [50, 30, 20],
-                                backgroundColor: ['#5b6ee1', '#7d4aa3', '#d17ddf']
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            cutout: '65%',
-                            plugins: { legend: { position: 'bottom' } }
-                        }
-                    });
-                }
-            } catch (err) {
-                console.log("Donut chart failed:", err);
-            }
-
         });
     </script>
-
 }

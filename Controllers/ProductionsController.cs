@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LouietexERP.Data;
 using LouietexERP.Models;
@@ -10,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LouietexERP.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
     public class ProductionsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,20 +22,10 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Productions
-        public async Task<IActionResult> Index(string search)
+        public async Task<IActionResult> Index()
         {
-            var productions = from p in _context.Productions
-                              select p;
-
-            if (!string.IsNullOrEmpty(search))
-            {
-                productions = productions.Where(p =>
-                    p.LineNumber.ToString().Contains(search) ||
-                    p.TargetQuantity.ToString().Contains(search) ||
-                    p.ActualOutput.ToString().Contains(search));
-            }
-
-            return View(await productions.ToListAsync());
+            var applicationDbContext = _context.Productions.Include(p => p.Order);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Productions/Details/5
@@ -46,8 +37,9 @@ namespace LouietexERP.Controllers
             }
 
             var production = await _context.Productions
+                .Include(p => p.Order)
+                .Include(p => p.QCInspections)
                 .FirstOrDefaultAsync(m => m.Id == id);
-
             if (production == null)
             {
                 return NotFound();
@@ -57,30 +49,30 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Productions/Create
-        [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public IActionResult Create()
         {
+            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "StyleCode");
             return View();
         }
 
         // POST: Productions/Create
-        // POST: Productions/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
-        public async Task<IActionResult> Create([Bind("Id,LineNumber,TargetQuantity,ActualOutput,DefectCount,ProductionDate")] Production production)
+        public async Task<IActionResult> Create([Bind("Id,OrderId,LineNumber,Supervisor,TargetQuantity,ActualOutput,StartDate,EndDate,Status")] Production production)
         {
             if (ModelState.IsValid)
             {
+                production.CreatedAt = DateTime.UtcNow;
+                production.UpdatedAt = DateTime.UtcNow;
                 _context.Add(production);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "StyleCode", production.OrderId);
             return View(production);
         }
 
         // GET: Productions/Edit/5
-        [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -93,15 +85,14 @@ namespace LouietexERP.Controllers
             {
                 return NotFound();
             }
-
+            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "StyleCode", production.OrderId);
             return View(production);
         }
 
         // POST: Productions/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,LineNumber,TargetQuantity,ActualOutput,DefectCount,ProductionDate")] Production production)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,OrderId,LineNumber,Supervisor,TargetQuantity,ActualOutput,DefectCount,StartDate,EndDate,Status,CreatedAt")] Production production)
         {
             if (id != production.Id)
             {
@@ -112,6 +103,7 @@ namespace LouietexERP.Controllers
             {
                 try
                 {
+                    production.UpdatedAt = DateTime.UtcNow;
                     _context.Update(production);
                     await _context.SaveChangesAsync();
                 }
@@ -128,11 +120,11 @@ namespace LouietexERP.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "StyleCode", production.OrderId);
             return View(production);
         }
 
         // GET: Productions/Delete/5
-        [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -141,8 +133,8 @@ namespace LouietexERP.Controllers
             }
 
             var production = await _context.Productions
+                .Include(p => p.Order)
                 .FirstOrDefaultAsync(m => m.Id == id);
-
             if (production == null)
             {
                 return NotFound();
@@ -154,7 +146,6 @@ namespace LouietexERP.Controllers
         // POST: Productions/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var production = await _context.Productions.FindAsync(id);
@@ -165,22 +156,6 @@ namespace LouietexERP.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        // ✅ DAILY SUMMARY (Dashboard feature)
-        public async Task<IActionResult> DailySummary()
-        {
-            var today = DateTime.Today;
-            var tomorrow = today.AddDays(1);
-
-            var dailyData = await _context.Productions
-                .Where(p => p.ProductionDate >= today && p.ProductionDate < tomorrow)
-                .ToListAsync();
-
-            ViewBag.TotalOutput = dailyData.Sum(p => p.ActualOutput);
-            ViewBag.TotalDefects = dailyData.Sum(p => p.DefectCount);
-
-            return View(dailyData);
         }
 
         private bool ProductionExists(int id)

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using LouietexERP.Models;
 
@@ -17,5 +17,6 @@ namespace LouietexERP.Data
         public DbSet<Production> Productions { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<ProfileRequest> ProfileRequests { get; set; }
+        public DbSet<QCInspection> QCInspections { get; set; }
     }
 }

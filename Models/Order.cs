@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace LouietexERP.Models
 {
@@ -26,5 +26,11 @@ namespace LouietexERP.Models
 
         [Display(Name = "Order Status")]
         public string Status { get; set; } = "Pending"; // e.g., Pending, In Production, Shipped
+
+        [Display(Name = "Created At")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // Navigation property
+        public ICollection<Production>? Productions { get; set; }
     }
 }

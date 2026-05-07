@@ -1,0 +1,73 @@
+@model LouietexERP.Models.QCInspection
+
+@{
+    ViewData["Title"] = "Edit QC Inspection";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-warning text-dark rounded-top-4 p-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-pencil-square fs-4 me-2"></i>
+                        <h5 class="mb-0 fw-bold">Edit Inspection</h5>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CheckedByUserId" />
+                        <input type="hidden" asp-for="CreatedAt" />
+                        <input type="hidden" asp-for="InspectionDate" />
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label asp-for="ProductionId" class="form-label fw-bold">Production Line <span class="text-danger">*</span></label>
+                                <select asp-for="ProductionId" class="form-select" asp-items="ViewBag.ProductionId"></select>
+                                <span asp-validation-for="ProductionId" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="QCStatus" class="form-label fw-bold">QC Result <span class="text-danger">*</span></label>
+                                <select asp-for="QCStatus" class="form-select">
+                                    <option value="Passed">Passed</option>
+                                    <option value="Failed">Failed</option>
+                                    <option value="Recheck Required">Recheck Required</option>
+                                </select>
+                                <span asp-validation-for="QCStatus" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="DefectCount" class="form-label fw-bold">Defect Count</label>
+                                <input asp-for="DefectCount" class="form-control" />
+                                <span asp-validation-for="DefectCount" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label asp-for="Remarks" class="form-label fw-bold">Remarks / Notes</label>
+                                <textarea asp-for="Remarks" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Remarks" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a asp-action="Index" class="btn btn-light px-4">Cancel</a>
+                            <button type="submit" class="btn btn-warning px-4">
+                                <i class="bi bi-save me-2"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

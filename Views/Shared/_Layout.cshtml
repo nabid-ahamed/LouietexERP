@@ -4,9 +4,7 @@
 
 @{
     var path = Context.Request.Path.ToString().ToLowerInvariant();
-
-    var isAuthPage = path.Contains("/identity/account/login") ||
-                     path.Contains("/identity/account/register");
+    var isAuthPage = path.Contains("/identity/account/login") || path.Contains("/identity/account/register");
 
     var isSuperAdmin = User.IsInRole(SD.Role_SuperAdmin);
     var isAdmin = User.IsInRole(SD.Role_Admin);
@@ -17,13 +15,10 @@
 
     var hideNav = ViewData["HideNav"] as bool? ?? false;
 
-    // ✅ SAFE ACTIVE MENU (NO STRING MATCH BUG)
     Func<string, string, string> isActive = (controller, action) =>
     {
         var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
-        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
-
-        return currentController == controller && currentAction == action ? "active" : "";
+        return currentController == controller ? "active" : "";
     };
 }
 
@@ -33,179 +28,317 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - LouietexERP</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
+    
     <!-- CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    
+    <style>
+        :root {
+            --erp-sidebar-bg: #1e1e2d;
+            --erp-sidebar-hover: #2b2b40;
+            --erp-sidebar-active: #4e73df;
+            --erp-sidebar-text: #a1a5b7;
+            --erp-sidebar-text-active: #ffffff;
+            --erp-bg: #f5f8fa;
+            --erp-card-bg: #ffffff;
+            --erp-primary: #4e73df;
+            --erp-sidebar-width: 260px;
+            --erp-header-height: 60px;
+        }
+
+        body {
+            background-color: var(--erp-bg);
+            font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Top Navbar Fixes */
+        .navbar-top {
+            height: var(--erp-header-height);
+            background: var(--erp-card-bg) !important;
+            border-bottom: 1px solid #e4e6ef;
+            left: var(--erp-sidebar-width);
+            width: calc(100% - var(--erp-sidebar-width));
+            z-index: 1030;
+            transition: all 0.3s;
+        }
+
+        /* Modern Sidebar */
+        .erp-sidebar {
+            width: var(--erp-sidebar-width);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: var(--erp-sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            z-index: 1040;
+            transition: all 0.3s;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .erp-brand {
+            height: var(--erp-header-height);
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .erp-brand img { height: 32px; margin-right: 10px; }
+
+        .erp-menu {
+            padding: 20px 15px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .erp-menu-title {
+            color: #6c7293;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin: 20px 0 10px 15px;
+        }
+
+        .erp-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: var(--erp-sidebar-text);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .erp-menu-item i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .erp-menu-item:hover {
+            background-color: var(--erp-sidebar-hover);
+            color: var(--erp-sidebar-text-active);
+        }
+
+        .erp-menu-item.active {
+            background-color: var(--erp-primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(78, 115, 223, 0.3);
+        }
+
+        .erp-user-profile {
+            padding: 15px 20px;
+            background: rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Main Content wrapper */
+        .erp-main-wrapper {
+            margin-left: var(--erp-sidebar-width);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s;
+        }
+
+        .erp-content {
+            padding: 30px;
+            flex-grow: 1;
+        }
+
+        /* Custom Scrollbar for Sidebar */
+        .erp-menu::-webkit-scrollbar { width: 5px; }
+        .erp-menu::-webkit-scrollbar-track { background: transparent; }
+        .erp-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .erp-menu:hover::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+
+        /* Responsive */
+        @@media (max-width: 991.98px) {
+            .erp-sidebar { transform: translateX(-100%); }
+            .erp-main-wrapper { margin-left: 0; }
+            .navbar-top { left: 0; width: 100%; }
+            .sidebar-open .erp-sidebar { transform: translateX(0); }
+        }
+
+        /* Overrides for no-nav pages like login */
+        .no-nav-layout .erp-sidebar { display: none !important; }
+        .no-nav-layout .erp-main-wrapper { margin-left: 0 !important; }
+        .no-nav-layout .navbar-top { display: none !important; }
+        .no-nav-layout .erp-content { margin-top: 0 !important; padding: 0 !important; }
+    </style>
 </head>
 
-<body class="@(hideNav ? "no-nav-layout" : "")">
-
-    <!-- NAVBAR -->
-    @if (!hideNav)
-    {
-        <nav class="navbar navbar-light bg-white border-bottom px-3 fixed-top">
-            <a class="navbar-brand" asp-controller="Dashboard" asp-action="Index">
-                <img src="~/images/logo.png" class="logo" />
-            </a>
-
-            <div class="ms-auto">
-                <partial name="_LoginPartial" />
-            </div>
-        </nav>
-    }
+<body class="@(hideNav || isAuthPage ? "no-nav-layout" : "")">
 
     <!-- SIDEBAR -->
     @if (!isAuthPage && !hideNav)
     {
-        <div class="sidebar">
-
-            <h5 class="px-3">ERP Menu</h5>
-
-            <!-- Dashboard -->
-            <a class="@isActive("Dashboard", "Index")"
-                   asp-controller="Dashboard" asp-action="Index">
-                <i class="bi bi-speedometer2"></i>
-                <span>Home</span>
+        <aside class="erp-sidebar">
+            <a href="~/Dashboard/Index" class="erp-brand text-white">
+                <i class="bi bi-hexagon-fill text-primary me-2 fs-3"></i> LouietexERP
             </a>
+            
+            <div class="erp-menu">
+                <div class="erp-menu-title">Main Modules</div>
+                <a class="erp-menu-item @isActive("Dashboard", "")" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-house-door"></i> Dashboard
+                </a>
 
-            <!-- Inventory -->
-            @if (isAdmin || isSuperAdmin)
-            {
-                <a class="@isActive("Inventories", "Index")"
-                       asp-controller="Inventories" asp-action="Index">
-                    <i class="bi bi-box"></i>
-                    <span>Inventory</span>
-                </a>
-            }
-
-            <!-- Employees -->
-            @if (isHR || isAdmin || isSuperAdmin)
-            {
-                <a class="@isActive("Employees", "Index")"
-                       asp-controller="Employees" asp-action="Index">
-                    <i class="bi bi-people"></i>
-                    <span>Employees</span>
-                </a>
-            }
-
-            <!-- Production -->
-            @if (isProductionManager || isAdmin || isSuperAdmin)
-            {
-                <a class="@isActive("Productions", "Index")"
-                       asp-controller="Productions" asp-action="Index">
-                    <i class="bi bi-gear"></i>
-                    <span>Production</span>
-                </a>
-            }
-
-            <!-- Orders -->
-            @if (isMerchandiser || isAdmin || isSuperAdmin)
-            {
-                <a class="@isActive("Orders", "Index")"
-                       asp-controller="Orders" asp-action="Index">
-                    <i class="bi bi-cart"></i>
-                    <span>Orders</span>
-                </a>
-                <!-- Order Status -->
-                <a class="@isActive("Orders", "TrackStatus")"
-                       asp-controller="Orders" asp-action="TrackStatus">
-                    <i class="bi bi-truck"></i>
-                    <span>Order Status</span>
-                </a>
-            }
-
-            <!-- QC -->
-            @if (isQC || isAdmin || isSuperAdmin)
-            {
-                <a class="@isActive("QC", "Index")"
-                       asp-controller="Dashboard" asp-action="Index"> <!-- Placeholder controller -->
-                    <i class="bi bi-check-circle"></i>
-                    <span>Quality Control</span>
-                </a>
-            }
-
-            @if (isSuperAdmin)
-            {
-                <a class="@isActive("UserAccess", "Index")"
-                       asp-controller="UserAccess" asp-action="Index">
-                    <i class="bi bi-shield-lock"></i>
-                    <span>User Access Control</span>
-                </a>
-            }
-             @if (User.Identity != null && User.Identity.IsAuthenticated)
-        {
-            <div class="d-flex flex-column gap-2 flex-shrink-0 mt-3 px-3">
-                @if (isSuperAdmin)
+                @if (isHR || isAdmin || isSuperAdmin)
                 {
-                    <a class="btn btn-outline-danger fw-bold text-start"
-                           asp-controller="UserManagement"
-                           asp-action="PendingApprovals">
-                        <i class="bi bi-person-check"></i> Approve Users
-                        @if (ViewBag.PendingUsers != null && (int)ViewBag.PendingUsers > 0)
-                        {
-                            <span class="badge bg-danger ms-1">@ViewBag.PendingUsers</span>
+                    <a class="erp-menu-item @isActive("Employees", "")" asp-controller="Employees" asp-action="Index">
+                        <i class="bi bi-people"></i> Employees
+                    </a>
+                }
+
+                @if (isMerchandiser || isAdmin || isSuperAdmin)
+                {
+                    <a class="erp-menu-item @isActive("Orders", "")" asp-controller="Orders" asp-action="Index">
+                        <i class="bi bi-bag"></i> Orders
+                    </a>
+                }
+
+                @if (isProductionManager || isAdmin || isSuperAdmin)
+                {
+                    <a class="erp-menu-item @isActive("Productions", "")" asp-controller="Productions" asp-action="Index">
+                        <i class="bi bi-gear-wide-connected"></i> Production
+                    </a>
+                }
+
+                @if (isQC || isAdmin || isSuperAdmin)
+                {
+                    <a class="erp-menu-item @isActive("QC", "")" asp-controller="QC" asp-action="Index">
+                        <i class="bi bi-shield-check"></i> QC Inspections
+                    </a>
+                }
+
+                @if (isAdmin || isSuperAdmin)
+                {
+                    <a class="erp-menu-item @isActive("Inventories", "")" asp-controller="Inventories" asp-action="Index">
+                        <i class="bi bi-box-seam"></i> Inventory
+                    </a>
+                }
+
+                <div class="erp-menu-title">Administration</div>
+                @if (isSuperAdmin || isAdmin)
+                {
+                    <a class="erp-menu-item @isActive("UserAccess", "")" asp-controller="UserAccess" asp-action="Index">
+                        <i class="bi bi-person-lines-fill"></i> User Management
+                    </a>
+                    <a class="erp-menu-item @isActive("UserManagement", "")" asp-controller="UserManagement" asp-action="ViewModifications">
+                        <i class="bi bi-clipboard-check"></i> Review Requests
+                        @if (ViewBag.PendingRequests != null && ViewBag.PendingRequests > 0) {
+                            <span class="badge bg-primary ms-auto rounded-pill">@ViewBag.PendingRequests</span>
                         }
                     </a>
                 }
-            
-                <!-- Review Requests -->
-                @if (isAdmin || isSuperAdmin)
-                {
-                    <a class="btn btn-outline-primary fw-bold text-start"
-                           asp-controller="UserManagement" asp-action="ViewModifications">
-                        <i class="bi bi-clipboard-check"></i> Review Requests
-                    </a>
-                }
+
+                <div class="erp-menu-title">Account</div>
+                <a class="erp-menu-item @isActive("Manage", "")" href="/Identity/Account/Manage">
+                    <i class="bi bi-person"></i> My Profile
+                </a>
+                
+                <form class="m-0 p-0" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Dashboard", new { area = "" })">
+                    <button type="submit" class="erp-menu-item bg-transparent border-0 w-100 text-start">
+                        <i class="bi bi-box-arrow-left"></i> Logout
+                    </button>
+                </form>
             </div>
-        }
-        </div>
+
+            <div class="erp-user-profile">
+                <div class="d-flex align-items-center w-100">
+                    @{
+                        var rawName = User.Identity?.Name ?? "User";
+                        var displayName = rawName;
+                        if (displayName.Contains("@")) {
+                            displayName = displayName.Split('@')[0];
+                            if (displayName.Length > 0)
+                                displayName = char.ToUpper(displayName[0]) + displayName.Substring(1);
+                        }
+                    }
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold me-3" style="width: 40px; height: 40px; font-size: 16px;">
+                        @displayName.Substring(0, 1).ToUpper()
+                    </div>
+                    <div class="overflow-hidden">
+                        <div class="text-white fw-bold text-truncate" style="font-size: 14px;">@displayName</div>
+                        <div class="text-muted text-truncate" style="font-size: 12px;">Louietex User</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
     }
 
-    <!-- MAIN CONTENT -->
-    <div class="main-area">
-
-        <!-- ALERTS -->
-        @if (TempData["Warning"] != null)
+    <!-- MAIN WRAPPER -->
+    <div class="erp-main-wrapper">
+        
+        <!-- Mobile Toggle (Only visible on small screens) -->
+        @if (!isAuthPage && !hideNav)
         {
-            <div class="alert alert-warning text-center m-3">
-                @TempData["Warning"]
+            <div class="d-lg-none p-3 bg-white border-bottom shadow-sm d-flex align-items-center">
+                <button class="btn btn-light me-3" type="button" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <h5 class="m-0 fw-bold text-primary">LouietexERP</h5>
             </div>
         }
 
-        @if (TempData["Message"] != null)
-        {
-            <div class="alert alert-success text-center m-3">
-                @TempData["Message"]
-            </div>
-        }
+        <!-- PAGE CONTENT -->
+        <main class="erp-content">
+            @if (TempData["Warning"] != null)
+            {
+                <div class="alert alert-warning alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Warning"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
 
-        <main class="content">
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i> @TempData["Message"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
             @RenderBody()
         </main>
-
+        
+        @if (!isAuthPage && !hideNav)
+        {
+            <footer class="py-4 text-center mt-auto text-muted" style="font-size: 13px;">
+                © 2026 Louietex | Nabid Ahamed Noushad. All rights reserved
+            </footer>
+        }
     </div>
 
     <!-- SCRIPTS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    
+    <script>
+        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+            document.body.classList.toggle('sidebar-open');
+        });
+    </script>
+    
     @await RenderSectionAsync("Scripts", required: false)
-
-
-    <!-- FOOTER -->
-    <footer class="footer mt-auto py-3 border-top" style="background-color: #2b2b2b;">
-        <div class="text-center">
-            <span style="color: #aaa; font-size: 0.85rem;">
-                © 2026 Louietex |Nabid Ahamed Noushad. All rights reserved
-            </span>
-        </div>
-    </footer>
 </body>
 </html>

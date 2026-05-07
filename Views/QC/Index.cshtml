@@ -1,0 +1,104 @@
+@model IEnumerable<LouietexERP.Models.QCInspection>
+
+@{
+    ViewData["Title"] = "QC Inspections";
+}
+
+<style>
+    .qc-header-bar {
+        background: #fd7e14;
+        padding: 12px 20px;
+        border-radius: 12px 12px 0 0;
+    }
+    .qc-header-bar h5, .qc-header-bar i { color: white; }
+    .table-header-premium {
+        background: #fff3cd;
+        border-bottom: 2px solid #ffecb5;
+    }
+    .table-header-premium th {
+        font-weight: 700;
+        font-size: 14px;
+        color: #664d03;
+        padding: 16px 12px;
+        text-transform: uppercase;
+        border: none;
+    }
+    .card-custom {
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border: none;
+    }
+    .qc-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .qc-passed { background: #d1e7dd; color: #0f5132; }
+    .qc-failed { background: #f8d7da; color: #842029; }
+    .qc-recheck { background: #fff3cd; color: #664d03; }
+</style>
+
+<div class="qc-header-bar d-flex justify-content-between align-items-center mt-3">
+    <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-search fs-5"></i>
+        <h5 class="mb-0 fw-bold">Quality Control Inspections</h5>
+    </div>
+    <a asp-action="Create" class="btn btn-light btn-sm text-warning fw-bold px-3 rounded-pill">
+        <i class="bi bi-plus-lg me-1"></i> New Inspection
+    </a>
+</div>
+
+<div class="card card-custom" style="border-top-left-radius:0; border-top-right-radius:0;">
+    <div class="card-body p-0">
+        <table class="table mb-0 table-hover align-middle">
+            <thead class="table-header-premium">
+                <tr>
+                    <th class="ps-4">Production Line</th>
+                    <th>Date</th>
+                    <th class="text-center">Defects</th>
+                    <th class="text-center">Inspector</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model) {
+                    var statusClass = item.QCStatus switch {
+                        "Passed" => "qc-passed",
+                        "Failed" => "qc-failed",
+                        "Recheck Required" => "qc-recheck",
+                        _ => "qc-recheck"
+                    };
+
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold text-dark">@(item.Production?.LineNumber ?? "Unknown Line")</div>
+                            <div class="small text-muted">Order: @(item.Production?.Order?.StyleCode ?? "N/A")</div>
+                        </td>
+                        <td>
+                            @item.InspectionDate.ToString("MMM dd, yyyy")
+                        </td>
+                        <td class="text-center">
+                            @if (item.DefectCount > 0) {
+                                <span class="badge bg-danger rounded-pill px-3">@item.DefectCount</span>
+                            } else {
+                                <span class="badge bg-success rounded-pill px-3">0</span>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @(item.CheckedByUser?.FullName ?? "Unknown")
+                        </td>
+                        <td class="text-center">
+                            <span class="qc-badge @statusClass">@item.QCStatus</span>
+                        </td>
+                        <td class="text-center">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-light text-primary mx-1" title="Details"><i class="bi bi-eye"></i></a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-light text-success mx-1" title="Edit"><i class="bi bi-pencil"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
