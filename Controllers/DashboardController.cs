@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace LouietexERP.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = SD.Role_SuperAdmin + "," + SD.Role_Admin + "," + SD.Role_HR + "," + SD.Role_Merchandiser + "," + SD.Role_ProductionManager + "," + SD.Role_QC)]
     public class DashboardController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -51,6 +51,17 @@ namespace LouietexERP.Controllers
             ViewBag.TotalEmployees = totalEmployees;
             ViewBag.PendingRequests = pendingRequests;
             ViewBag.LowStockItems = lowStockItems;
+
+            // Admin Dashboard additions
+            var pendingUsersCount = await _userManager.Users.CountAsync(u => !u.IsApproved);
+            var recentRegisteredUsers = await _userManager.Users
+                .Where(u => !u.IsApproved)
+                .OrderByDescending(u => u.RegistrationDate)
+                .Take(5)
+                .ToListAsync();
+
+            ViewBag.PendingUsersCount = pendingUsersCount;
+            ViewBag.RecentRegisteredUsers = recentRegisteredUsers;
 
             // 2. Chart Data - Order Status Doughnut
             var orderStatuses = await _context.Orders

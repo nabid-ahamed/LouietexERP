@@ -1,3 +1,6 @@
+@using Microsoft.AspNetCore.Identity
+@using LouietexERP.Models
+@inject UserManager<ApplicationUser> UserManager
 @{
     ViewData["Title"] = "Dashboard";
     
@@ -35,6 +38,10 @@
     double pctPassed = totalQC > 0 ? ((double)qcPassed / totalQC) * 100 : 0;
     double pctFailed = totalQC > 0 ? ((double)qcFailed / totalQC) * 100 : 0;
     double pctRecheck = totalQC > 0 ? ((double)qcRecheck / totalQC) * 100 : 0;
+
+    // Fetch user for greeting
+    var dashUser = await UserManager.GetUserAsync(User);
+    var dashFullName = dashUser?.FullName ?? "User";
 }
 
 <style>
@@ -152,16 +159,8 @@
 <!-- 1. Gradient Header -->
 <div class="dash-gradient-header d-flex flex-column flex-md-row justify-content-between align-items-md-center">
     <div>
-        @{
-            var dashRawName = User.Identity?.Name ?? "User";
-            var dashDisplayName = dashRawName;
-            if (dashDisplayName.Contains("@")) {
-                dashDisplayName = dashDisplayName.Split('@')[0];
-                if (dashDisplayName.Length > 0)
-                    dashDisplayName = char.ToUpper(dashDisplayName[0]) + dashDisplayName.Substring(1);
-            }
-        }
-        <h2 class="fw-bold mb-2">@greeting, @dashDisplayName! 👋</h2>
+        <h2 class="fw-bold mb-2">@greeting, @dashFullName! 👋</h2>
+
         <p class="mb-0 text-white-50 fs-6">Here’s what’s happening with your business today.</p>
     </div>
     <div class="mt-3 mt-md-0">
@@ -270,6 +269,25 @@
 
     @if (isAdmin || isSuperAdmin)
     {
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card d-flex align-items-center position-relative">
+                <div class="kpi-icon bg-light-danger me-3">
+                    <i class="bi bi-person-plus"></i>
+                </div>
+                <div>
+                    <div class="kpi-title">Pending Approvals</div>
+                    <div class="kpi-value">@ViewBag.PendingUsersCount</div>
+                    <a href="/UserManagement/PendingApprovals" class="kpi-trend text-danger text-decoration-none fw-bold">Review users <i class="bi bi-arrow-right"></i></a>
+                </div>
+                @if (ViewBag.PendingUsersCount > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm" style="margin-top: 10px; margin-left: -20px;">
+                        @(ViewBag.PendingUsersCount > 99 ? "99+" : ViewBag.PendingUsersCount)
+                    </span>
+                }
+            </div>
+        </div>
+
         <div class="col-xl-3 col-md-6">
             <div class="kpi-card d-flex align-items-center">
                 <div class="kpi-icon bg-light-primary me-3" style="background:#e0e7ff; color:#4338ca;">
@@ -461,6 +479,83 @@
         </div>
     }
 </div>
+
+<!-- 5. Recent Users Row -->
+@if (isAdmin || isSuperAdmin)
+{
+    var recentUsers = ViewBag.RecentRegisteredUsers as List<LouietexERP.Models.ApplicationUser> ?? new List<LouietexERP.Models.ApplicationUser>();
+    
+    <div class="row g-4 mt-2">
+        <div class="col-12">
+            <div class="panel-card shadow-sm border-0">
+                <div class="panel-header bg-white border-bottom py-3">
+                    <h6 class="panel-title mb-0 fw-bold"><i class="bi bi-person-badge text-primary me-2"></i> Recent Registered Users</h6>
+                    <a href="/UserManagement/PendingApprovals" class="btn btn-sm btn-outline-primary rounded-pill px-3">Manage All</a>
+                </div>
+                <div class="panel-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4 py-3 text-uppercase fs-xs text-muted">User</th>
+                                    <th class="py-3 text-uppercase fs-xs text-muted">Registration Date</th>
+                                    <th class="py-3 text-uppercase fs-xs text-muted text-center">Status</th>
+                                    <th class="pe-4 py-3 text-uppercase fs-xs text-muted text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (recentUsers.Any())
+                                {
+                                    foreach (var user in recentUsers)
+                                    {
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm me-3 bg-light-primary text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px;">
+                                                        @(user.FullName?.Substring(0, 1).ToUpper() ?? "U")
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-bold text-dark">@user.FullName</div>
+                                                        <div class="small text-muted">@user.Email</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="text-dark">@LouietexERP.Models.SD.GetTimeAgo(user.RegistrationDate)</div>
+                                                <div class="small text-muted">@user.RegistrationDate.ToString("MMM dd, h:mm tt")</div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-light-warning text-warning border border-warning-subtle rounded-pill px-3 py-2" style="font-size: 0.75rem;">
+                                                    <i class="bi bi-clock-history me-1"></i> Pending Approval
+                                                </span>
+                                            </td>
+                                            <td class="pe-4 text-end">
+                                                <form asp-controller="UserManagement" asp-action="Approve" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="userId" value="@user.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm">Approve</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-5 text-muted italic">
+                                            <i class="bi bi-person-check fs-2 mb-2 d-block opacity-25"></i>
+                                            No new registrations pending approval.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @section Scripts {
     <script>

@@ -1,0 +1,7 @@
+@model int
+
+@if (Model > 0)
+{
+    var displayCount = Model > 99 ? "99+" : Model.ToString();
+    <span class="badge bg-danger ms-auto rounded-pill shadow-sm" style="font-size: 0.75rem; padding: 0.35em 0.65em;">@displayCount</span>
+}

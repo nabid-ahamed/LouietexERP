@@ -96,6 +96,7 @@ namespace LouietexERP.Areas.Identity.Pages.Account
                 // ✅ Then set custom fields
                 user.FullName = Input.FullName;
                 user.IsApproved = false;
+                user.RegistrationDate = DateTime.UtcNow;
 
                 var result = await _userManager.CreateAsync(user, Input.Password);
 

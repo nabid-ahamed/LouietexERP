@@ -20,6 +20,24 @@
         var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
         return currentController == controller ? "active" : "";
     };
+
+    // User Data for Personalization
+    ApplicationUser? currentUser = null;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        currentUser = await UserManager.GetUserAsync(User);
+    }
+    var fullName = currentUser?.FullName ?? "User";
+    var profilePic = currentUser?.ProfilePicturePath ?? currentUser?.PendingProfilePicturePath;
+    
+    // Get Role Display Name
+    var roleName = "Staff";
+    if (isSuperAdmin) roleName = "Super Admin";
+    else if (isAdmin) roleName = "Administrator";
+    else if (isHR) roleName = "HR Manager";
+    else if (isMerchandiser) roleName = "Merchandiser";
+    else if (isProductionManager) roleName = "Production Manager";
+    else if (isQC) roleName = "QC Officer";
 }
 
 <!DOCTYPE html>
@@ -143,10 +161,15 @@
 
         .erp-user-profile {
             padding: 15px 20px;
-            background: rgba(0,0,0,0.15);
+            background: rgba(0,0,0,0.2);
             display: flex;
             align-items: center;
             border-top: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.2s ease;
+        }
+
+        .erp-user-profile:hover {
+            background: rgba(255,255,255,0.08);
         }
 
         /* Main Content wrapper */
@@ -241,6 +264,7 @@
                 {
                     <a class="erp-menu-item @isActive("UserAccess", "")" asp-controller="UserAccess" asp-action="Index">
                         <i class="bi bi-person-lines-fill"></i> User Management
+                        @await Component.InvokeAsync("PendingApprovals")
                     </a>
                     <a class="erp-menu-item @isActive("UserManagement", "")" asp-controller="UserManagement" asp-action="ViewModifications">
                         <i class="bi bi-clipboard-check"></i> Review Requests
@@ -251,9 +275,7 @@
                 }
 
                 <div class="erp-menu-title">Account</div>
-                <a class="erp-menu-item @isActive("Manage", "")" href="/Identity/Account/Manage">
-                    <i class="bi bi-person"></i> My Profile
-                </a>
+
                 
                 <form class="m-0 p-0" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Dashboard", new { area = "" })">
                     <button type="submit" class="erp-menu-item bg-transparent border-0 w-100 text-start">
@@ -262,26 +284,24 @@
                 </form>
             </div>
 
-            <div class="erp-user-profile">
+            <a href="/Identity/Account/Manage" class="erp-user-profile text-decoration-none">
                 <div class="d-flex align-items-center w-100">
-                    @{
-                        var rawName = User.Identity?.Name ?? "User";
-                        var displayName = rawName;
-                        if (displayName.Contains("@")) {
-                            displayName = displayName.Split('@')[0];
-                            if (displayName.Length > 0)
-                                displayName = char.ToUpper(displayName[0]) + displayName.Substring(1);
-                        }
+                    @if (!string.IsNullOrEmpty(profilePic))
+                    {
+                        <img src="@profilePic" class="rounded-circle me-3 border border-2 border-primary shadow-sm" style="width: 42px; height: 42px; object-fit: cover;" alt="Profile" />
                     }
-                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold me-3" style="width: 40px; height: 40px; font-size: 16px;">
-                        @displayName.Substring(0, 1).ToUpper()
-                    </div>
+                    else
+                    {
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold me-3 shadow-sm" style="width: 42px; height: 42px; font-size: 16px; min-width: 42px;">
+                            @fullName.Substring(0, 1).ToUpper()
+                        </div>
+                    }
                     <div class="overflow-hidden">
-                        <div class="text-white fw-bold text-truncate" style="font-size: 14px;">@displayName</div>
-                        <div class="text-muted text-truncate" style="font-size: 12px;">Louietex User</div>
+                        <div class="text-white fw-bold text-truncate" style="font-size: 14px;">@fullName</div>
+                        <div class="text-muted text-truncate" style="font-size: 12px;">@roleName</div>
                     </div>
                 </div>
-            </div>
+            </a>
         </aside>
     }
 

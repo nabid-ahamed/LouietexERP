@@ -117,7 +117,15 @@ namespace LouietexERP.Areas.Identity.Pages.Account
                 _logger.LogInformation("User logged in.");
 
                 // 🎯 Role-based redirect
-                if (await _userManager.IsInRoleAsync(user, SD.Role_SuperAdmin))
+                var roles = await _userManager.GetRolesAsync(user);
+                var isStaff = roles.Any(r => r == SD.Role_SuperAdmin || 
+                                             r == SD.Role_Admin || 
+                                             r == SD.Role_HR || 
+                                             r == SD.Role_Merchandiser || 
+                                             r == SD.Role_ProductionManager || 
+                                             r == SD.Role_QC);
+
+                if (isStaff)
                 {
                     return RedirectToAction("Index", "Dashboard");
                 }

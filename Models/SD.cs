@@ -9,5 +9,19 @@ namespace LouietexERP.Models
         public const string Role_ProductionManager = "ProductionManager";
         public const string Role_QC = "QC";
         public const string Role_User = "User";
+
+        public static string GetTimeAgo(DateTime dateTime)
+        {
+            var timeSpan = DateTime.UtcNow - dateTime;
+
+            if (timeSpan.TotalMinutes < 1) return "Just now";
+            if (timeSpan.TotalMinutes < 60) return $"{(int)timeSpan.TotalMinutes} minutes ago";
+            if (timeSpan.TotalHours < 24) return $"{(int)timeSpan.TotalHours} hours ago";
+            if (timeSpan.TotalDays < 2) return "Yesterday";
+            if (timeSpan.TotalDays < 7) return $"{(int)timeSpan.TotalDays} days ago";
+            if (timeSpan.TotalDays < 30) return $"{(int)timeSpan.TotalDays / 7} weeks ago";
+            
+            return dateTime.ToString("MMM dd, yyyy");
+        }
     }
 }
