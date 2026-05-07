@@ -31,7 +31,7 @@
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label asp-for="QCStatus" class="form-label fw-bold">QC Result <span class="text-danger">*</span></label>
                                 <select asp-for="QCStatus" class="form-select">
                                     <option value="Passed">Passed</option>
@@ -40,10 +40,15 @@
                                 </select>
                                 <span asp-validation-for="QCStatus" class="text-danger small"></span>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label asp-for="DefectCount" class="form-label fw-bold">Defect Count</label>
                                 <input asp-for="DefectCount" class="form-control" />
                                 <span asp-validation-for="DefectCount" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="InspectorName" class="form-label fw-bold">Inspector Name</label>
+                                <input asp-for="InspectorName" class="form-control" placeholder="Optional Name" />
+                                <span asp-validation-for="InspectorName" class="text-danger small"></span>
                             </div>
                         </div>
 

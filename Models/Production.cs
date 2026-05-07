@@ -18,7 +18,7 @@ namespace LouietexERP.Models
 
         [Required]
         [Display(Name = "Production Line")]
-        public string LineNumber { get; set; } // e.g., Line-01, Line-02
+        public string LineNumber { get; set; } = null!; // e.g., Line-01, Line-02
 
         [Display(Name = "Supervisor")]
         public string? Supervisor { get; set; }

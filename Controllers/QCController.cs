@@ -24,20 +24,34 @@ namespace LouietexERP.Controllers
         }
 
         // GET: QC
-        public async Task<IActionResult> Index(string? status)
+        public async Task<IActionResult> Index(string? status, int? productionId, DateTime? startDate, DateTime? endDate)
         {
             var query = _context.QCInspections
                 .Include(q => q.Production).ThenInclude(p => p!.Order)
                 .Include(q => q.CheckedByUser)
                 .AsQueryable();
 
-            // Map "Pending" to the combined pending+recheck filter
+            // Status Filter
             if (status == "Pending")
                 query = query.Where(q => q.QCStatus == "Pending" || q.QCStatus == "Recheck Required");
             else if (!string.IsNullOrEmpty(status))
                 query = query.Where(q => q.QCStatus == status);
 
+            // Production Line Filter
+            if (productionId.HasValue)
+                query = query.Where(q => q.ProductionId == productionId.Value);
+
+            // Date Range Filter
+            if (startDate.HasValue)
+                query = query.Where(q => q.InspectionDate.Date >= startDate.Value.Date);
+            if (endDate.HasValue)
+                query = query.Where(q => q.InspectionDate.Date <= endDate.Value.Date);
+
             ViewBag.CurrentStatus = status;
+            ViewBag.ProductionId = new SelectList(_context.Productions, "Id", "LineNumber", productionId);
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+
             return View(await query.OrderByDescending(q => q.InspectionDate).ToListAsync());
         }
 
@@ -48,7 +62,7 @@ namespace LouietexERP.Controllers
 
             var qCInspection = await _context.QCInspections
                 .Include(q => q.Production)
-                .ThenInclude(p => p.Order)
+                .ThenInclude(p => p!.Order)
                 .Include(q => q.CheckedByUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
                 
@@ -67,7 +81,7 @@ namespace LouietexERP.Controllers
         // POST: QC/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductionId,DefectCount,Remarks,QCStatus")] QCInspection qCInspection)
+        public async Task<IActionResult> Create([Bind("ProductionId,DefectCount,Remarks,QCStatus,InspectorName")] QCInspection qCInspection)
         {
             // Populate defaults and missing fields
             qCInspection.CheckedByUserId = _userManager.GetUserId(User);
@@ -113,7 +127,7 @@ namespace LouietexERP.Controllers
         // POST: QC/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ProductionId,CheckedByUserId,DefectCount,Remarks,QCStatus,InspectionDate,CreatedAt")] QCInspection qCInspection)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,ProductionId,CheckedByUserId,DefectCount,Remarks,QCStatus,InspectionDate,CreatedAt,InspectorName")] QCInspection qCInspection)
         {
             if (id != qCInspection.Id) return NotFound();
 

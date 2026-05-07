@@ -309,8 +309,23 @@
         <!-- Production Line Chart -->
         <div class="col-xl-8 col-lg-7">
             <div class="panel-card">
-                <div class="panel-header">
-                    <h6 class="panel-title"><i class="bi bi-graph-up text-primary"></i> Production Overview (Last 7 Days)</h6>
+                <div class="panel-header d-flex justify-content-between align-items-center">
+                    <h6 class="panel-title">
+                        <i class="bi bi-graph-up text-primary"></i> 
+                        Production Overview (<span id="prodTimeframeDisplay">@ViewBag.TimeframeDisplay</span>): 
+                        <span id="prodTotalQty" class="text-dark fw-bold ms-1">@ViewBag.TotalProdActual.ToString("N0")</span>
+                    </h6>
+                    
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light border-0 bg-light rounded-pill px-3 dropdown-toggle" type="button" id="timeframeDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 12px; font-weight: 600; color: #4e73df;">
+                            <i class="bi bi-calendar-event me-1"></i> Timeframe
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg" aria-labelledby="timeframeDropdown" style="border-radius: 12px; font-size: 13px;">
+                            <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="updateProductionTimeline('daily')"><i class="bi bi-view-list me-2"></i> Daily View</a></li>
+                            <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="updateProductionTimeline('weekly')"><i class="bi bi-calendar-week me-2"></i> Weekly View</a></li>
+                            <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="updateProductionTimeline('monthly')"><i class="bi bi-calendar-month me-2"></i> Monthly View</a></li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="panel-body">
                     <div style="height: 300px; width: 100%;">
@@ -324,31 +339,26 @@
         <div class="col-xl-4 col-lg-5">
             <div class="panel-card">
                 <div class="panel-header">
-                    <h6 class="panel-title"><i class="bi bi-pie-chart text-primary"></i> Order Status</h6>
+                    <h6 class="panel-title"><i class="bi bi-clipboard2-check text-primary"></i> Order Status</h6>
                 </div>
-                <div class="panel-body d-flex flex-column justify-content-center align-items-center">
-                    <div style="min-height: 250px; width: 100%;">
+                <div class="panel-body d-flex flex-column align-items-center">
+                    <!-- Chart on Top -->
+                    <div style="min-height: 300px; width: 100%; position: relative;" class="mb-3">
                         @if (ViewBag.OrderChartCounts != null && ((List<int>)ViewBag.OrderChartCounts).Sum() > 0)
                         {
-                            <div class="row align-items-center h-100">
-                                <div class="col-sm-6">
-                                    <div style="height: 220px; position: relative;">
-                                        <canvas id="orderChart"></canvas>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div id="orderChartLegend" class="mt-3 mt-sm-0"></div>
-                                </div>
-                            </div>
+                            <canvas id="orderChart"></canvas>
                         }
                         else
                         {
                             <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted py-5">
-                                <i class="bi bi-pie-chart fs-1 mb-2 text-light"></i>
+                                <i class="bi bi-clipboard2-x fs-1 mb-2 opacity-25"></i>
                                 <p>No orders available</p>
                             </div>
                         }
                     </div>
+
+                    <!-- Legend Underneath -->
+                    <div id="orderChartLegend" class="w-100 pt-3 border-top border-light"></div>
                 </div>
             </div>
         </div>
@@ -564,6 +574,56 @@
             }
         }, 60000);
 
+        // Global references for charts
+        let productionChartInstance;
+        let orderChartInstance;
+
+        // Toggle data visibility for Order Chart
+        function toggleOrderData(index, element) {
+            if (orderChartInstance) {
+                const isVisible = orderChartInstance.getDataVisibility(index);
+                orderChartInstance.toggleDataVisibility(index);
+                orderChartInstance.update();
+                
+                // Visual feedback for legend item
+                if (isVisible) {
+                    element.style.opacity = '0.4';
+                    element.style.textDecoration = 'line-through';
+                } else {
+                    element.style.opacity = '1';
+                    element.style.textDecoration = 'none';
+                }
+            }
+        }
+
+        // AJAX Update function for production timeline
+        async function updateProductionTimeline(timeframe) {
+            try {
+                const btn = document.getElementById('timeframeDropdown');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Loading...';
+                btn.disabled = true;
+
+                const response = await fetch(`/Dashboard/GetProductionChartData?timeframe=${timeframe}`);
+                const data = await response.json();
+
+                if (productionChartInstance) {
+                    productionChartInstance.data.labels = data.labels;
+                    productionChartInstance.data.datasets[0].data = data.actual;
+                    productionChartInstance.data.datasets[1].data = data.target;
+                    productionChartInstance.update();
+                    document.getElementById('prodTimeframeDisplay').innerText = data.timeframeDisplay;
+                    document.getElementById('prodTotalQty').innerText = data.totalActual.toLocaleString();
+                }
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            } catch (error) {
+                console.error('Error fetching chart data:', error);
+                alert('Failed to load chart data. Please try again.');
+            }
+        }
+
         // Chart.js Implementations
         document.addEventListener("DOMContentLoaded", function () {
             
@@ -578,7 +638,7 @@
                 gradient.addColorStop(0, 'rgba(78, 115, 223, 0.2)');
                 gradient.addColorStop(1, 'rgba(78, 115, 223, 0.0)');
 
-                new Chart(prodCtx, {
+                productionChartInstance = new Chart(prodCtx, {
                     type: 'line',
                     data: {
                         labels: @Html.Raw(prodLabels),
@@ -599,7 +659,6 @@
                                 pointHoverBackgroundColor: '#4e73df',
                                 pointHoverBorderColor: '#fff',
                                 pointHoverBorderWidth: 2,
-                                // Adding a subtle shadow
                                 segment: {
                                     borderColor: ctx => '#4e73df',
                                     borderWidth: 3
@@ -641,8 +700,7 @@
                                 bodyColor: '#666',
                                 borderColor: '#e3e6f0',
                                 borderWidth: 1,
-                                xPadding: 15,
-                                yPadding: 15,
+                                padding: 15,
                                 displayColors: false,
                                 caretPadding: 10,
                                 callbacks: {
@@ -672,48 +730,76 @@
             if (orderCtx) {
                 const labels = @Html.Raw(orderLabels);
                 const data = @Html.Raw(orderCounts);
+                
+                // Premium color palette
                 const colors = [
-                    '#4e73df', '#1cc88a', '#f6c23e', '#36b9cc', '#e74a3b', 
-                    '#6f42c1', '#fd7e14', '#20c997', '#d63384', '#0dcaf0'
+                    '#4f46e5', '#10b981', '#f59e0b', '#0ea5e9', '#ef4444', 
+                    '#8b5cf6', '#f472b6', '#06b6d4', '#6366f1', '#fb7185'
                 ];
 
-                const chart = new Chart(orderCtx, {
+                orderChartInstance = new Chart(orderCtx, {
                     type: 'doughnut',
                     data: {
                         labels: labels,
                         datasets: [{
                             data: data,
                             backgroundColor: colors,
-                            hoverBorderColor: "rgba(234, 236, 244, 1)",
-                            borderWidth: 2
+                            hoverOffset: 10,
+                            borderWidth: 0,
+                            borderRadius: 4,
+                            spacing: 2
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        cutout: '75%',
+                        cutout: '65%',
                         plugins: {
-                            legend: {
-                                display: false // Disable default legend
-                            },
+                            legend: { display: false },
                             tooltip: {
-                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                titleColor: '#333',
-                                bodyColor: '#666',
-                                borderColor: '#e3e6f0',
+                                backgroundColor: '#fff',
+                                titleColor: '#1e293b',
+                                bodyColor: '#64748b',
+                                borderColor: '#e2e8f0',
                                 borderWidth: 1,
                                 padding: 12,
-                                cornerRadius: 8
+                                cornerRadius: 10,
+                                displayColors: true,
+                                boxPadding: 6
                             }
                         }
-                    }
+                    },
+                    plugins: [{
+                        id: 'centerText',
+                        afterDraw: (chart) => {
+                            const { ctx, chartArea: { top, bottom, left, right, width, height } } = chart;
+                            
+                            // Calculate visible total
+                            const visibleTotal = chart.data.datasets[0].data
+                                .filter((v, i) => chart.getDataVisibility(i))
+                                .reduce((a, b) => a + b, 0);
+
+                            ctx.save();
+                            ctx.font = 'bold 34px Inter';
+                            ctx.fillStyle = '#1e293b';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(visibleTotal.toLocaleString(), left + width / 2, top + height / 2 - 5);
+                            
+                            ctx.font = '600 13px Inter';
+                            ctx.fillStyle = '#94a3b8';
+                            ctx.letterSpacing = '1px';
+                            ctx.fillText('ORDERS', left + width / 2, top + height / 2 + 20);
+                            ctx.restore();
+                        }
+                    }]
                 });
 
-                // Generate Custom Legend
+                // Generate Premium Legend
                 const legendContainer = document.getElementById('orderChartLegend');
                 if (legendContainer) {
                     const total = data.reduce((a, b) => a + b, 0);
-                    let html = '<div class="d-flex flex-column gap-2">';
+                    let html = '<div class="row g-2">';
                     
                     labels.forEach((label, i) => {
                         const val = data[i];
@@ -721,12 +807,21 @@
                         const color = colors[i % colors.length];
                         
                         html += `
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center">
-                                    <div class="rounded-circle me-2" style="width: 10px; height: 10px; background-color: ${color}"></div>
-                                    <span class="small text-muted fw-bold">${label}</span>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center justify-content-between p-2 rounded-3 hover-bg-light transition-all cursor-pointer" 
+                                     onclick="toggleOrderData(${i}, this)" 
+                                     style="user-select: none; border: 1px solid transparent;">
+                                    <div class="d-flex align-items-center overflow-hidden">
+                                        <div class="me-2 flex-shrink-0" style="width: 10px; height: 10px; border-radius: 3px; background-color: ${color}; box-shadow: 0 2px 4px ${color}44"></div>
+                                        <div class="d-flex flex-column overflow-hidden">
+                                            <span class="small fw-bold text-secondary text-truncate" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">${label}</span>
+                                            <span class="fw-bold text-dark" style="font-size: 13px;">${val}</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end flex-shrink-0 ms-2">
+                                        <span class="badge bg-light text-muted border-0" style="font-size: 10px; font-weight: 700; background-color: #f8fafc !important;">${pct}%</span>
+                                    </div>
                                 </div>
-                                <span class="small fw-bold text-dark">${val} (${pct}%)</span>
                             </div>
                         `;
                     });

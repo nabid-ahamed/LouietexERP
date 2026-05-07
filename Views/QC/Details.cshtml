@@ -54,7 +54,7 @@
                     <div class="row mb-4">
                         <div class="col-md-6 mb-3">
                             <div class="info-label">Inspector</div>
-                            <div class="info-value"><i class="bi bi-person-badge text-muted me-1"></i> @(Model.CheckedByUser?.FullName ?? "Unknown User")</div>
+                            <div class="info-value"><i class="bi bi-person-badge text-muted me-1"></i> @(Model.InspectorName ?? Model.CheckedByUser?.FullName ?? "Unknown")</div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="info-label">Defects Found</div>

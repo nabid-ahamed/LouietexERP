@@ -94,7 +94,7 @@ namespace LouietexERP.Data
         {
             // Clear existing for fresh start as requested
             var existing = await context.Orders.ToListAsync();
-            if (existing.Count >= 30) return;
+            if (existing.Count >= 40) return;
 
             if (existing.Any())
             {
@@ -110,23 +110,26 @@ namespace LouietexERP.Data
             var now = DateTime.UtcNow;
             var orders = new List<Order>();
 
-            for (int i = 0; i < 35; i++)
+            for (int i = 0; i < 45; i++)
             {
                 var buyer = buyers[random.Next(buyers.Length)];
                 var cat = categories[random.Next(categories.Length)];
-                var year = 24;
+                var year = random.Next(24, 26);
                 var code = i + 1;
                 var styleCode = $"{buyer.Substring(0, 2).ToUpper()}-{cat}-{year}{code:D2}";
                 var status = statuses[random.Next(statuses.Length)];
+                
+                // Spread orders over the last 400 days to cover 2025
+                var orderDate = now.AddDays(-random.Next(10, 400));
                 
                 orders.Add(new Order
                 {
                     BuyerName = buyer,
                     StyleCode = styleCode,
                     TotalQuantity = random.Next(1, 10) * 1000,
-                    DeliveryDate = now.AddDays(random.Next(-30, 90)),
+                    DeliveryDate = orderDate.AddDays(random.Next(30, 90)),
                     Status = status,
-                    CreatedAt = now.AddDays(-random.Next(5, 120))
+                    CreatedAt = orderDate
                 });
             }
 
@@ -134,10 +137,12 @@ namespace LouietexERP.Data
             await context.SaveChangesAsync();
         }
 
-            private static async Task SeedProductionsAsync(ApplicationDbContext context)
+        private static async Task SeedProductionsAsync(ApplicationDbContext context)
         {
             // Always refresh productions if we refreshed orders
             var existing = await context.Productions.ToListAsync();
+            if (existing.Count >= 40) return;
+
             if (existing.Any())
             {
                 context.Productions.RemoveRange(existing);
@@ -155,7 +160,7 @@ namespace LouietexERP.Data
             var random = new Random();
             var prods = new List<Production>();
 
-            foreach (var order in orders.Take(25))
+            foreach (var order in orders)
             {
                 var line = $"Line-{random.Next(1, 10):D2}";
                 var supervisor = supervisorNames[random.Next(supervisorNames.Count)];
@@ -163,8 +168,8 @@ namespace LouietexERP.Data
                 var status = order.Status == "Completed" ? "Completed" : (order.Status == "Shipped" ? "Completed" : "Running");
                 var actual = status == "Completed" ? target : (int)(target * random.NextDouble());
                 
-                var start = order.CreatedAt.AddDays(2);
-                var end = status == "Completed" ? start.AddDays(random.Next(10, 30)) : (DateTime?)null;
+                var start = order.CreatedAt.AddDays(random.Next(1, 5));
+                var end = status == "Completed" ? start.AddDays(random.Next(5, 15)) : (DateTime?)null;
 
                 prods.Add(new Production
                 {

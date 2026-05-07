@@ -22,14 +22,31 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Productions
-        public async Task<IActionResult> Index(string? status)
+        public async Task<IActionResult> Index(string? status, string? lineNumber, int? orderId, DateTime? startDate, DateTime? endDate)
         {
             var query = _context.Productions.Include(p => p.Order).AsQueryable();
 
             if (!string.IsNullOrEmpty(status))
                 query = query.Where(p => p.Status == status);
 
+            if (!string.IsNullOrEmpty(lineNumber))
+                query = query.Where(p => p.LineNumber.Contains(lineNumber));
+
+            if (orderId.HasValue)
+                query = query.Where(p => p.OrderId == orderId.Value);
+
+            if (startDate.HasValue)
+                query = query.Where(p => p.CreatedAt.Date >= startDate.Value.Date);
+
+            if (endDate.HasValue)
+                query = query.Where(p => p.CreatedAt.Date <= endDate.Value.Date);
+
             ViewBag.CurrentStatus = status;
+            ViewBag.CurrentLine = lineNumber;
+            ViewBag.OrderId = new SelectList(_context.Orders, "Id", "StyleCode", orderId);
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+
             return View(await query.OrderByDescending(p => p.CreatedAt).ToListAsync());
         }
 

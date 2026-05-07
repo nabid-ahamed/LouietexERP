@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace LouietexERP.Models
 {
@@ -9,9 +9,9 @@ namespace LouietexERP.Models
 
         [Required]
         [Display(Name = "Material Name")]
-        public string Name { get; set; } // e.g., Cotton Fabric
+        public string Name { get; set; } = null!; // e.g., Cotton Fabric
 
-        public string Category { get; set; } // Fabric, Accessories 
+        public string Category { get; set; } = null!; // Fabric, Accessories 
 
         [Required]
         public int Quantity { get; set; }
@@ -19,7 +19,7 @@ namespace LouietexERP.Models
         [Display(Name = "Minimum Stock Level")]
         public int MinStockLevel { get; set; } // For Low Stock Alerts 
 
-        public string Supplier { get; set; }
+        public string Supplier { get; set; } = null!;
         
     }
 }

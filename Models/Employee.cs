@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace LouietexERP.Models
 {
@@ -9,17 +9,17 @@ namespace LouietexERP.Models
 
         [Required]
         [Display(Name = "Full Name")]
-        public string FullName { get; set; }
+        public string FullName { get; set; } = null!;
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = null!;
 
         [Required]
-        public string Department { get; set; } // e.g., Cutting, Sewing, Finishing
+        public string Department { get; set; } = null!; // e.g., Cutting, Sewing, Finishing
 
         [Required]
-        public string Role { get; set; } // e.g., Admin, Supervisor, Operator
+        public string Role { get; set; } = null!; // e.g., Admin, Supervisor, Operator
 
         [Display(Name = "Joining Date")]
         [DataType(DataType.Date)]

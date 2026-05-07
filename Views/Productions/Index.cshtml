@@ -50,7 +50,48 @@
     </a>
 </div>
 
-<div class="card card-custom" style="border-top-left-radius:0; border-top-right-radius:0;">
+<div class="card card-custom border-0 shadow-sm mb-3" style="border-radius: 0 0 12px 12px;">
+    <div class="card-body bg-light p-3">
+        <form asp-action="Index" method="get" class="row g-2 align-items-end">
+            <div class="col-md-2">
+                <label class="small fw-bold text-muted mb-1">Status</label>
+                <select name="status" class="form-select form-select-sm border-0 shadow-sm">
+                    <option value="">All</option>
+                    <option value="Pending" selected="@(ViewBag.CurrentStatus == "Pending")">Pending</option>
+                    <option value="Running" selected="@(ViewBag.CurrentStatus == "Running")">Running</option>
+                    <option value="Completed" selected="@(ViewBag.CurrentStatus == "Completed")">Completed</option>
+                    <option value="Delayed" selected="@(ViewBag.CurrentStatus == "Delayed")">Delayed</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="small fw-bold text-muted mb-1">Line Number</label>
+                <input type="text" name="lineNumber" class="form-control form-control-sm border-0 shadow-sm" placeholder="e.g. Line-01" value="@ViewBag.CurrentLine" />
+            </div>
+            <div class="col-md-2">
+                <label class="small fw-bold text-muted mb-1">Order</label>
+                <select name="orderId" class="form-select form-select-sm border-0 shadow-sm" asp-items="ViewBag.OrderId">
+                    <option value="">All Orders</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="small fw-bold text-muted mb-1">From Date</label>
+                <input type="date" name="startDate" class="form-control form-control-sm border-0 shadow-sm" value="@ViewBag.StartDate" />
+            </div>
+            <div class="col-md-2">
+                <label class="small fw-bold text-muted mb-1">To Date</label>
+                <input type="date" name="endDate" class="form-control form-control-sm border-0 shadow-sm" value="@ViewBag.EndDate" />
+            </div>
+            <div class="col-md-2">
+                <div class="d-flex gap-1">
+                    <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold">Filter</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-clockwise"></i></a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card card-custom">
     <div class="card-body p-0">
         <table class="table mb-0 table-hover align-middle">
             <thead class="table-header-premium">

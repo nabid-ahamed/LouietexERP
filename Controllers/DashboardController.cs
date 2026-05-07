@@ -93,65 +93,20 @@ namespace LouietexERP.Controllers
             ViewBag.OrderChartLabels = orderStatuses.Select(o => o.Status).ToList();
             ViewBag.OrderChartCounts = orderStatuses.Select(o => o.Count).ToList();
 
-            // ── 5. Production Line Chart (Last 7 Days) ───────────────────
-            // Use local date for better user experience on dashboard
-            var today = DateTime.Now.Date;
-            var last7Days = Enumerable.Range(0, 7)
-                .Select(i => today.AddDays(-6 + i))
-                .ToList();
+            // ── 5. Production Line Chart (Customizable Timeline) ────────
+            string timeframe = Request.Query["timeframe"].ToString().ToLower();
+            if (string.IsNullOrEmpty(timeframe)) timeframe = "monthly"; 
+            
+            var chartData = await GetProductionChartLogic(timeframe);
+            
+            ViewBag.CurrentTimeframe = timeframe;
+            ViewBag.ProdChartLabels  = chartData.Labels;
+            ViewBag.ProdTargetData   = chartData.Target;
+            ViewBag.ProdActualData   = chartData.Actual;
+            ViewBag.TotalProdActual  = chartData.TotalActual;
+            ViewBag.TimeframeDisplay = chartData.TimeframeDisplay;
 
-            var prodChartLabels = new List<string>();
-            var targetData      = new List<int>();
-            var actualData      = new List<int>();
-
-            foreach (var day in last7Days)
-            {
-                prodChartLabels.Add(day.ToString("MMM d"));
-                var nextDay = day.AddDays(1);
-                
-                // Query using range for better compatibility and timezone robustness
-                var dailyProds = await _context.Productions
-                    .Where(p => p.CreatedAt >= day && p.CreatedAt < nextDay)
-                    .ToListAsync();
-                    
-                targetData.Add(dailyProds.Sum(p => p.TargetQuantity));
-                actualData.Add(dailyProds.Sum(p => p.ActualOutput));
-            }
-
-            // Fallback: If the chart is completely empty (all zeros), 
-            // look for the most recent 7 days that actually have data to avoid a blank chart in demo/seed scenarios.
-            if (targetData.Sum() == 0 && actualData.Sum() == 0)
-            {
-                var recentData = await _context.Productions
-                    .OrderByDescending(p => p.CreatedAt)
-                    .GroupBy(p => p.CreatedAt.Date)
-                    .Select(g => new { 
-                        Day = g.Key, 
-                        Target = g.Sum(p => p.TargetQuantity), 
-                        Actual = g.Sum(p => p.ActualOutput) 
-                    })
-                    .Take(7)
-                    .OrderBy(g => g.Day)
-                    .ToListAsync();
-
-                if (recentData.Any())
-                {
-                    prodChartLabels.Clear();
-                    targetData.Clear();
-                    actualData.Clear();
-                    foreach (var d in recentData)
-                    {
-                        prodChartLabels.Add(d.Day.ToString("MMM d"));
-                        targetData.Add(d.Target);
-                        actualData.Add(d.Actual);
-                    }
-                }
-            }
-
-            ViewBag.ProdChartLabels = prodChartLabels;
-            ViewBag.ProdTargetData  = targetData;
-            ViewBag.ProdActualData  = actualData;
-
+            // ... (rest of Index)
             // ── 6. Recent Orders (Top 5) ──────────────────────────────────
             var recentOrders = await _context.Orders
                 .OrderByDescending(o => o.CreatedAt)
@@ -172,6 +127,95 @@ namespace LouietexERP.Controllers
             ViewBag.QCRecheck = qcStats.FirstOrDefault(q => q.Status == "Recheck Required")?.Count ?? 0;
 
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProductionChartData(string timeframe = "monthly")
+        {
+            var chartData = await GetProductionChartLogic(timeframe);
+            return Json(chartData);
+        }
+
+        private async Task<ProductionChartViewModel> GetProductionChartLogic(string timeframe)
+        {
+            var today = DateTime.Now.Date;
+            var labels = new List<string>();
+            var target = new List<int>();
+            var actual = new List<int>();
+            string display = "";
+
+            if (timeframe == "daily")
+            {
+                display = "Last 7 Days";
+                var last7Days = Enumerable.Range(0, 7).Select(i => today.AddDays(-6 + i)).ToList();
+                foreach (var day in last7Days)
+                {
+                    labels.Add(day.ToString("MMM d"));
+                    var nextDay = day.AddDays(1);
+                    var dailyProds = await _context.Productions.Where(p => p.CreatedAt >= day && p.CreatedAt < nextDay).ToListAsync();
+                    target.Add(dailyProds.Sum(p => p.TargetQuantity));
+                    actual.Add(dailyProds.Sum(p => p.ActualOutput));
+                }
+            }
+            else if (timeframe == "weekly")
+            {
+                display = "Last 10 Weeks";
+                for (int i = 9; i >= 0; i--)
+                {
+                    var endOfWeek = today.AddDays(-(int)today.DayOfWeek).AddDays(1);
+                    var startOfWeek = endOfWeek.AddDays(-(i + 1) * 7);
+                    var endOfSelectedWeek = startOfWeek.AddDays(7);
+                    labels.Add("Week " + (10 - i));
+                    var weeklyProds = await _context.Productions.Where(p => p.CreatedAt >= startOfWeek && p.CreatedAt < endOfSelectedWeek).ToListAsync();
+                    target.Add(weeklyProds.Sum(p => p.TargetQuantity));
+                    actual.Add(weeklyProds.Sum(p => p.ActualOutput));
+                }
+            }
+            else // monthly
+            {
+                display = "Last 12 Months";
+                for (int i = 11; i >= 0; i--)
+                {
+                    var monthDate = today.AddMonths(-i);
+                    var startOfMonth = new DateTime(monthDate.Year, monthDate.Month, 1);
+                    var endOfMonth = startOfMonth.AddMonths(1);
+                    labels.Add(startOfMonth.ToString("MMM yy"));
+                    var monthlyProds = await _context.Productions.Where(p => p.CreatedAt >= startOfMonth && p.CreatedAt < endOfMonth).ToListAsync();
+                    target.Add(monthlyProds.Sum(p => p.TargetQuantity));
+                    actual.Add(monthlyProds.Sum(p => p.ActualOutput));
+                }
+            }
+
+            if (target.Sum() == 0 && actual.Sum() == 0)
+            {
+                var recentData = await _context.Productions.OrderByDescending(p => p.CreatedAt).GroupBy(p => p.CreatedAt.Date).Select(g => new { Day = g.Key, Target = g.Sum(p => p.TargetQuantity), Actual = g.Sum(p => p.ActualOutput) }).Take(timeframe == "monthly" ? 12 : 7).OrderBy(g => g.Day).ToListAsync();
+                if (recentData.Any())
+                {
+                    labels.Clear(); target.Clear(); actual.Clear();
+                    foreach (var d in recentData)
+                    {
+                        labels.Add(d.Day.ToString(timeframe == "monthly" ? "MMM yy" : "MMM d"));
+                        target.Add(d.Target); actual.Add(d.Actual);
+                    }
+                }
+            }
+
+            return new ProductionChartViewModel {
+                Labels = labels,
+                Target = target,
+                Actual = actual,
+                TotalActual = actual.Sum(),
+                TimeframeDisplay = display
+            };
+        }
+
+        public class ProductionChartViewModel
+        {
+            public List<string> Labels { get; set; } = null!;
+            public List<int> Target { get; set; } = null!;
+            public List<int> Actual { get; set; } = null!;
+            public int TotalActual { get; set; }
+            public string TimeframeDisplay { get; set; } = null!;
         }
     }
 }

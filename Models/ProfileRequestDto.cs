@@ -6,11 +6,11 @@ namespace LouietexERP.Models
     {
         [Required]
         [Display(Name = "Requested New Name")]
-        public string NewFullName { get; set; }
+        public string NewFullName { get; set; } = null!;
 
         [Required]
         [EmailAddress]
         [Display(Name = "Requested New Email")]
-        public string NewEmail { get; set; }
+        public string NewEmail { get; set; } = null!;
     }
 }

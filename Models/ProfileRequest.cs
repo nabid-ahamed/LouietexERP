@@ -23,21 +23,21 @@ namespace LouietexERP.Models
 
         // 🔗 User link (set in controller, NOT from form)
         [ValidateNever]   // 🔥 IMPORTANT FIX
-        public string UserId { get; set; }
+        public string UserId { get; set; } = null!;
 
         [ForeignKey("UserId")]
         [ValidateNever]   // 🔥 IMPORTANT FIX
-        public ApplicationUser User { get; set; }
+        public ApplicationUser User { get; set; } = null!;
 
         // 🔄 Form inputs
         [Required]
         [Display(Name = "Requested New Name")]
-        public string NewFullName { get; set; }
+        public string NewFullName { get; set; } = null!;
 
         [Required]
         [EmailAddress]
         [Display(Name = "Requested New Email")]
-        public string NewEmail { get; set; }
+        public string NewEmail { get; set; } = null!;
 
         [Phone]
         [Display(Name = "Requested New Phone Number")]

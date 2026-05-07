@@ -9,11 +9,11 @@ namespace LouietexERP.Models
 
         [Required]
         [Display(Name = "Buyer Name")]
-        public string BuyerName { get; set; }
+        public string BuyerName { get; set; } = null!;
 
         [Required]
         [Display(Name = "Style/Item Code")]
-        public string StyleCode { get; set; } // e.g., T-Shirt-Blue-XL
+        public string StyleCode { get; set; } = null!; // e.g., T-Shirt-Blue-XL
 
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be greater than 0")]
