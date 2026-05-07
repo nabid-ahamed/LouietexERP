@@ -11,6 +11,11 @@ namespace LouietexERP.Models
         public const string Rejected = "Rejected";
     }
 
+    public static class ProfileRequestType
+    {
+        public const string ProfileChange = "ProfileChange";
+    }
+
     public class ProfileRequest
     {
         [Key]
@@ -46,7 +51,11 @@ namespace LouietexERP.Models
 
         public bool IsProcessed { get; set; } = false;
 
-        // 📌 Status
+        // 📌 Type & Status
+        [MaxLength(50)]
+        public string RequestType { get; set; } = ProfileRequestType.ProfileChange;
+
+        [MaxLength(50)]
         public string Status { get; set; } = ProfileRequestStatus.Pending;
 
         // 🛡 Audit Tracking

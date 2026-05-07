@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -58,6 +58,7 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Employees/Create
+        [Authorize(Roles = SD.Role_HR + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public IActionResult Create()
         {
             return View();
@@ -68,6 +69,7 @@ namespace LouietexERP.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.Role_HR + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Create([Bind("Id,FullName,Email,Department,Role,JoiningDate")] Employee employee)
         {
             if (ModelState.IsValid)
@@ -80,6 +82,7 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Employees/Edit/5
+        [Authorize(Roles = SD.Role_HR + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -100,6 +103,7 @@ namespace LouietexERP.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.Role_HR + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Email,Department,Role,JoiningDate")] Employee employee)
         {
             if (id != employee.Id)
@@ -131,6 +135,7 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Employees/Delete/5
+        [Authorize(Roles = SD.Role_HR + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -151,6 +156,7 @@ namespace LouietexERP.Controllers
         // POST: Employees/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.Role_HR + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var employee = await _context.Employees.FindAsync(id);

@@ -1,4 +1,4 @@
-﻿using LouietexERP.Data;
+using LouietexERP.Data;
 using LouietexERP.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LouietexERP.Controllers
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = SD.Role_SuperAdmin + "," + SD.Role_Admin)]
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;

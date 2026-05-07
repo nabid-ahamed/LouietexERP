@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LouietexERP.Controllers
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = SD.Role_SuperAdmin + "," + SD.Role_Admin)]
     public class UserManagementController : Controller
     {
         private readonly ApplicationDbContext _context;

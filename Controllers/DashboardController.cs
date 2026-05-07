@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LouietexERP.Data;
 using LouietexERP.Models;
@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LouietexERP.Controllers
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize]
     public class DashboardController(ApplicationDbContext context) : Controller
     {
         public async Task<IActionResult> Index()

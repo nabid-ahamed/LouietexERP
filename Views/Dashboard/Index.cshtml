@@ -1,6 +1,7 @@
-﻿@model LouietexERP.Models.DashboardViewModel
+@model LouietexERP.Models.DashboardViewModel
+@using LouietexERP.Models
 
-<div class="container mt-4">
+<div class="container" >
 
     <!-- HEADER + BUTTONS IN ONE ROW -->
     <div class="d-flex align-items-center gap-3 mb-4">
@@ -20,37 +21,9 @@
                 <span id="live-clock"></span>
             </div>
 
-        </div>
+        </div><!-- END dashboard-header -->
 
-        <!-- SUPER ADMIN BUTTONS -->
-        @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("SuperAdmin"))
-        {
-            <div class="d-flex flex-column gap-2 flex-shrink-0">
-
-                <a class="btn btn-outline-danger fw-bold"
-                       asp-controller="UserManagement"
-                       asp-action="PendingApprovals">
-                    Approve Users
-                    @if (Model.PendingUsers > 0)
-                    {
-                        <span class="badge bg-danger ms-1">@Model.PendingUsers</span>
-                    }
-                </a>
-
-                <a class="btn btn-outline-primary fw-bold"
-                       asp-controller="UserManagement"
-                       asp-action="ViewModifications">
-                    Review Requests
-                    @if (Model.PendingRequests > 0)
-                    {
-                        <span class="badge bg-primary ms-1">@Model.PendingRequests</span>
-                    }
-                </a>
-
-            </div>
-        }
-
-    </div>
+    </div><!-- END d-flex header row -->
 
     @if (Model == null)
     {
@@ -63,41 +36,53 @@
         <!-- STATS -->
         <div class="row" style="margin-top: 2.5rem;">
 
-            <div class="col-md-3">
-                <div class="card bg-primary text-white mb-4 shadow-sm text-center">
-                    <div class="card-body">
-                        <h6>Total Orders</h6>
-                        <h3>@Model.TotalOrders</h3>
+            @if (User.IsInRole(SD.Role_Merchandiser) || User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_SuperAdmin))
+            {
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white mb-4 shadow-sm text-center">
+                        <div class="card-body">
+                            <h6>Total Orders</h6>
+                            <h3>@Model.TotalOrders</h3>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
 
-            <div class="col-md-3">
-                <div class="card bg-success text-white mb-4 shadow-sm text-center">
-                    <div class="card-body">
-                        <h6>Today's Output</h6>
-                        <h3>@Model.TodayProduction</h3>
+            @if (User.IsInRole(SD.Role_ProductionManager) || User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_SuperAdmin))
+            {
+                <div class="col-md-3">
+                    <div class="card bg-success text-white mb-4 shadow-sm text-center">
+                        <div class="card-body">
+                            <h6>Today's Output</h6>
+                            <h3>@Model.TodayProduction</h3>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
 
-            <div class="col-md-3">
-                <div class="card bg-warning text-dark mb-4 shadow-sm text-center">
-                    <div class="card-body">
-                        <h6>Low Stock</h6>
-                        <h3>@Model.LowStockItems</h3>
+            @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_SuperAdmin))
+            {
+                <div class="col-md-3">
+                    <div class="card bg-warning text-dark mb-4 shadow-sm text-center">
+                        <div class="card-body">
+                            <h6>Low Stock</h6>
+                            <h3>@Model.LowStockItems</h3>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
 
-            <div class="col-md-3">
-                <div class="card bg-info text-white mb-4 shadow-sm text-center">
-                    <div class="card-body">
-                        <h6>Total Staff</h6>
-                        <h3>@Model.TotalEmployees</h3>
+            @if (User.IsInRole(SD.Role_HR) || User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_SuperAdmin))
+            {
+                <div class="col-md-3">
+                    <div class="card bg-info text-white mb-4 shadow-sm text-center">
+                        <div class="card-body">
+                            <h6>Total Staff</h6>
+                            <h3>@Model.TotalEmployees</h3>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
 
         </div>
 

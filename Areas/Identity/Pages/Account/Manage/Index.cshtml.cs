@@ -86,7 +86,7 @@ namespace LouietexERP.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            var isAdmin = User.IsInRole("Admin") || User.IsInRole("SuperAdmin");
+            var isAdmin = User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_SuperAdmin);
 
             string? newPicturePath = null;
 
@@ -150,6 +150,7 @@ namespace LouietexERP.Areas.Identity.Pages.Account.Manage
                     NewEmail = Input.Email ?? user.Email ?? string.Empty,
                     NewPhoneNumber = Input.PhoneNumber,
                     NewProfilePicturePath = newPicturePath,
+                    RequestType = ProfileRequestType.ProfileChange,
                     RequestDate = DateTime.UtcNow,
                     IsProcessed = false,
                     Status = ProfileRequestStatus.Pending

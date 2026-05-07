@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,14 +57,17 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Productions/Create
+        [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: Productions/Create
+        // POST: Productions/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Create([Bind("Id,LineNumber,TargetQuantity,ActualOutput,DefectCount,ProductionDate")] Production production)
         {
             if (ModelState.IsValid)
@@ -77,6 +80,7 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Productions/Edit/5
+        [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -96,6 +100,7 @@ namespace LouietexERP.Controllers
         // POST: Productions/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Edit(int id, [Bind("Id,LineNumber,TargetQuantity,ActualOutput,DefectCount,ProductionDate")] Production production)
         {
             if (id != production.Id)
@@ -127,6 +132,7 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Productions/Delete/5
+        [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -148,6 +154,7 @@ namespace LouietexERP.Controllers
         // POST: Productions/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var production = await _context.Productions.FindAsync(id);

@@ -8,8 +8,12 @@
     var isAuthPage = path.Contains("/identity/account/login") ||
                      path.Contains("/identity/account/register");
 
-    var isSuperAdmin = User.IsInRole("SuperAdmin");
-    var isAdmin = User.IsInRole("Admin");
+    var isSuperAdmin = User.IsInRole(SD.Role_SuperAdmin);
+    var isAdmin = User.IsInRole(SD.Role_Admin);
+    var isHR = User.IsInRole(SD.Role_HR);
+    var isMerchandiser = User.IsInRole(SD.Role_Merchandiser);
+    var isProductionManager = User.IsInRole(SD.Role_ProductionManager);
+    var isQC = User.IsInRole(SD.Role_QC);
 
     var hideNav = ViewData["HideNav"] as bool? ?? false;
 
@@ -78,7 +82,7 @@
             }
 
             <!-- Employees -->
-            @if (isSuperAdmin)
+            @if (isHR || isAdmin || isSuperAdmin)
             {
                 <a class="@isActive("Employees", "Index")"
                        asp-controller="Employees" asp-action="Index">
@@ -88,7 +92,7 @@
             }
 
             <!-- Production -->
-            @if (isAdmin || isSuperAdmin)
+            @if (isProductionManager || isAdmin || isSuperAdmin)
             {
                 <a class="@isActive("Productions", "Index")"
                        asp-controller="Productions" asp-action="Index">
@@ -98,18 +102,32 @@
             }
 
             <!-- Orders -->
-            <a class="@isActive("Orders", "Index")"
-                   asp-controller="Orders" asp-action="Index">
-                <i class="bi bi-cart"></i>
-                <span>Orders</span>
-            </a>
-            <!-- Order Status -->
-            <a class="@isActive("Orders", "TrackStatus")"
-                   asp-controller="Orders" asp-action="TrackStatus">
-                <i class="bi bi-truck"></i>
-                <span>Order Status</span>
-            </a>
-            @if (User.IsInRole("SuperAdmin"))
+            @if (isMerchandiser || isAdmin || isSuperAdmin)
+            {
+                <a class="@isActive("Orders", "Index")"
+                       asp-controller="Orders" asp-action="Index">
+                    <i class="bi bi-cart"></i>
+                    <span>Orders</span>
+                </a>
+                <!-- Order Status -->
+                <a class="@isActive("Orders", "TrackStatus")"
+                       asp-controller="Orders" asp-action="TrackStatus">
+                    <i class="bi bi-truck"></i>
+                    <span>Order Status</span>
+                </a>
+            }
+
+            <!-- QC -->
+            @if (isQC || isAdmin || isSuperAdmin)
+            {
+                <a class="@isActive("QC", "Index")"
+                       asp-controller="Dashboard" asp-action="Index"> <!-- Placeholder controller -->
+                    <i class="bi bi-check-circle"></i>
+                    <span>Quality Control</span>
+                </a>
+            }
+
+            @if (isSuperAdmin)
             {
                 <a class="@isActive("UserAccess", "Index")"
                        asp-controller="UserAccess" asp-action="Index">
@@ -117,16 +135,32 @@
                     <span>User Access Control</span>
                 </a>
             }
+             @if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            <div class="d-flex flex-column gap-2 flex-shrink-0 mt-3 px-3">
+                @if (isSuperAdmin)
+                {
+                    <a class="btn btn-outline-danger fw-bold text-start"
+                           asp-controller="UserManagement"
+                           asp-action="PendingApprovals">
+                        <i class="bi bi-person-check"></i> Approve Users
+                        @if (ViewBag.PendingUsers != null && (int)ViewBag.PendingUsers > 0)
+                        {
+                            <span class="badge bg-danger ms-1">@ViewBag.PendingUsers</span>
+                        }
+                    </a>
+                }
             
-            <!-- Review Requests -->
-            @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
-            {
-                <a class="@isActive("UserManagement", "ViewModifications")"
-                       asp-controller="UserManagement" asp-action="ViewModifications">
-                    <i class="bi bi-clipboard-check"></i>
-                    <span>Review Requests</span>
-                </a>
-            }
+                <!-- Review Requests -->
+                @if (isAdmin || isSuperAdmin)
+                {
+                    <a class="btn btn-outline-primary fw-bold text-start"
+                           asp-controller="UserManagement" asp-action="ViewModifications">
+                        <i class="bi bi-clipboard-check"></i> Review Requests
+                    </a>
+                }
+            </div>
+        }
         </div>
     }
 

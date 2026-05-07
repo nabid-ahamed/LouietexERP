@@ -1,4 +1,5 @@
-﻿@model List<(LouietexERP.Models.ApplicationUser User, string Role)>
+@model List<LouietexERP.Models.UserListViewModel>
+@using LouietexERP.Models
 
 @{
     ViewData["Title"] = "User Management";
@@ -47,10 +48,6 @@
         justify-content: center;
     }
 
-    .search-btn:hover {
-        background: #157347;
-    }
-
     /* TABLE HEADER */
     .table-header-premium {
         background: #eef2ff;
@@ -59,17 +56,12 @@
 
     .table-header-premium th {
         font-weight: 700;
-        font-size: 15px;
+        font-size: 14px;
         color: #1f2937;
         letter-spacing: 1px;
         padding: 16px 12px;
         text-transform: uppercase;
         border: none;
-    }
-
-    .table-header-premium i {
-        font-size: 14px;
-        vertical-align: middle;
     }
 
     /* CARD */
@@ -83,16 +75,36 @@
         padding: 14px;
     }
 
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #dee2e6;
+    }
+
     .email-text {
         font-weight: 500;
         color: #222;
+        margin-bottom: 0;
     }
 
-    /* ROLE BADGES */
+    .text-muted-small {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    /* BADGES */
     .role-badge {
-        padding: 8px 18px;
+        padding: 6px 14px;
         border-radius: 20px;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 600;
         display: inline-block;
     }
@@ -101,41 +113,43 @@
     .role-admin { background: #ffc107; color: #000; }
     .role-user { background: #6c757d; color: #fff; }
     .role-manager { background: #198754; color: #fff; }
-    .role-marketing { background: #6610f2; color: #fff; }
+    .role-merchandiser { background: #6610f2; color: #fff; }
+    .role-productionmanager { background: #d63384; color: #fff; }
+    .role-hr { background: #20c997; color: #fff; }
     .role-qc { background: #fd7e14; color: #fff; }
 
+    .status-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .status-active { background: #d1e7dd; color: #0f5132; }
+    .status-disabled { background: #f8d7da; color: #842029; }
+    .status-pending { background: #fff3cd; color: #664d03; }
+
     /* ACTION */
-    .action-box {
-        display: flex;
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
         justify-content: center;
-        gap: 10px;
-    }
-
-    .form-select {
         border-radius: 8px;
+        margin: 0 2px;
     }
 
-    .btn-update {
-        background: #4e73df;
-        border: none;
-        color: white;
-    }
-
-    .btn-update:hover {
-        background: #2e59d9;
-    }
 </style>
 
 <!-- 🔥 HEADER BAR -->
 <div class="user-header-bar">
     <div class="d-flex justify-content-between align-items-center">
-
         <!-- LEFT -->
         <div class="d-flex align-items-center gap-2">
             <i class="bi bi-people-fill"></i>
             <h5 class="mb-0">User Management</h5>
         </div>
-
         <!-- RIGHT SEARCH -->
         <div class="search-box d-flex align-items-center">
             <input type="text" id="userSearch" class="form-control search-input" placeholder="Search users..." />
@@ -143,7 +157,6 @@
                 <i class="bi bi-search"></i>
             </button>
         </div>
-
     </div>
 </div>
 
@@ -152,28 +165,15 @@
 <!-- 🔷 TABLE -->
 <div class="card card-custom" style="border-top-left-radius:0; border-top-right-radius:0;">
     <div class="card-body p-0">
-
         <table class="table mb-0">
             <thead class="table-header-premium">
                 <tr>
-                    <th style="padding-left: 20px;">
-                        <i class="bi bi-person-fill me-2"></i> Full Name
-                    </th>
-
-                    <th>
-                        <i class="bi bi-envelope-fill me-2"></i> Email
-                    </th>
-
-                    <th class="text-center">
-                        <i class="bi bi-shield-lock-fill me-2"></i> Current Role
-                    </th>
-
-                    <th class="text-center">
-                        <i class="bi bi-arrow-repeat me-2"></i> Change Role
-                    </th>
+                    <th style="padding-left: 20px;">User</th>
+                    <th class="text-center">Role</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Actions</th>
                 </tr>
             </thead>
-
             <tbody>
                 @foreach (var item in Model)
                 {
@@ -181,134 +181,169 @@
                     {
                         "superadmin" => "role-superadmin",
                         "admin" => "role-admin",
-                        "manager" => "role-manager",
-                        "marketing" => "role-marketing",
+                        "hr" => "role-hr",
+                        "merchandiser" => "role-merchandiser",
+                        "productionmanager" => "role-productionmanager",
                         "qc" => "role-qc",
                         _ => "role-user"
                     };
 
+                    var statusClass = item.Status switch
+                    {
+                        "Active" => "status-active",
+                        "Disabled" => "status-disabled",
+                        _ => "status-pending"
+                    };
+
                     <tr>
                         <td style="padding-left: 20px;">
-                            <span class="email-text">@item.User.FullName</span>
-                        </td>
-
-                        <td>
-                            <span class="email-text text-muted">@item.User.Email</span>
+                            <div class="user-info">
+                                @if (!string.IsNullOrEmpty(item.ProfilePicturePath))
+                                {
+                                    <img src="@item.ProfilePicturePath" class="user-avatar" />
+                                }
+                                else
+                                {
+                                    <div class="user-avatar d-flex align-items-center justify-content-center bg-light text-secondary">
+                                        <i class="bi bi-person-fill fs-5"></i>
+                                    </div>
+                                }
+                                <div>
+                                    <p class="email-text">@item.FullName</p>
+                                    <span class="text-muted-small">@item.Email</span>
+                                </div>
+                            </div>
                         </td>
 
                         <td class="text-center">
-                            <span class="role-badge @roleClass">
-                                @item.Role
-                            </span>
+                            <span class="role-badge @roleClass">@item.Role</span>
                         </td>
 
                         <td class="text-center">
-                            <form class="role-form" data-user-id="@item.User.Id">
-                                <select name="newRole" class="form-select w-auto role-select">
-                                    <option value="">Select Role</option>
-                                    <option value="SuperAdmin">SuperAdmin</option>
-                                    <option value="Admin">Admin</option>
-                                    <option value="Manager">Manager</option>
-                                    <option value="Marketing">Marketing</option>
-                                    <option value="QC">QC</option>
-                                    <option value="User">User</option>
-                                </select>
+                            <span class="status-badge @statusClass" id="status-badge-@item.Id">@item.Status</span>
+                        </td>
 
-                                <button type="submit" class="btn btn-update">
-                                    Update
+                        <td class="text-center">
+                            <!-- DETAILS -->
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-light action-btn text-primary" title="Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+
+                            <!-- EDIT (Hide for Admin if target is SuperAdmin) -->
+                            @if (!(User.IsInRole(SD.Role_Admin) && item.Role == SD.Role_SuperAdmin))
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-light action-btn text-success" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <!-- TOGGLE STATUS -->
+                                <button type="button" class="btn btn-light action-btn text-warning" title="Toggle Status" onclick="toggleStatus('@item.Id')">
+                                    <i class="bi bi-power"></i>
                                 </button>
-                            </form>
+
+                                <!-- DELETE -->
+                                <button type="button" class="btn btn-light action-btn text-danger" title="Delete" onclick="confirmDelete('@item.Id', '@item.FullName')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            }
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
-
     </div>
 </div>
 
-<!-- 🔍 SEARCH -->
-<script>
-    document.getElementById("userSearch").addEventListener("keyup", function () {
-        let value = this.value.toLowerCase();
-        let rows = document.querySelectorAll("tbody tr");
+<!-- 🗑️ DELETE MODAL -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Delete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <i class="bi bi-x-circle text-danger mb-3" style="font-size: 3rem;"></i>
+                <p class="mb-0 fs-5">Are you sure you want to delete <strong id="deleteUserName"></strong>?</p>
+                <p class="text-muted small mt-2">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer justify-content-center border-0 pb-4">
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" id="deleteUserId" name="id" />
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger px-4">Yes, Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-        rows.forEach(row => {
-            let text = row.innerText.toLowerCase();
-            row.style.display = text.includes(value) ? "" : "none";
+@section Scripts {
+    <!-- 🔍 SEARCH -->
+    <script>
+        document.getElementById("userSearch").addEventListener("keyup", function () {
+            let value = this.value.toLowerCase();
+            let rows = document.querySelectorAll("tbody tr");
+
+            rows.forEach(row => {
+                let text = row.innerText.toLowerCase();
+                row.style.display = text.includes(value) ? "" : "none";
+            });
         });
-    });
-</script>
+    </script>
 
-<!-- ⚡ AJAX ROLE UPDATE -->
-<script>
-    document.querySelectorAll(".role-form").forEach(form => {
-
-        form.addEventListener("submit", async function (e) {
-            e.preventDefault();
-
-            let userId = form.getAttribute("data-user-id");
-            let select = form.querySelector(".role-select");
-            let button = form.querySelector("button");
-
-            let newRole = select.value;
-
-            if (!newRole) {
-                showAlert("Please select a role", "danger");
-                return;
-            }
-
-            button.disabled = true;
-            button.innerText = "Updating...";
+    <!-- ⚡ AJAX TOGGLE STATUS -->
+    <script>
+        async function toggleStatus(userId) {
+            if (!confirm("Are you sure you want to toggle this user's access?")) return;
 
             try {
-                let response = await fetch("/UserAccess/ChangeRole", {
+                let response = await fetch("/UserAccess/ToggleStatus", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded"
                     },
-                    body: `userId=${userId}&newRole=${newRole}`
+                    body: `userId=${userId}`
                 });
 
                 let data = await response.json();
 
                 if (data.success) {
                     showAlert(data.message, "success");
-
-                    let badge = form.closest("tr").querySelector(".role-badge");
-                    badge.className = "role-badge";
-
-                    switch (newRole.toLowerCase()) {
-                        case "superadmin": badge.classList.add("role-superadmin"); break;
-                        case "admin": badge.classList.add("role-admin"); break;
-                        case "manager": badge.classList.add("role-manager"); break;
-                        case "marketing": badge.classList.add("role-marketing"); break;
-                        case "qc": badge.classList.add("role-qc"); break;
-                        default: badge.classList.add("role-user");
+                    // Update UI badge
+                    let badge = document.getElementById("status-badge-" + userId);
+                    if (data.isDisabled) {
+                        badge.className = "status-badge status-disabled";
+                        badge.innerText = "Disabled";
+                    } else {
+                        // Assuming they are approved if active
+                        badge.className = "status-badge status-active";
+                        badge.innerText = "Active";
                     }
-
-                    badge.innerText = newRole;
                 } else {
                     showAlert(data.message, "danger");
                 }
-
             } catch {
                 showAlert("Something went wrong", "danger");
             }
+        }
 
-            button.disabled = false;
-            button.innerText = "Update";
-        });
-    });
+        function confirmDelete(id, name) {
+            document.getElementById("deleteUserId").value = id;
+            document.getElementById("deleteUserName").innerText = name;
+            var myModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            myModal.show();
+        }
 
-    function showAlert(message, type) {
-        let alertBox = document.getElementById("alertBox");
-        alertBox.className = `alert alert-${type}`;
-        alertBox.innerText = message;
-        alertBox.classList.remove("d-none");
+        function showAlert(message, type) {
+            let alertBox = document.getElementById("alertBox");
+            alertBox.className = `alert alert-${type}`;
+            alertBox.innerText = message;
+            alertBox.classList.remove("d-none");
 
-        setTimeout(() => {
-            alertBox.classList.add("d-none");
-        }, 3000);
-    }
-</script>
+            setTimeout(() => {
+                alertBox.classList.add("d-none");
+            }, 3000);
+        }
+    </script>
+}

@@ -31,6 +31,13 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddDefaultTokenProviders()
 .AddDefaultUI();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.LogoutPath = "/Identity/Account/Logout";
+    options.AccessDeniedPath = "/Home/AccessDenied";
+});
+
 var app = builder.Build();
 
 
@@ -84,12 +91,13 @@ static async Task SeedRolesAndAdminAsync(IServiceProvider services)
     // ✅ SYSTEM ROLES
     string[] roles =
     {
-        "SuperAdmin",
-        "Admin",
-        "Manager",
-        "Marketing",
-        "QC",
-        "User"
+        SD.Role_SuperAdmin,
+        SD.Role_Admin,
+        SD.Role_HR,
+        SD.Role_Merchandiser,
+        SD.Role_ProductionManager,
+        SD.Role_QC,
+        SD.Role_User
     };
 
     // ✅ CREATE ROLES
@@ -128,7 +136,7 @@ static async Task SeedRolesAndAdminAsync(IServiceProvider services)
         }
 
         // ✅ Assign SuperAdmin Role
-        await userManager.AddToRoleAsync(admin, "SuperAdmin");
+        await userManager.AddToRoleAsync(admin, SD.Role_SuperAdmin);
     }
     else
     {
@@ -147,9 +155,9 @@ static async Task SeedRolesAndAdminAsync(IServiceProvider services)
         await userManager.UpdateAsync(adminUser);
 
         // ✅ Ensure role exists
-        if (!await userManager.IsInRoleAsync(adminUser, "SuperAdmin"))
+        if (!await userManager.IsInRoleAsync(adminUser, SD.Role_SuperAdmin))
         {
-            await userManager.AddToRoleAsync(adminUser, "SuperAdmin");
+            await userManager.AddToRoleAsync(adminUser, SD.Role_SuperAdmin);
         }
     }
 }

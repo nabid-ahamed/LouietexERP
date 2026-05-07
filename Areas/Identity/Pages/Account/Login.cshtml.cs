@@ -1,4 +1,4 @@
-﻿#nullable disable
+#nullable disable
 
 using System;
 using System.Collections.Generic;
@@ -97,6 +97,13 @@ namespace LouietexERP.Areas.Identity.Pages.Account
                 return Page();
             }
 
+            // ❌ Block if disabled
+            if (user.IsDisabled)
+            {
+                ModelState.AddModelError(string.Empty, "Your account has been disabled. Please contact an administrator.");
+                return Page();
+            }
+
             // ✅ Try login (using email)
             var result = await _signInManager.PasswordSignInAsync(
                 user.Email,
@@ -110,7 +117,7 @@ namespace LouietexERP.Areas.Identity.Pages.Account
                 _logger.LogInformation("User logged in.");
 
                 // 🎯 Role-based redirect
-                if (await _userManager.IsInRoleAsync(user, "SuperAdmin"))
+                if (await _userManager.IsInRoleAsync(user, SD.Role_SuperAdmin))
                 {
                     return RedirectToAction("Index", "Dashboard");
                 }

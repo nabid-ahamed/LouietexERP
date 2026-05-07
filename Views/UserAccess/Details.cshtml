@@ -1,0 +1,156 @@
+@model LouietexERP.Models.UserDetailsViewModel
+
+@{
+    ViewData["Title"] = "User Details";
+
+    var roleClass = Model.Role.ToLower() switch
+    {
+        "superadmin" => "role-superadmin",
+        "admin" => "role-admin",
+        "hr" => "role-hr",
+        "merchandiser" => "role-merchandiser",
+        "productionmanager" => "role-productionmanager",
+        "qc" => "role-qc",
+        _ => "role-user"
+    };
+
+    var statusClass = Model.Status switch
+    {
+        "Active" => "status-active",
+        "Disabled" => "status-disabled",
+        _ => "status-pending"
+    };
+}
+
+<style>
+    .role-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .role-superadmin { background: #0dcaf0; color: #000; }
+    .role-admin { background: #ffc107; color: #000; }
+    .role-user { background: #6c757d; color: #fff; }
+    .role-manager { background: #198754; color: #fff; }
+    .role-merchandiser { background: #6610f2; color: #fff; }
+    .role-productionmanager { background: #d63384; color: #fff; }
+    .role-hr { background: #20c997; color: #fff; }
+    .role-qc { background: #fd7e14; color: #fff; }
+
+    .status-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .status-active { background: #d1e7dd; color: #0f5132; }
+    .status-disabled { background: #f8d7da; color: #842029; }
+    .status-pending { background: #fff3cd; color: #664d03; }
+
+    .profile-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .profile-header {
+        background: #f8f9fa;
+        padding: 30px;
+        text-align: center;
+        border-radius: 12px 12px 0 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin-bottom: 15px;
+    }
+
+    .profile-avatar-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #adb5bd;
+        margin-bottom: 15px;
+        border: 4px solid white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card profile-card">
+                <div class="profile-header">
+                    @if (!string.IsNullOrEmpty(Model.ProfilePicturePath))
+                    {
+                        <img src="@Model.ProfilePicturePath" class="profile-avatar" alt="Profile Picture" />
+                    }
+                    else
+                    {
+                        <div class="profile-avatar-placeholder">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                    }
+                    
+                    <h3 class="mb-1">@Model.FullName</h3>
+                    <p class="text-muted mb-3">@Model.Email</p>
+                    
+                    <div>
+                        <span class="role-badge @roleClass me-2">@Model.Role</span>
+                        <span class="status-badge @statusClass">@Model.Status</span>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <h5 class="mb-4">User Information</h5>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">User ID</div>
+                        <div class="col-sm-8 fw-bold">@Model.Id</div>
+                    </div>
+                    <hr />
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Phone Number</div>
+                        <div class="col-sm-8 fw-bold">@(string.IsNullOrEmpty(Model.PhoneNumber) ? "Not Provided" : Model.PhoneNumber)</div>
+                    </div>
+                    <hr />
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Is Approved?</div>
+                        <div class="col-sm-8 fw-bold">@(Model.IsApproved ? "Yes" : "No")</div>
+                    </div>
+                    <hr />
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Is Disabled?</div>
+                        <div class="col-sm-8 fw-bold text-danger">@(Model.IsDisabled ? "Yes" : "No")</div>
+                    </div>
+
+                    <div class="mt-5 text-center">
+                        <a asp-action="Index" class="btn btn-secondary px-4 me-2">
+                            <i class="bi bi-arrow-left me-2"></i> Back to List
+                        </a>
+                        @if (!(User.IsInRole(LouietexERP.Models.SD.Role_Admin) && Model.Role == LouietexERP.Models.SD.Role_SuperAdmin))
+                        {
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary px-4">
+                                <i class="bi bi-pencil me-2"></i> Edit User
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

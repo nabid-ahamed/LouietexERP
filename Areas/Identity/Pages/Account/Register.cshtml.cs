@@ -1,4 +1,4 @@
-﻿#nullable disable
+#nullable disable
 
 using System;
 using System.Collections.Generic;
@@ -104,7 +104,7 @@ namespace LouietexERP.Areas.Identity.Pages.Account
                     _logger.LogInformation("User created a new account with password.");
 
                     // ✅ Assign NormalUser role
-                    await _userManager.AddToRoleAsync(user, "User");
+                    await _userManager.AddToRoleAsync(user, SD.Role_User);
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

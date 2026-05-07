@@ -77,6 +77,7 @@ namespace LouietexERP.Controllers
                 UserId = user.Id,
                 NewFullName = model.NewFullName,
                 NewEmail = model.NewEmail,
+                RequestType = ProfileRequestType.ProfileChange,
                 RequestDate = DateTime.UtcNow,
                 IsProcessed = false,
                 Status = ProfileRequestStatus.Pending

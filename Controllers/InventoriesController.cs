@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -46,14 +46,17 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Inventories/Create
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: Inventories/Create
+        // POST: Inventories/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Create([Bind("Id,Name,Category,Quantity,MinStockLevel,Supplier")] Inventory inventory)
         {
             if (ModelState.IsValid)
@@ -73,6 +76,7 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Inventories/Edit/5
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -92,6 +96,7 @@ namespace LouietexERP.Controllers
         // POST: Inventories/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Category,Quantity,MinStockLevel,Supplier")] Inventory inventory)
         {
             if (id != inventory.Id)
@@ -129,6 +134,7 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Inventories/Delete/5
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -150,6 +156,7 @@ namespace LouietexERP.Controllers
         // POST: Inventories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var inventory = await _context.Inventories.FindAsync(id);

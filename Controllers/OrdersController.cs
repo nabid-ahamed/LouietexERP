@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -70,6 +70,7 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Orders/Create
+        [Authorize(Roles = SD.Role_Merchandiser + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public IActionResult Create()
         {
             return View();
@@ -78,6 +79,7 @@ namespace LouietexERP.Controllers
         // POST: Orders/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.Role_Merchandiser + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Create([Bind("Id,BuyerName,StyleCode,TotalQuantity,DeliveryDate,Status")] Order order)
         {
             if (ModelState.IsValid)
@@ -90,6 +92,7 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Orders/Edit/5
+        [Authorize(Roles = SD.Role_Merchandiser + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -108,6 +111,7 @@ namespace LouietexERP.Controllers
         // POST: Orders/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.Role_Merchandiser + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Edit(int id, [Bind("Id,BuyerName,StyleCode,TotalQuantity,DeliveryDate,Status")] Order order)
         {
             if (id != order.Id)
@@ -139,6 +143,7 @@ namespace LouietexERP.Controllers
         }
 
         // GET: Orders/Delete/5
+        [Authorize(Roles = SD.Role_Merchandiser + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -159,6 +164,7 @@ namespace LouietexERP.Controllers
         // POST: Orders/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.Role_Merchandiser + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var order = await _context.Orders.FindAsync(id);
