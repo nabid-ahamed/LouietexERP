@@ -45,9 +45,26 @@
         <i class="bi bi-gear-wide-connected fs-5"></i>
         <h5 class="mb-0 fw-bold">Production Runs</h5>
     </div>
-    <a asp-action="Create" class="btn btn-light btn-sm text-primary fw-bold px-3 rounded-pill">
-        <i class="bi bi-plus-lg me-1"></i> New Run
-    </a>
+    <div class="d-flex gap-2">
+        @if (User.IsInRole(SD.Role_ProductionManager) || User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_SuperAdmin) || User.IsInRole(SD.Role_OperationsManager))
+        {
+            <a asp-action="ExportPdf" 
+               asp-route-status="@ViewBag.CurrentStatus" 
+               asp-route-lineNumber="@ViewBag.CurrentLine" 
+               asp-route-orderId="@Context.Request.Query["orderId"]"
+               asp-route-startDate="@ViewBag.StartDate"
+               asp-route-endDate="@ViewBag.EndDate"
+               class="btn btn-light btn-sm text-danger fw-bold px-3 rounded-pill">
+                <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+            </a>
+            <button onclick="window.print()" class="btn btn-light btn-sm text-primary fw-bold px-3 rounded-pill">
+                <i class="bi bi-printer me-1"></i> Print
+            </button>
+        }
+        <a asp-action="Create" class="btn btn-light btn-sm text-primary fw-bold px-3 rounded-pill">
+            <i class="bi bi-plus-lg me-1"></i> New Run
+        </a>
+    </div>
 </div>
 
 <div class="card card-custom border-0 shadow-sm mb-3" style="border-radius: 0 0 12px 12px;">

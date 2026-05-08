@@ -523,4 +523,47 @@ a[href*="two-factor"],
 a[href*="PersonalData"],
 a[href*="personal-data"] {
     display: none !important;
-}
+/* ========================= */
+/* PRINT STYLES */
+/* ========================= */
+@media print {
+    .erp-sidebar, .navbar-top, .btn-premium, .action-icon, .dropdown, form, footer, #sidebarToggle {
+        display: none !important;
+    }
+
+    .erp-main-wrapper {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    .erp-content {
+        padding: 0 !important;
+    }
+
+    .erp-card {
+        border: none !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+
+    .erp-table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+    }
+
+    .erp-table th, .erp-table td {
+        border: 1px solid #ddd !important;
+        padding: 8px !important;
+        color: black !important;
+    }
+
+    .fade-in-up {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    body {
+        background-color: white !important;
+    }
+}

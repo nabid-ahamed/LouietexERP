@@ -9,14 +9,16 @@ using System.Threading.Tasks;
 
 namespace LouietexERP.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = SD.Role_SuperAdmin + "," + SD.Role_Admin + "," + SD.Role_HR + "," + SD.Role_Merchandiser + "," + SD.Role_ProductionManager + "," + SD.Role_QC + "," + SD.Role_OperationsManager)]
     public class ReportsController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public ReportsController(ApplicationDbContext context)
+        private readonly LouietexERP.Services.IExportService _exportService;
+ 
+        public ReportsController(ApplicationDbContext context, LouietexERP.Services.IExportService exportService)
         {
             _context = context;
+            _exportService = exportService;
         }
 
         // ✅ Reports Dashboard

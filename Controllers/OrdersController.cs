@@ -11,14 +11,16 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LouietexERP.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = SD.Role_Merchandiser + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin + "," + SD.Role_OperationsManager)]
     public class OrdersController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public OrdersController(ApplicationDbContext context)
+        private readonly LouietexERP.Services.IExportService _exportService;
+ 
+        public OrdersController(ApplicationDbContext context, LouietexERP.Services.IExportService exportService)
         {
             _context = context;
+            _exportService = exportService;
         }
 
         // GET: Orders
@@ -36,6 +38,33 @@ namespace LouietexERP.Controllers
             }
 
             return View(await orders.ToListAsync());
+        }
+
+        // GET: Orders/ExportPdf
+        public async Task<IActionResult> ExportPdf(string search)
+        {
+            var orders = _context.Orders.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                orders = orders.Where(o =>
+                    o.BuyerName.Contains(search) ||
+                    o.StyleCode.Contains(search) ||
+                    o.Status.Contains(search)
+                );
+            }
+
+            var data = await orders.ToListAsync();
+            var headers = new[] { "Buyer Name", "Style Code", "Quantity", "Delivery Date", "Status" };
+            var pdf = _exportService.GeneratePdf("Orders Report", data, headers, o => new[] {
+                o.BuyerName ?? "",
+                o.StyleCode ?? "",
+                o.TotalQuantity.ToString(),
+                o.DeliveryDate.ToShortDateString(),
+                o.Status ?? ""
+            });
+
+            return File(pdf, "application/pdf", $"Orders_{DateTime.Now:yyyyMMdd}.pdf");
         }
 
         // ✅ ADDED: Track Status with filter

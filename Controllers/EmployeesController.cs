@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using LouietexERP.Data;
 using LouietexERP.Models;
 using Microsoft.AspNetCore.Authorization;
+using LouietexERP.Services;
 
 namespace LouietexERP.Controllers
 {
@@ -15,10 +16,12 @@ namespace LouietexERP.Controllers
     public class EmployeesController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public EmployeesController(ApplicationDbContext context)
+        private readonly IExportService _exportService;
+ 
+        public EmployeesController(ApplicationDbContext context, IExportService exportService)
         {
             _context = context;
+            _exportService = exportService;
         }
 
         // GET: Employees
@@ -37,6 +40,34 @@ namespace LouietexERP.Controllers
             }
 
             return View(await employees.ToListAsync());
+        }
+ 
+        // GET: Employees/ExportPdf
+        public async Task<IActionResult> ExportPdf(string searchString)
+        {
+            var employees = from e in _context.Employees
+                            select e;
+ 
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                employees = employees.Where(e =>
+                    e.FullName.Contains(searchString) ||
+                    e.Email.Contains(searchString) ||
+                    e.Department.Contains(searchString) ||
+                    e.Role.Contains(searchString));
+            }
+ 
+            var data = await employees.ToListAsync();
+            var headers = new[] { "Full Name", "Email", "Department", "Role", "Joining Date" };
+            var pdf = _exportService.GeneratePdf("Employee Report", data, headers, e => new[] {
+                e.FullName ?? "",
+                e.Email ?? "",
+                e.Department ?? "",
+                e.Role ?? "",
+                e.JoiningDate.ToShortDateString()
+            });
+ 
+            return File(pdf, "application/pdf", $"Employees_{DateTime.Now:yyyyMMdd}.pdf");
         }
 
         // GET: Employees/Details/5

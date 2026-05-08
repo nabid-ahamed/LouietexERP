@@ -27,6 +27,17 @@
                                class="form-control premium-input ps-5 w-100" placeholder="Search by buyer or style code..." />
                     </form>
                 </div>
+                <div class="d-flex gap-2">
+                    @if (User.IsInRole(SD.Role_Merchandiser) || User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_SuperAdmin) || User.IsInRole(SD.Role_OperationsManager))
+                    {
+                        <a asp-action="ExportPdf" asp-route-search="@Context.Request.Query["search"]" class="btn btn-outline-danger premium-input">
+                            <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                        </a>
+                        <button onclick="window.print()" class="btn btn-outline-primary premium-input">
+                            <i class="bi bi-printer"></i> Print
+                        </button>
+                    }
+                </div>
             </div>
         </div>
 

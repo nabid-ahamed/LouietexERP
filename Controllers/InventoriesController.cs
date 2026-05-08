@@ -10,14 +10,16 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LouietexERP.Controllers
 {
-    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_SuperAdmin + "," + SD.Role_ProductionManager)]
+    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_SuperAdmin + "," + SD.Role_ProductionManager + "," + SD.Role_OperationsManager)]
     public class InventoriesController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public InventoriesController(ApplicationDbContext context)
+        private readonly LouietexERP.Services.IExportService _exportService;
+ 
+        public InventoriesController(ApplicationDbContext context, LouietexERP.Services.IExportService exportService)
         {
             _context = context;
+            _exportService = exportService;
         }
 
         // GET: Inventories
@@ -32,6 +34,30 @@ namespace LouietexERP.Controllers
             }
 
             return View(await inventory.ToListAsync());
+        }
+
+        // GET: Inventories/ExportPdf
+        public async Task<IActionResult> ExportPdf(string searchString)
+        {
+            var inventory = from i in _context.Inventories
+                             select i;
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                inventory = inventory.Where(s => s.Name.Contains(searchString) || s.Category.Contains(searchString));
+            }
+
+            var data = await inventory.ToListAsync();
+            var headers = new[] { "Name", "Category", "Quantity", "Min Level", "Supplier" };
+            var pdf = _exportService.GeneratePdf("Inventory Report", data, headers, i => new[] {
+                i.Name ?? "",
+                i.Category ?? "",
+                i.Quantity.ToString(),
+                i.MinStockLevel.ToString(),
+                i.Supplier ?? ""
+            });
+
+            return File(pdf, "application/pdf", $"Inventory_{DateTime.Now:yyyyMMdd}.pdf");
         }
 
         // GET: Inventories/Details/5

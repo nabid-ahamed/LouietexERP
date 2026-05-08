@@ -11,14 +11,16 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LouietexERP.Controllers
 {
-    [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
+    [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin + "," + SD.Role_OperationsManager)]
     public class ProductionsController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public ProductionsController(ApplicationDbContext context)
+        private readonly LouietexERP.Services.IExportService _exportService;
+ 
+        public ProductionsController(ApplicationDbContext context, LouietexERP.Services.IExportService exportService)
         {
             _context = context;
+            _exportService = exportService;
         }
 
         // GET: Productions
@@ -48,6 +50,41 @@ namespace LouietexERP.Controllers
             ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
 
             return View(await query.OrderByDescending(p => p.CreatedAt).ToListAsync());
+        }
+
+        // GET: Productions/ExportPdf
+        public async Task<IActionResult> ExportPdf(string? status, string? lineNumber, int? orderId, DateTime? startDate, DateTime? endDate)
+        {
+            var query = _context.Productions.Include(p => p.Order).AsQueryable();
+
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(p => p.Status == status);
+
+            if (!string.IsNullOrEmpty(lineNumber))
+                query = query.Where(p => p.LineNumber.Contains(lineNumber));
+
+            if (orderId.HasValue)
+                query = query.Where(p => p.OrderId == orderId.Value);
+
+            if (startDate.HasValue)
+                query = query.Where(p => p.CreatedAt.Date >= startDate.Value.Date);
+
+            if (endDate.HasValue)
+                query = query.Where(p => p.CreatedAt.Date <= endDate.Value.Date);
+
+            var data = await query.OrderByDescending(p => p.CreatedAt).ToListAsync();
+            var headers = new[] { "Order", "Line", "Supervisor", "Target", "Actual", "Status", "Date" };
+            var pdf = _exportService.GeneratePdf("Production Report", data, headers, p => new[] {
+                p.Order?.StyleCode ?? "N/A",
+                p.LineNumber ?? "",
+                p.Supervisor ?? "",
+                p.TargetQuantity.ToString(),
+                p.ActualOutput.ToString(),
+                p.Status ?? "",
+                p.CreatedAt.ToShortDateString()
+            });
+
+            return File(pdf, "application/pdf", $"Production_{DateTime.Now:yyyyMMdd}.pdf");
         }
 
         // GET: Productions/Details/5

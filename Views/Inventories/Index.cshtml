@@ -18,7 +18,16 @@
                 </ol>
             </nav>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
+            @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_SuperAdmin) || User.IsInRole(SD.Role_ProductionManager) || User.IsInRole(SD.Role_OperationsManager))
+            {
+                <a asp-action="ExportPdf" asp-route-searchString="@Context.Request.Query["searchString"]" class="btn btn-outline-danger rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-file-earmark-pdf me-2"></i> Export PDF
+                </a>
+                <button onclick="window.print()" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-printer me-2"></i> Print
+                </button>
+            }
             <a href="/Inventories/LowStock" class="btn btn-outline-danger rounded-pill px-4 shadow-sm">
                 <i class="bi bi-exclamation-triangle me-2"></i> Low Stock
             </a>

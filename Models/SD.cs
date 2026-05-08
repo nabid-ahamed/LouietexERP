@@ -8,6 +8,7 @@ namespace LouietexERP.Models
         public const string Role_Merchandiser = "Merchandiser";
         public const string Role_ProductionManager = "ProductionManager";
         public const string Role_QC = "QC";
+        public const string Role_OperationsManager = "OperationsManager";
         public const string Role_User = "User";
 
         public static string GetTimeAgo(DateTime dateTime)

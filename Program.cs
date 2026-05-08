@@ -2,12 +2,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using LouietexERP.Data;
 using LouietexERP.Models;
+using QuestPDF.Infrastructure;
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ✅ Add MVC + Razor Pages
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<LouietexERP.Services.IExportService, LouietexERP.Services.ExportService>();
 
 // ✅ Configure EF Core
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -101,6 +105,7 @@ static async Task SeedRolesAndAdminAsync(IServiceProvider services)
         SD.Role_Merchandiser,
         SD.Role_ProductionManager,
         SD.Role_QC,
+        SD.Role_OperationsManager,
         SD.Role_User
     };
 
