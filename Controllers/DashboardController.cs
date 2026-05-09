@@ -105,11 +105,11 @@ namespace LouietexERP.Controllers
             var activities = new List<ActivityItem>();
 
             // Recent Orders
-            var latestOrders = await _context.Orders.OrderByDescending(o => o.CreatedAt).Take(10).ToListAsync();
+            var latestOrders = await _context.Orders.OrderByDescending(o => o.CreatedAt).Take(5).ToListAsync();
             activities.AddRange(latestOrders.Select(o => new ActivityItem
             {
                 Title = $"New Order: {o.StyleCode}",
-                Subtitle = $"Buyer: {o.BuyerName} | Qty: {o.TotalQuantity:N0}",
+                Subtitle = $"Buyer: {o.BuyerName} | Quantity: {o.TotalQuantity:N0}",
                 Timestamp = o.CreatedAt,
                 Icon = "bi-bag-plus",
                 IconBg = "bg-primary-subtle",
@@ -117,11 +117,11 @@ namespace LouietexERP.Controllers
             }));
 
             // Recent QC Results
-            var latestQC = await _context.QCInspections.Include(q => q.Production).ThenInclude(p => p!.Order).OrderByDescending(q => q.UpdatedAt).Take(10).ToListAsync();
+            var latestQC = await _context.QCInspections.Include(q => q.Production).ThenInclude(p => p!.Order).OrderByDescending(q => q.UpdatedAt).Take(5).ToListAsync();
             activities.AddRange(latestQC.Select(q => new ActivityItem
             {
-                Title = $"QC {q.QCStatus ?? "Pending"}: {q.Production?.Order?.StyleCode ?? "N/A"}",
-                Subtitle = $"Inspector: {q.InspectorName ?? "Unknown"} | Defect: {q.DefectCount}",
+                Title = $"QC {q.QCStatus}: {q.Production?.Order?.StyleCode ?? "N/A"}",
+                Subtitle = $"Inspector: {q.InspectorName ?? "Unknown"} | Defects: {q.DefectCount}",
                 Timestamp = q.UpdatedAt,
                 Icon = q.QCStatus == "Passed" ? "bi-shield-check" : "bi-shield-x",
                 IconBg = q.QCStatus == "Passed" ? "bg-success-subtle" : "bg-danger-subtle",
@@ -129,40 +129,17 @@ namespace LouietexERP.Controllers
             }));
 
             // Recent Profile Requests
-            var latestRequests = await _context.ProfileRequests.Include(r => r.User).OrderByDescending(r => r.RequestDate).Take(5).ToListAsync();
+            var latestRequests = await _context.ProfileRequests.Include(r => r.User).OrderByDescending(r => r.RequestDate).Take(3).ToListAsync();
             activities.AddRange(latestRequests.Select(r => new ActivityItem
             {
-                Title = $"Profile Change Request: {r.User?.FullName ?? "Unknown User"}",
-                Subtitle = $"Status: {r.Status}",
+                Title = $"Profile Request: {r.User?.FullName ?? "Unknown User"}",
+                Subtitle = $"Status: {r.Status} | Type: {r.RequestType}",
                 Timestamp = r.RequestDate,
                 Icon = "bi-person-gear",
                 IconBg = "bg-warning-subtle",
                 IconText = "text-warning"
             }));
 
-            // Recent Production Updates
-            var latestProds = await _context.Productions.Include(p => p.Order).OrderByDescending(p => p.UpdatedAt).Take(10).ToListAsync();
-            activities.AddRange(latestProds.Select(p => new ActivityItem
-            {
-                Title = $"Prod Update: {p.LineNumber}",
-                Subtitle = $"Order: {p.Order?.StyleCode ?? "N/A"} | Status: {p.Status} | Output: {p.ActualOutput}",
-                Timestamp = p.UpdatedAt,
-                Icon = "bi-gear-wide-connected",
-                IconBg = "bg-info-subtle",
-                IconText = "text-info"
-            }));
-
-            // New Staff Registrations
-            var latestUsers = await _userManager.Users.OrderByDescending(u => u.RegistrationDate).Take(10).ToListAsync();
-            activities.AddRange(latestUsers.Select(u => new ActivityItem
-            {
-                Title = $"New Staff: {u.FullName}",
-                Subtitle = $"ID: {u.UserName}",
-                Timestamp = u.RegistrationDate,
-                Icon = "bi-person-plus",
-                IconBg = "bg-dark-subtle",
-                IconText = "text-dark"
-            }));
 
             ViewBag.ActivityFeed = activities.OrderByDescending(a => a.Timestamp).Take(15).ToList();
             ViewBag.RecentOrders = latestOrders;
