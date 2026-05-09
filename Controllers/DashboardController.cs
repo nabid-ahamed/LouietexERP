@@ -19,24 +19,24 @@ namespace LouietexERP.Controllers
         public async Task<IActionResult> Index()
         {
             // ── 1. Core KPIs ──────────────────────────────────────────────
-            var totalOrders        = await _context.Orders.CountAsync();
+            var totalOrders = await _context.Orders.CountAsync();
             Console.WriteLine($"[DEBUG] Total Orders in DB: {totalOrders}");
             var runningProductions = await _context.Productions.CountAsync(p => p.Status == "Running");
             var completedProductions = await _context.Productions.CountAsync(p => p.Status == "Completed");
-            var pendingQC          = await _context.QCInspections.CountAsync(q => q.QCStatus == "Recheck Required" || q.QCStatus == "Pending");
-            var qcFailedCount      = await _context.QCInspections.CountAsync(q => q.QCStatus == "Failed");
-            var totalEmployees     = await _context.Employees.CountAsync();   // ✅ ERP Employees table
-            var pendingRequests    = await _context.ProfileRequests.CountAsync(pr => pr.Status == ProfileRequestStatus.Pending);
-            var lowStockItems      = await _context.Inventories.CountAsync(i => i.Quantity <= i.MinStockLevel);
+            var pendingQC = await _context.QCInspections.CountAsync(q => q.QCStatus == "Recheck Required" || q.QCStatus == "Pending");
+            var qcFailedCount = await _context.QCInspections.CountAsync(q => q.QCStatus == "Failed");
+            var totalEmployees = await _context.Employees.CountAsync();   // ✅ ERP Employees table
+            var pendingRequests = await _context.ProfileRequests.CountAsync(pr => pr.Status == ProfileRequestStatus.Pending);
+            var lowStockItems = await _context.Inventories.CountAsync(i => i.Quantity <= i.MinStockLevel);
 
-            ViewBag.TotalOrders          = totalOrders;
-            ViewBag.RunningProductions   = runningProductions;
+            ViewBag.TotalOrders = totalOrders;
+            ViewBag.RunningProductions = runningProductions;
             ViewBag.CompletedProductions = completedProductions;
-            ViewBag.PendingQC            = pendingQC;
-            ViewBag.QCFailedItems        = qcFailedCount;
-            ViewBag.TotalEmployees       = totalEmployees;
-            ViewBag.PendingRequests      = pendingRequests;
-            ViewBag.LowStockItems        = lowStockItems;
+            ViewBag.PendingQC = pendingQC;
+            ViewBag.QCFailedItems = qcFailedCount;
+            ViewBag.TotalEmployees = totalEmployees;
+            ViewBag.PendingRequests = pendingRequests;
+            ViewBag.LowStockItems = lowStockItems;
 
             // ── 2. Realistic Demo Trends ─────────────────────────────────
             // Derived from current data to feel dynamic
@@ -55,29 +55,29 @@ namespace LouietexERP.Controllers
             double pendingOrdersPct = totalOrders > 0
                 ? Math.Round((double)await _context.Orders.CountAsync(o => o.Status == "Pending") / totalOrders * 100, 1) : 0;
 
-            ViewBag.TrendOrders      = totalOrders  > 10  ? "+8.3% from last month"   : "New orders incoming";
-            ViewBag.TrendRunning     = $"{efficiencyRate}% completion rate";
-            ViewBag.TrendCompleted   = completedProductions > 5 ? "+12.5% vs last month" : "On track";
-            ViewBag.TrendQC          = pendingQC > 0 ? $"{pendingQC} need action" : "All clear";
-            ViewBag.TrendQCFailed    = qcFailedCount > 0 ? $"↓ {100 - qcPassRate:0.0}% fail rate" : "No failures";
-            ViewBag.TrendEmployees   = $"{totalEmployees} active staff members";
-            ViewBag.TrendLowStock    = lowStockItems > 0 ? $"{lowStockItems} items below min level" : "Stock levels healthy";
-            ViewBag.TrendPendingReq  = pendingRequests > 0 ? $"{pendingRequests} awaiting review" : "No pending";
+            ViewBag.TrendOrders = totalOrders > 10 ? "+8.3% from last month" : "New orders incoming";
+            ViewBag.TrendRunning = $"{efficiencyRate}% completion rate";
+            ViewBag.TrendCompleted = completedProductions > 5 ? "+12.5% vs last month" : "On track";
+            ViewBag.TrendQC = pendingQC > 0 ? $"{pendingQC} need action" : "All clear";
+            ViewBag.TrendQCFailed = qcFailedCount > 0 ? $"↓ {100 - qcPassRate:0.0}% fail rate" : "No failures";
+            ViewBag.TrendEmployees = $"{totalEmployees} active staff members";
+            ViewBag.TrendLowStock = lowStockItems > 0 ? $"{lowStockItems} items below min level" : "Stock levels healthy";
+            ViewBag.TrendPendingReq = pendingRequests > 0 ? $"{pendingRequests} awaiting review" : "No pending";
 
-            ViewBag.IsQCHealthy      = qcFailedCount == 0;
-            ViewBag.IsStockHealthy   = lowStockItems == 0;
+            ViewBag.IsQCHealthy = qcFailedCount == 0;
+            ViewBag.IsStockHealthy = lowStockItems == 0;
 
             // ── 3. Admin: Pending User Approvals ─────────────────────────
-            var pendingUsersCount      = await _userManager.Users.CountAsync(u => !u.IsApproved);
-            var recentRegisteredUsers  = await _userManager.Users
+            var pendingUsersCount = await _userManager.Users.CountAsync(u => !u.IsApproved);
+            var recentRegisteredUsers = await _userManager.Users
                 .Where(u => !u.IsApproved)
                 .OrderByDescending(u => u.RegistrationDate)
                 .Take(5)
                 .ToListAsync();
 
-            ViewBag.PendingUsersCount      = pendingUsersCount;
-            ViewBag.RecentRegisteredUsers  = recentRegisteredUsers;
-            ViewBag.TrendPendingUsers      = pendingUsersCount > 0 ? $"{pendingUsersCount} awaiting approval" : "All users approved";
+            ViewBag.PendingUsersCount = pendingUsersCount;
+            ViewBag.RecentRegisteredUsers = recentRegisteredUsers;
+            ViewBag.TrendPendingUsers = pendingUsersCount > 0 ? $"{pendingUsersCount} awaiting approval" : "All users approved";
 
             // ── 4. Order Status Chart (Doughnut) ─────────────────────────
             var orderStatuses = await _context.Orders
@@ -90,15 +90,15 @@ namespace LouietexERP.Controllers
 
             // ── 5. Production Line Chart (Customizable Timeline) ────────
             string timeframe = Request.Query["timeframe"].ToString().ToLower();
-            if (string.IsNullOrEmpty(timeframe)) timeframe = "monthly"; 
-            
+            if (string.IsNullOrEmpty(timeframe)) timeframe = "monthly";
+
             var chartData = await GetProductionChartLogic(timeframe);
-            
+
             ViewBag.CurrentTimeframe = timeframe;
-            ViewBag.ProdChartLabels  = chartData.Labels;
-            ViewBag.ProdTargetData   = chartData.Target;
-            ViewBag.ProdActualData   = chartData.Actual;
-            ViewBag.TotalProdActual  = chartData.TotalActual;
+            ViewBag.ProdChartLabels = chartData.Labels;
+            ViewBag.ProdTargetData = chartData.Target;
+            ViewBag.ProdActualData = chartData.Actual;
+            ViewBag.TotalProdActual = chartData.TotalActual;
             ViewBag.TimeframeDisplay = chartData.TimeframeDisplay;
 
             // ── 8. Recent Activity Feed ──────────────────────────────────
@@ -106,7 +106,8 @@ namespace LouietexERP.Controllers
 
             // Recent Orders
             var latestOrders = await _context.Orders.OrderByDescending(o => o.CreatedAt).Take(5).ToListAsync();
-            activities.AddRange(latestOrders.Select(o => new ActivityItem {
+            activities.AddRange(latestOrders.Select(o => new ActivityItem
+            {
                 Title = $"New Order: {o.StyleCode}",
                 Subtitle = $"Buyer: {o.BuyerName} | Qty: {o.TotalQuantity:N0}",
                 Timestamp = o.CreatedAt,
@@ -116,19 +117,21 @@ namespace LouietexERP.Controllers
             }));
 
             // Recent QC Results
-            var latestQC = await _context.QCInspections.Include(q => q.Production).ThenInclude(p => p.Order).OrderByDescending(q => q.CreatedAt).Take(5).ToListAsync();
-                activities.AddRange(latestQC.Select(q => new ActivityItem {
-                    Title = $"QC {q.QCStatus ?? "Pending"}: {q.Production?.Order?.StyleCode ?? "N/A"}",
-                    Subtitle = $"Inspector: {q.InspectorName ?? "Unknown"} | Defect: {q.DefectCount}",
-                    Timestamp = q.CreatedAt,
-                    Icon = q.QCStatus == "Passed" ? "bi-shield-check" : "bi-shield-x",
-                    IconBg = q.QCStatus == "Passed" ? "bg-success-subtle" : "bg-danger-subtle",
-                    IconText = q.QCStatus == "Passed" ? "text-success" : "text-danger"
-                }));
+            var latestQC = await _context.QCInspections.Include(q => q.Production).ThenInclude(p => p!.Order).OrderByDescending(q => q.CreatedAt).Take(5).ToListAsync();
+            activities.AddRange(latestQC.Select(q => new ActivityItem
+            {
+                Title = $"QC {q.QCStatus ?? "Pending"}: {q.Production?.Order?.StyleCode ?? "N/A"}",
+                Subtitle = $"Inspector: {q.InspectorName ?? "Unknown"} | Defect: {q.DefectCount}",
+                Timestamp = q.CreatedAt,
+                Icon = q.QCStatus == "Passed" ? "bi-shield-check" : "bi-shield-x",
+                IconBg = q.QCStatus == "Passed" ? "bg-success-subtle" : "bg-danger-subtle",
+                IconText = q.QCStatus == "Passed" ? "text-success" : "text-danger"
+            }));
 
             // Recent Profile Requests
             var latestRequests = await _context.ProfileRequests.Include(r => r.User).OrderByDescending(r => r.RequestDate).Take(3).ToListAsync();
-            activities.AddRange(latestRequests.Select(r => new ActivityItem {
+            activities.AddRange(latestRequests.Select(r => new ActivityItem
+            {
                 Title = $"Profile Change Request: {r.User?.FullName ?? "Unknown User"}",
                 Subtitle = $"Status: {r.Status}",
                 Timestamp = r.RequestDate,
@@ -214,7 +217,8 @@ namespace LouietexERP.Controllers
                 }
             }
 
-            return new ProductionChartViewModel {
+            return new ProductionChartViewModel
+            {
                 Labels = labels,
                 Target = target,
                 Actual = actual,

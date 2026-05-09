@@ -523,6 +523,7 @@ a[href*="two-factor"],
 a[href*="PersonalData"],
 a[href*="personal-data"] {
     display: none !important;
+}
 /* ========================= */
 /* PRINT STYLES */
 /* ========================= */

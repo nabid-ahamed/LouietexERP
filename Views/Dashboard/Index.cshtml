@@ -348,7 +348,7 @@
                 <div class="panel-body d-flex flex-column align-items-center">
                     <!-- Chart on Top -->
                     <div style="min-height: 300px; width: 100%; position: relative;" class="mb-3">
-                        @if (ViewBag.OrderChartCounts != null && ((List<int>)ViewBag.OrderChartCounts).Sum() > 0)
+                        @if (ViewBag.OrderChartCounts != null && ((int[])ViewBag.OrderChartCounts).Sum() > 0)
                         {
                             <canvas id="orderChart"></canvas>
                         }
