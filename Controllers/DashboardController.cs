@@ -105,7 +105,7 @@ namespace LouietexERP.Controllers
             var activities = new List<ActivityItem>();
 
             // Recent Orders
-            var latestOrders = await _context.Orders.OrderByDescending(o => o.CreatedAt).Take(5).ToListAsync();
+            var latestOrders = await _context.Orders.OrderByDescending(o => o.CreatedAt).Take(10).ToListAsync();
             activities.AddRange(latestOrders.Select(o => new ActivityItem
             {
                 Title = $"New Order: {o.StyleCode}",
@@ -117,19 +117,19 @@ namespace LouietexERP.Controllers
             }));
 
             // Recent QC Results
-            var latestQC = await _context.QCInspections.Include(q => q.Production).ThenInclude(p => p!.Order).OrderByDescending(q => q.CreatedAt).Take(5).ToListAsync();
+            var latestQC = await _context.QCInspections.Include(q => q.Production).ThenInclude(p => p!.Order).OrderByDescending(q => q.UpdatedAt).Take(10).ToListAsync();
             activities.AddRange(latestQC.Select(q => new ActivityItem
             {
                 Title = $"QC {q.QCStatus ?? "Pending"}: {q.Production?.Order?.StyleCode ?? "N/A"}",
                 Subtitle = $"Inspector: {q.InspectorName ?? "Unknown"} | Defect: {q.DefectCount}",
-                Timestamp = q.CreatedAt,
+                Timestamp = q.UpdatedAt,
                 Icon = q.QCStatus == "Passed" ? "bi-shield-check" : "bi-shield-x",
                 IconBg = q.QCStatus == "Passed" ? "bg-success-subtle" : "bg-danger-subtle",
                 IconText = q.QCStatus == "Passed" ? "text-success" : "text-danger"
             }));
 
             // Recent Profile Requests
-            var latestRequests = await _context.ProfileRequests.Include(r => r.User).OrderByDescending(r => r.RequestDate).Take(3).ToListAsync();
+            var latestRequests = await _context.ProfileRequests.Include(r => r.User).OrderByDescending(r => r.RequestDate).Take(5).ToListAsync();
             activities.AddRange(latestRequests.Select(r => new ActivityItem
             {
                 Title = $"Profile Change Request: {r.User?.FullName ?? "Unknown User"}",
@@ -140,7 +140,31 @@ namespace LouietexERP.Controllers
                 IconText = "text-warning"
             }));
 
-            ViewBag.ActivityFeed = activities.OrderByDescending(a => a.Timestamp).Take(10).ToList();
+            // Recent Production Updates
+            var latestProds = await _context.Productions.Include(p => p.Order).OrderByDescending(p => p.UpdatedAt).Take(10).ToListAsync();
+            activities.AddRange(latestProds.Select(p => new ActivityItem
+            {
+                Title = $"Prod Update: {p.LineNumber}",
+                Subtitle = $"Order: {p.Order?.StyleCode ?? "N/A"} | Status: {p.Status} | Output: {p.ActualOutput}",
+                Timestamp = p.UpdatedAt,
+                Icon = "bi-gear-wide-connected",
+                IconBg = "bg-info-subtle",
+                IconText = "text-info"
+            }));
+
+            // New Staff Registrations
+            var latestUsers = await _userManager.Users.OrderByDescending(u => u.RegistrationDate).Take(10).ToListAsync();
+            activities.AddRange(latestUsers.Select(u => new ActivityItem
+            {
+                Title = $"New Staff: {u.FullName}",
+                Subtitle = $"ID: {u.UserName}",
+                Timestamp = u.RegistrationDate,
+                Icon = "bi-person-plus",
+                IconBg = "bg-dark-subtle",
+                IconText = "text-dark"
+            }));
+
+            ViewBag.ActivityFeed = activities.OrderByDescending(a => a.Timestamp).Take(15).ToList();
             ViewBag.RecentOrders = latestOrders;
 
             return View();
@@ -183,6 +207,7 @@ namespace LouietexERP.Controllers
                     var startOfWeek = endOfWeek.AddDays(-(i + 1) * 7);
                     var endOfSelectedWeek = startOfWeek.AddDays(7);
                     labels.Add("Week " + (10 - i));
+                    
                     var weeklyProds = await _context.Productions.Where(p => p.CreatedAt >= startOfWeek && p.CreatedAt < endOfSelectedWeek).ToListAsync();
                     target.Add(weeklyProds.Sum(p => p.TargetQuantity));
                     actual.Add(weeklyProds.Sum(p => p.ActualOutput));
@@ -197,6 +222,7 @@ namespace LouietexERP.Controllers
                     var startOfMonth = new DateTime(monthDate.Year, monthDate.Month, 1);
                     var endOfMonth = startOfMonth.AddMonths(1);
                     labels.Add(startOfMonth.ToString("MMM yy"));
+                    
                     var monthlyProds = await _context.Productions.Where(p => p.CreatedAt >= startOfMonth && p.CreatedAt < endOfMonth).ToListAsync();
                     target.Add(monthlyProds.Sum(p => p.TargetQuantity));
                     actual.Add(monthlyProds.Sum(p => p.ActualOutput));

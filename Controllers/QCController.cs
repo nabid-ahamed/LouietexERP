@@ -12,19 +12,13 @@ using System.Threading.Tasks;
 namespace LouietexERP.Controllers
 {
     [Authorize(Roles = SD.Role_QC + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin)]
-    public class QCController : Controller
+    public class QCController(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-
-        public QCController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
-        {
-            _context = context;
-            _userManager = userManager;
-        }
+        private readonly ApplicationDbContext _context = context;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
 
         // GET: QC
-        public async Task<IActionResult> Index(string? status, int? productionId, DateTime? startDate, DateTime? endDate)
+        public async Task<IActionResult> Index(string? status, int? productionId, DateTime? startDate, DateTime? endDate, string? searchString)
         {
             var query = _context.QCInspections
                 .Include(q => q.Production).ThenInclude(p => p!.Order)
@@ -47,10 +41,24 @@ namespace LouietexERP.Controllers
             if (endDate.HasValue)
                 query = query.Where(q => q.InspectionDate.Date <= endDate.Value.Date);
 
+            // Search Filter
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToLower();
+                query = query.Where(q =>
+                    (q.InspectorName != null && q.InspectorName.ToLower().Contains(searchString)) ||
+                    (q.Production != null && q.Production.LineNumber.ToLower().Contains(searchString)) ||
+                    (q.Production != null && q.Production.Order != null && q.Production.Order.StyleCode.ToLower().Contains(searchString)) ||
+                    (q.Production != null && q.Production.Order != null && q.Production.Order.BuyerName.ToLower().Contains(searchString)) ||
+                    (q.Remarks != null && q.Remarks.ToLower().Contains(searchString))
+                );
+            }
+
             ViewBag.CurrentStatus = status;
             ViewBag.ProductionId = new SelectList(_context.Productions, "Id", "LineNumber", productionId);
             ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
             ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            ViewBag.CurrentSearch = searchString;
 
             return View(await query.OrderByDescending(q => q.InspectionDate).ToListAsync());
         }
@@ -65,7 +73,7 @@ namespace LouietexERP.Controllers
                 .ThenInclude(p => p!.Order)
                 .Include(q => q.CheckedByUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
-                
+
             if (qCInspection == null) return NotFound();
 
             return View(qCInspection);
@@ -85,9 +93,9 @@ namespace LouietexERP.Controllers
         {
             // Populate defaults and missing fields
             qCInspection.CheckedByUserId = _userManager.GetUserId(User);
-            qCInspection.InspectionDate = DateTime.UtcNow;
-            qCInspection.CreatedAt = DateTime.UtcNow;
-            qCInspection.UpdatedAt = DateTime.UtcNow;
+            qCInspection.InspectionDate = DateTime.Now;
+            qCInspection.CreatedAt = DateTime.Now;
+            qCInspection.UpdatedAt = DateTime.Now;
 
             ModelState.Remove("CheckedByUserId");
             ModelState.Remove("CheckedByUser");
@@ -96,7 +104,6 @@ namespace LouietexERP.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(qCInspection);
-                
                 // Also update Production Defect Count
                 var production = await _context.Productions.FindAsync(qCInspection.ProductionId);
                 if (production != null)
@@ -119,7 +126,6 @@ namespace LouietexERP.Controllers
 
             var qCInspection = await _context.QCInspections.FindAsync(id);
             if (qCInspection == null) return NotFound();
-            
             ViewData["ProductionId"] = new SelectList(_context.Productions, "Id", "LineNumber", qCInspection.ProductionId);
             return View(qCInspection);
         }
@@ -139,19 +145,56 @@ namespace LouietexERP.Controllers
                 try
                 {
                     // Recalculate defects if needed, but for simplicity just update inspection
-                    qCInspection.UpdatedAt = DateTime.UtcNow;
+                    qCInspection.UpdatedAt = DateTime.Now;
                     _context.Update(qCInspection);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException) when (!QCInspectionExists(qCInspection.Id))
                 {
-                    if (!QCInspectionExists(qCInspection.Id)) return NotFound();
-                    else throw;
+                    return NotFound();
                 }
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ProductionId"] = new SelectList(_context.Productions, "Id", "LineNumber", qCInspection.ProductionId);
             return View(qCInspection);
+        }
+
+        // GET: QC/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var qCInspection = await _context.QCInspections
+                .Include(q => q.Production)
+                .ThenInclude(p => p!.Order)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (qCInspection == null) return NotFound();
+
+            return View(qCInspection);
+        }
+
+        // POST: QC/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var qCInspection = await _context.QCInspections.FindAsync(id);
+            if (qCInspection != null)
+            {
+                // Also update Production Defect Count (subtract deleted defects)
+                var production = await _context.Productions.FindAsync(qCInspection.ProductionId);
+                if (production != null)
+                {
+                    production.DefectCount = Math.Max(0, production.DefectCount - qCInspection.DefectCount);
+                    _context.Update(production);
+                }
+
+                _context.QCInspections.Remove(qCInspection);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         private bool QCInspectionExists(int id)

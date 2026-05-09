@@ -12,7 +12,7 @@ namespace LouietexERP.Models
         [Required(ErrorMessage = "Selecting an Order is required.")]
         [Display(Name = "Linked Order")]
         public int OrderId { get; set; }
-        
+
         [ForeignKey("OrderId")]
         public Order? Order { get; set; }
 
@@ -48,10 +48,10 @@ namespace LouietexERP.Models
         public string Status { get; set; } = "Pending"; // Pending, Running, Completed, Delayed
 
         [Display(Name = "Created At")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         [Display(Name = "Updated At")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         // Simple calculation for efficiency
         public double Efficiency => TargetQuantity > 0

@@ -12,6 +12,6 @@ namespace LouietexERP.Models
         public string? ProfilePicturePath { get; set; }
         public bool ProfilePictureApproved { get; set; } = false;
         public string? PendingProfilePicturePath { get; set; } // waiting for admin approval
-        public DateTime RegistrationDate { get; set; } = DateTime.UtcNow;
+        public DateTime RegistrationDate { get; set; } = DateTime.Now;
     }
 }

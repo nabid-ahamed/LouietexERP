@@ -53,6 +53,13 @@
     <div class="card-body bg-light p-3">
         <form asp-action="Index" method="get" class="row g-2 align-items-end">
             <div class="col-md-3">
+                <label class="small fw-bold text-muted mb-1">Search</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text border-0 shadow-sm bg-white text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="searchString" class="form-control form-control-sm border-0 shadow-sm" placeholder="Inspector, Line, Style..." value="@ViewBag.CurrentSearch" />
+                </div>
+            </div>
+            <div class="col-md-2">
                 <label class="small fw-bold text-muted mb-1">Status</label>
                 <select name="status" class="form-select form-select-sm border-0 shadow-sm">
                     <option value="">All Statuses</option>
@@ -62,8 +69,8 @@
                     <option value="Pending" selected="@(ViewBag.CurrentStatus == "Pending")">Pending/Recheck</option>
                 </select>
             </div>
-            <div class="col-md-3">
-                <label class="small fw-bold text-muted mb-1">Production Line</label>
+            <div class="col-md-2">
+                <label class="small fw-bold text-muted mb-1">Line</label>
                 <select name="productionId" class="form-select form-select-sm border-0 shadow-sm" asp-items="ViewBag.ProductionId">
                     <option value="">All Lines</option>
                 </select>
@@ -76,10 +83,10 @@
                 <label class="small fw-bold text-muted mb-1">End Date</label>
                 <input type="date" name="endDate" class="form-control form-control-sm border-0 shadow-sm" value="@ViewBag.EndDate" />
             </div>
-            <div class="col-md-2">
+            <div class="col-md-1">
                 <div class="d-flex gap-1">
-                    <button type="submit" class="btn btn-warning btn-sm w-100 fw-bold">Filter</button>
-                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-clockwise"></i></a>
+                    <button type="submit" class="btn btn-warning btn-sm w-100 fw-bold shadow-sm" title="Apply Filters"><i class="bi bi-funnel"></i></button>
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm shadow-sm" title="Reset"><i class="bi bi-arrow-clockwise"></i></a>
                 </div>
             </div>
         </form>
@@ -132,6 +139,7 @@
                         <td class="text-center">
                             <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-light text-primary mx-1" title="Details"><i class="bi bi-eye"></i></a>
                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-light text-success mx-1" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-light text-danger mx-1" title="Delete"><i class="bi bi-trash"></i></a>
                         </td>
                     </tr>
                 }

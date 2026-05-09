@@ -28,7 +28,7 @@ namespace LouietexERP.Models
         public string Status { get; set; } = "Pending"; // e.g., Pending, In Production, Shipped
 
         [Display(Name = "Created At")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Navigation property
         public ICollection<Production>? Productions { get; set; }

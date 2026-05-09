@@ -47,7 +47,7 @@ namespace LouietexERP.Models
         public string? NewProfilePicturePath { get; set; }
 
         // 📅 Metadata
-        public DateTime RequestDate { get; set; } = DateTime.UtcNow;
+        public DateTime RequestDate { get; set; } = DateTime.Now;
 
         public bool IsProcessed { get; set; } = false;
 

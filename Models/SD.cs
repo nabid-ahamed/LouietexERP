@@ -13,7 +13,7 @@ namespace LouietexERP.Models
 
         public static string GetTimeAgo(DateTime dateTime)
         {
-            var timeSpan = DateTime.UtcNow - dateTime;
+            var timeSpan = DateTime.Now - dateTime;
 
             if (timeSpan.TotalMinutes < 1) return "Just now";
             if (timeSpan.TotalMinutes < 60) return $"{(int)timeSpan.TotalMinutes} minutes ago";
@@ -21,7 +21,7 @@ namespace LouietexERP.Models
             if (timeSpan.TotalDays < 2) return "Yesterday";
             if (timeSpan.TotalDays < 7) return $"{(int)timeSpan.TotalDays} days ago";
             if (timeSpan.TotalDays < 30) return $"{(int)timeSpan.TotalDays / 7} weeks ago";
-            
+
             return dateTime.ToString("MMM dd, yyyy");
         }
     }

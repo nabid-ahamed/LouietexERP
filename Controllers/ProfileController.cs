@@ -8,21 +8,14 @@ using Microsoft.EntityFrameworkCore;
 namespace LouietexERP.Controllers
 {
     [Authorize]
-    public class ProfileController : Controller
+    public class ProfileController(
+        ApplicationDbContext context,
+        UserManager<ApplicationUser> userManager,
+        ILogger<ProfileController> logger) : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ILogger<ProfileController> _logger;
-
-        public ProfileController(
-            ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager,
-            ILogger<ProfileController> logger)
-        {
-            _context = context;
-            _userManager = userManager;
-            _logger = logger;
-        }
+        private readonly ApplicationDbContext _context = context;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly ILogger<ProfileController> _logger = logger;
 
         // =========================
         // SHOW FORM
@@ -78,7 +71,7 @@ namespace LouietexERP.Controllers
                 NewFullName = model.NewFullName,
                 NewEmail = model.NewEmail,
                 RequestType = ProfileRequestType.ProfileChange,
-                RequestDate = DateTime.UtcNow,
+                RequestDate = DateTime.Now,
                 IsProcessed = false,
                 Status = ProfileRequestStatus.Pending
             };

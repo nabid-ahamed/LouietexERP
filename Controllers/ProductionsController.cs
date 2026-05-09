@@ -12,16 +12,10 @@ using Microsoft.AspNetCore.Authorization;
 namespace LouietexERP.Controllers
 {
     [Authorize(Roles = SD.Role_ProductionManager + "," + SD.Role_Admin + "," + SD.Role_SuperAdmin + "," + SD.Role_OperationsManager)]
-    public class ProductionsController : Controller
+    public class ProductionsController(ApplicationDbContext context, LouietexERP.Services.IExportService exportService) : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly LouietexERP.Services.IExportService _exportService;
- 
-        public ProductionsController(ApplicationDbContext context, LouietexERP.Services.IExportService exportService)
-        {
-            _context = context;
-            _exportService = exportService;
-        }
+        private readonly ApplicationDbContext _context = context;
+        private readonly LouietexERP.Services.IExportService _exportService = exportService;
 
         // GET: Productions
         public async Task<IActionResult> Index(string? status, string? lineNumber, int? orderId, DateTime? startDate, DateTime? endDate)
@@ -73,8 +67,8 @@ namespace LouietexERP.Controllers
                 query = query.Where(p => p.CreatedAt.Date <= endDate.Value.Date);
 
             var data = await query.OrderByDescending(p => p.CreatedAt).ToListAsync();
-            var headers = new[] { "Order", "Line", "Supervisor", "Target", "Actual", "Status", "Date" };
-            var pdf = _exportService.GeneratePdf("Production Report", data, headers, p => new[] {
+            string[] headers = ["Order", "Line", "Supervisor", "Target", "Actual", "Status", "Date"];
+            var pdf = _exportService.GeneratePdf("Production Report", data, headers, p => [
                 p.Order?.StyleCode ?? "N/A",
                 p.LineNumber ?? "",
                 p.Supervisor ?? "",
@@ -82,7 +76,7 @@ namespace LouietexERP.Controllers
                 p.ActualOutput.ToString(),
                 p.Status ?? "",
                 p.CreatedAt.ToShortDateString()
-            });
+            ]);
 
             return File(pdf, "application/pdf", $"Production_{DateTime.Now:yyyyMMdd}.pdf");
         }
@@ -121,8 +115,8 @@ namespace LouietexERP.Controllers
         {
             if (ModelState.IsValid)
             {
-                production.CreatedAt = DateTime.UtcNow;
-                production.UpdatedAt = DateTime.UtcNow;
+                production.CreatedAt = DateTime.Now;
+                production.UpdatedAt = DateTime.Now;
                 _context.Add(production);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -162,20 +156,13 @@ namespace LouietexERP.Controllers
             {
                 try
                 {
-                    production.UpdatedAt = DateTime.UtcNow;
+                    production.UpdatedAt = DateTime.Now;
                     _context.Update(production);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException) when (!ProductionExists(production.Id))
                 {
-                    if (!ProductionExists(production.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return NotFound();
                 }
                 return RedirectToAction(nameof(Index));
             }

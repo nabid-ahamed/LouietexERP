@@ -8,16 +8,10 @@ using Microsoft.EntityFrameworkCore;
 namespace LouietexERP.Controllers
 {
     [Authorize(Roles = SD.Role_SuperAdmin + "," + SD.Role_Admin)]
-    public class UserManagementController : Controller
+    public class UserManagementController(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-
-        public UserManagementController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
-        {
-            _context = context;
-            _userManager = userManager;
-        }
+        private readonly ApplicationDbContext _context = context;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
 
         // ✅ SHOW PROFILE REQUESTS + PENDING PICTURES IN ONE PAGE
         public async Task<IActionResult> ViewModifications()
@@ -81,7 +75,7 @@ namespace LouietexERP.Controllers
             }
 
             request.IsProcessed = true;
-            request.ProcessedDate = DateTime.UtcNow;
+            request.ProcessedDate = DateTime.Now;
             request.ProcessedByUserId = currentUserId;
 
             await _userManager.UpdateAsync(user);

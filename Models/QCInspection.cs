@@ -34,15 +34,15 @@ namespace LouietexERP.Models
 
         [DataType(DataType.Date)]
         [Display(Name = "Inspection Date")]
-        public DateTime InspectionDate { get; set; } = DateTime.UtcNow;
+        public DateTime InspectionDate { get; set; } = DateTime.Now;
 
         [Display(Name = "Created At")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         [Display(Name = "Inspector Name (Optional)")]
         public string? InspectorName { get; set; }
 
         [Display(Name = "Updated At")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
     }
 }
