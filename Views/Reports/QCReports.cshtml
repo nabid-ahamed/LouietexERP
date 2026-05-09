@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 border-top border-4 border-danger">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 border-top border-4 border-danger @(failed > 0 ? "pulse-danger" : "")">
                 <h6 class="text-muted small text-uppercase fw-bold mb-3">Failed Units</h6>
                 <h2 class="fw-bold mb-0 text-danger">@failed</h2>
                 <div class="small text-muted mt-2">@(total > 0 ? ((double)failed/total*100).ToString("F1") : "0")% defect rate</div>

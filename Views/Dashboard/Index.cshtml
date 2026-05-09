@@ -249,11 +249,13 @@
 
         <div class="col-xl-3 col-md-6">
             <a href="/QC/Index?status=Failed" class="kpi-card-link">
-                <div class="kpi-card d-flex align-items-center gap-3">
-                    <div class="kpi-icon bg-light-danger flex-shrink-0"><i class="bi bi-shield-x"></i></div>
+                <div class="kpi-card d-flex align-items-center gap-3 @(ViewBag.QCFailedItems > 0 ? "border-danger border-opacity-25" : "")">
+                    <div class="kpi-icon bg-light-danger flex-shrink-0 @(ViewBag.QCFailedItems > 0 ? "pulse-danger" : "")">
+                        <i class="bi bi-shield-x"></i>
+                    </div>
                     <div class="flex-grow-1 overflow-hidden">
                         <div class="kpi-title">QC Failed Batches</div>
-                        <div class="kpi-value">@ViewBag.QCFailedItems</div>
+                        <div class="kpi-value text-danger">@ViewBag.QCFailedItems</div>
                         <div class="kpi-trend @((bool)ViewBag.IsQCHealthy ? "trend-up" : "trend-down")">
                             <i class="bi @((bool)ViewBag.IsQCHealthy ? "bi-check2-circle" : "bi-arrow-down-right")"></i> @ViewBag.TrendQCFailed
                         </div>
@@ -287,11 +289,13 @@
         <!-- Low Stock -->
         <div class="col-xl-3 col-md-6">
             <a href="/Inventories/LowStock" class="kpi-card-link">
-                <div class="kpi-card d-flex align-items-center gap-3">
-                    <div class="kpi-icon bg-light-primary flex-shrink-0"><i class="bi bi-box-seam"></i></div>
+                <div class="kpi-card d-flex align-items-center gap-3 @(ViewBag.LowStockItems > 0 ? "border-warning border-opacity-50" : "")">
+                    <div class="kpi-icon bg-light-warning flex-shrink-0 @(ViewBag.LowStockItems > 0 ? "pulse-warning text-warning" : "text-primary")">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
                     <div class="flex-grow-1 overflow-hidden">
                         <div class="kpi-title">Low Stock Items</div>
-                        <div class="kpi-value">@ViewBag.LowStockItems</div>
+                        <div class="kpi-value @(ViewBag.LowStockItems > 0 ? "text-warning" : "")">@ViewBag.LowStockItems</div>
                         <div class="kpi-trend @((bool)ViewBag.IsStockHealthy ? "trend-up" : "trend-down")">
                             <i class="bi @((bool)ViewBag.IsStockHealthy ? "bi-check2-circle" : "bi-exclamation-triangle")"></i> @ViewBag.TrendLowStock
                         </div>
@@ -419,70 +423,47 @@
         </div>
     }
 
-    <!-- QC Summary -->
-    @if (isAdmin || isSuperAdmin || isQC)
-    {
-        <div class="col-xl-5 col-lg-6">
-            <div class="panel-card">
-                <div class="panel-header">
-                    <h6 class="panel-title"><i class="bi bi-shield-check text-primary"></i> QC Inspection Summary</h6>
-                    <a href="/QC/Index" class="btn btn-sm btn-link text-decoration-none">View all QC <i class="bi bi-arrow-right"></i></a>
-                </div>
-                <div class="panel-body">
-                    <table class="table table-borderless table-modern mb-0 w-100">
-                        <thead>
-                            <tr>
-                                <th>QC Status</th>
-                                <th class="text-center">Count</th>
-                                <th class="text-end" style="width: 50%;">Percentage</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Passed -->
-                            <tr>
-                                <td class="fw-bold text-dark">Passed</td>
-                                <td class="text-center fw-bold">@qcPassed</td>
-                                <td class="text-end">
-                                    <div class="d-flex align-items-center justify-content-end gap-3">
-                                        <div class="progress w-100" style="height: 6px;">
-                                            <div class="progress-bar bg-success" role="progressbar" style="width: @pctPassed.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)%" aria-valuenow="@pctPassed" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <span class="text-muted" style="min-width: 45px;">@pctPassed.ToString("0.0")%</span>
+    <!-- Recent Activity Feed -->
+    <div class="col-xl-5 col-lg-6">
+        <div class="panel-card h-100">
+            <div class="panel-header">
+                <h6 class="panel-title"><i class="bi bi-lightning-charge text-primary"></i> System Pulse (Recent Activity)</h6>
+                <span class="badge bg-light text-primary rounded-pill fw-medium">Live Feed</span>
+            </div>
+            <div class="panel-body">
+                <div class="timeline-modern">
+                    @if (ViewBag.ActivityFeed != null)
+                    {
+                        var activities = (List<LouietexERP.Controllers.DashboardController.ActivityItem>)ViewBag.ActivityFeed;
+                        foreach (var activity in activities)
+                        {
+                            <div class="d-flex mb-4 last-child-mb-0">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="rounded-circle @activity.IconBg @activity.IconText d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi @activity.Icon fs-5"></i>
                                     </div>
-                                </td>
-                            </tr>
-                            <!-- Failed -->
-                            <tr>
-                                <td class="fw-bold text-dark">Failed</td>
-                                <td class="text-center fw-bold">@qcFailed</td>
-                                <td class="text-end">
-                                    <div class="d-flex align-items-center justify-content-end gap-3">
-                                        <div class="progress w-100" style="height: 6px;">
-                                            <div class="progress-bar bg-danger" role="progressbar" style="width: @pctFailed.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)%" aria-valuenow="@pctFailed" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <span class="text-muted" style="min-width: 45px;">@pctFailed.ToString("0.0")%</span>
+                                </div>
+                                <div class="flex-grow-1 border-bottom pb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0 fw-bold text-dark" style="font-size: 14px;">@activity.Title</h6>
+                                        <small class="text-muted" style="font-size: 11px;">@LouietexERP.Models.SD.GetTimeAgo(activity.Timestamp)</small>
                                     </div>
-                                </td>
-                            </tr>
-                            <!-- Recheck -->
-                            <tr>
-                                <td class="fw-bold text-dark">Recheck Required</td>
-                                <td class="text-center fw-bold">@qcRecheck</td>
-                                <td class="text-end">
-                                    <div class="d-flex align-items-center justify-content-end gap-3">
-                                        <div class="progress w-100" style="height: 6px;">
-                                            <div class="progress-bar bg-warning" role="progressbar" style="width: @pctRecheck.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)%" aria-valuenow="@pctRecheck" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <span class="text-muted" style="min-width: 45px;">@pctRecheck.ToString("0.0")%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    <p class="mb-0 text-muted" style="font-size: 13px;">@activity.Subtitle</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-inboxes fs-1 opacity-25 d-block mb-2"></i>
+                            No recent activities logged.
+                        </div>
+                    }
                 </div>
             </div>
         </div>
-    }
+    </div>
 </div>
 
 <!-- 5. Recent Users Row -->

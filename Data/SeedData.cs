@@ -1,5 +1,7 @@
 using LouietexERP.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using LouietexERP.Controllers;
 
 namespace LouietexERP.Data
 {
@@ -56,7 +58,7 @@ namespace LouietexERP.Data
             var existing = await context.Employees.ToListAsync();
             if (existing.Count >= 30) return; // Keep if already seeded with 30+
 
-            if (existing.Any())
+            if (existing.Count > 0)
             {
                 context.Employees.RemoveRange(existing);
                 await context.SaveChangesAsync();
@@ -92,48 +94,58 @@ namespace LouietexERP.Data
 
         private static async Task SeedOrdersAsync(ApplicationDbContext context)
         {
-            // Clear existing for fresh start as requested
+            var now = DateTime.UtcNow;
             var existing = await context.Orders.ToListAsync();
-            if (existing.Count >= 40) return;
+            
+            // Check if we have any orders from today to keep the demo "hot"
+            var todayOrdersCount = existing.Count(o => o.CreatedAt.Date == now.Date);
 
-            if (existing.Any())
+            if (todayOrdersCount < 5)
             {
-                context.Orders.RemoveRange(existing);
+                var buyers = new[] { "H&M", "Zara", "Levis", "Adidas", "Nike" };
+                var styles = new[] { "Slim Fit Denim", "Cotton Polo", "Hooded Sweatshirt", "Cargo Pants", "Graphic T-Shirt" };
+                var statuses = new[] { "Pending", "In Production", "In Production", "Approved", "Pending" };
+                var random = new Random();
+
+                for (int i = 0; i < 5; i++)
+                {
+                    context.Orders.Add(new Order
+                    {
+                        BuyerName = buyers[i],
+                        StyleCode = styles[i],
+                        TotalQuantity = random.Next(500, 2000),
+                        DeliveryDate = now.AddDays(random.Next(15, 45)),
+                        Status = statuses[i],
+                        CreatedAt = now.AddMinutes(-i * 30) // Spread over the last few hours
+                    });
+                }
                 await context.SaveChangesAsync();
             }
 
-            var buyers = new[] { "H&M", "Zara", "Uniqlo", "GAP", "Next", "Primark", "M&S", "Levis", "Adidas", "Nike", "Puma" };
-            var categories = new[] { "TS", "PL", "JK", "DN", "SW", "HD", "TRS", "BZ", "SK", "FLC", "JN", "CT", "SH", "DS" };
-            var statuses = new[] { "Pending", "In Production", "In Production", "Shipped", "Completed", "Approved" };
+            // Standard bulk seeding if DB is empty or very low
+            if (existing.Count >= 20) return;
 
-            var random = new Random();
-            var now = DateTime.UtcNow;
-            var orders = new List<Order>();
+            var bulkBuyers = new[] { "Uniqlo", "GAP", "Next", "Primark", "M&S", "Puma" };
+            var categories = new[] { "TS", "PL", "JK", "DN", "SW", "HD" };
+            var bulkStatuses = new[] { "Pending", "In Production", "Shipped", "Completed" };
+            var randomBulk = new Random();
 
-            for (int i = 0; i < 45; i++)
+            for (int i = 0; i < 25; i++)
             {
-                var buyer = buyers[random.Next(buyers.Length)];
-                var cat = categories[random.Next(categories.Length)];
-                var year = random.Next(24, 26);
-                var code = i + 1;
-                var styleCode = $"{buyer.Substring(0, 2).ToUpper()}-{cat}-{year}{code:D2}";
-                var status = statuses[random.Next(statuses.Length)];
+                var buyer = bulkBuyers[randomBulk.Next(bulkBuyers.Length)];
+                var cat = categories[randomBulk.Next(categories.Length)];
+                var orderDate = now.AddDays(-randomBulk.Next(10, 400));
                 
-                // Spread orders over the last 400 days to cover 2025
-                var orderDate = now.AddDays(-random.Next(10, 400));
-                
-                orders.Add(new Order
+                context.Orders.Add(new Order
                 {
                     BuyerName = buyer,
-                    StyleCode = styleCode,
-                    TotalQuantity = random.Next(1, 10) * 1000,
-                    DeliveryDate = orderDate.AddDays(random.Next(30, 90)),
-                    Status = status,
+                    StyleCode = $"{buyer[..2].ToUpper()}-{cat}-25{i:D2}",
+                    TotalQuantity = randomBulk.Next(1, 5) * 1000,
+                    DeliveryDate = orderDate.AddDays(randomBulk.Next(30, 90)),
+                    Status = bulkStatuses[randomBulk.Next(bulkStatuses.Length)],
                     CreatedAt = orderDate
                 });
             }
-
-            await context.Orders.AddRangeAsync(orders);
             await context.SaveChangesAsync();
         }
 
@@ -143,18 +155,18 @@ namespace LouietexERP.Data
             var existing = await context.Productions.ToListAsync();
             if (existing.Count >= 40) return;
 
-            if (existing.Any())
+            if (existing.Count > 0)
             {
                 context.Productions.RemoveRange(existing);
                 await context.SaveChangesAsync();
             }
 
             var orders = await context.Orders.ToListAsync();
-            if (!orders.Any()) return;
+            if (orders.Count == 0) return;
 
             var employees = await context.Employees.Where(e => e.Role == "Supervisor" || e.Role == "Manager" || e.Role == "Line Chief").ToListAsync();
             var supervisorNames = employees.Select(e => e.FullName).ToList();
-            if (!supervisorNames.Any()) supervisorNames.Add("Md. Shafiqul Haque");
+            if (supervisorNames.Count == 0) supervisorNames.Add("Md. Shafiqul Haque");
 
             var now = DateTime.UtcNow;
             var random = new Random();
@@ -194,18 +206,18 @@ namespace LouietexERP.Data
         private static async Task SeedQCAsync(ApplicationDbContext context)
         {
             var existing = await context.QCInspections.ToListAsync();
-            if (existing.Any())
+            if (existing.Count > 0)
             {
                 context.QCInspections.RemoveRange(existing);
                 await context.SaveChangesAsync();
             }
 
             var productions = await context.Productions.ToListAsync();
-            if (!productions.Any()) return;
+            if (productions.Count == 0) return;
 
             var qcOfficers = await context.Employees.Where(e => e.Role == "QC Officer" || e.Role == "QC Inspector").ToListAsync();
             var inspectorNames = qcOfficers.Select(e => e.FullName).ToList();
-            if (!inspectorNames.Any()) inspectorNames.AddRange(new[] { "Abdul Karim", "Mohammad Rafiq", "Suraiya Begum" });
+            if (inspectorNames.Count == 0) inspectorNames.AddRange(["Abdul Karim", "Mohammad Rafiq", "Suraiya Begum"]);
 
             var now = DateTime.UtcNow;
             var random = new Random();

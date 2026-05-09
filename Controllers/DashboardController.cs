@@ -11,21 +11,16 @@ using System.Threading.Tasks;
 namespace LouietexERP.Controllers
 {
     [Authorize(Roles = SD.Role_SuperAdmin + "," + SD.Role_Admin + "," + SD.Role_HR + "," + SD.Role_Merchandiser + "," + SD.Role_ProductionManager + "," + SD.Role_QC)]
-    public class DashboardController : Controller
+    public class DashboardController(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-
-        public DashboardController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
-        {
-            _context = context;
-            _userManager = userManager;
-        }
+        private readonly ApplicationDbContext _context = context;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
 
         public async Task<IActionResult> Index()
         {
             // ── 1. Core KPIs ──────────────────────────────────────────────
             var totalOrders        = await _context.Orders.CountAsync();
+            Console.WriteLine($"[DEBUG] Total Orders in DB: {totalOrders}");
             var runningProductions = await _context.Productions.CountAsync(p => p.Status == "Running");
             var completedProductions = await _context.Productions.CountAsync(p => p.Status == "Completed");
             var pendingQC          = await _context.QCInspections.CountAsync(q => q.QCStatus == "Recheck Required" || q.QCStatus == "Pending");
@@ -90,8 +85,8 @@ namespace LouietexERP.Controllers
                 .Select(g => new { Status = g.Key, Count = g.Count() })
                 .ToListAsync();
 
-            ViewBag.OrderChartLabels = orderStatuses.Select(o => o.Status).ToList();
-            ViewBag.OrderChartCounts = orderStatuses.Select(o => o.Count).ToList();
+            ViewBag.OrderChartLabels = orderStatuses.Select(o => o.Status).ToArray();
+            ViewBag.OrderChartCounts = orderStatuses.Select(o => o.Count).ToArray();
 
             // ── 5. Production Line Chart (Customizable Timeline) ────────
             string timeframe = Request.Query["timeframe"].ToString().ToLower();
@@ -106,25 +101,44 @@ namespace LouietexERP.Controllers
             ViewBag.TotalProdActual  = chartData.TotalActual;
             ViewBag.TimeframeDisplay = chartData.TimeframeDisplay;
 
-            // ... (rest of Index)
-            // ── 6. Recent Orders (Top 5) ──────────────────────────────────
-            var recentOrders = await _context.Orders
-                .OrderByDescending(o => o.CreatedAt)
-                .Take(5)
-                .ToListAsync();
-            ViewBag.RecentOrders = recentOrders;
+            // ── 8. Recent Activity Feed ──────────────────────────────────
+            var activities = new List<ActivityItem>();
 
-            // ── 7. QC Summary Panel ───────────────────────────────────────
-            var qcStats  = await _context.QCInspections
-                .GroupBy(q => q.QCStatus)
-                .Select(g => new { Status = g.Key, Count = g.Count() })
-                .ToListAsync();
+            // Recent Orders
+            var latestOrders = await _context.Orders.OrderByDescending(o => o.CreatedAt).Take(5).ToListAsync();
+            activities.AddRange(latestOrders.Select(o => new ActivityItem {
+                Title = $"New Order: {o.StyleCode}",
+                Subtitle = $"Buyer: {o.BuyerName} | Qty: {o.TotalQuantity:N0}",
+                Timestamp = o.CreatedAt,
+                Icon = "bi-bag-plus",
+                IconBg = "bg-primary-subtle",
+                IconText = "text-primary"
+            }));
 
-            var totalQC = qcStats.Sum(q => q.Count);
-            ViewBag.TotalQC   = totalQC;
-            ViewBag.QCPassed  = qcStats.FirstOrDefault(q => q.Status == "Passed")?.Count  ?? 0;
-            ViewBag.QCFailed  = qcStats.FirstOrDefault(q => q.Status == "Failed")?.Count  ?? 0;
-            ViewBag.QCRecheck = qcStats.FirstOrDefault(q => q.Status == "Recheck Required")?.Count ?? 0;
+            // Recent QC Results
+            var latestQC = await _context.QCInspections.Include(q => q.Production).ThenInclude(p => p.Order).OrderByDescending(q => q.CreatedAt).Take(5).ToListAsync();
+                activities.AddRange(latestQC.Select(q => new ActivityItem {
+                    Title = $"QC {q.QCStatus ?? "Pending"}: {q.Production?.Order?.StyleCode ?? "N/A"}",
+                    Subtitle = $"Inspector: {q.InspectorName ?? "Unknown"} | Defect: {q.DefectCount}",
+                    Timestamp = q.CreatedAt,
+                    Icon = q.QCStatus == "Passed" ? "bi-shield-check" : "bi-shield-x",
+                    IconBg = q.QCStatus == "Passed" ? "bg-success-subtle" : "bg-danger-subtle",
+                    IconText = q.QCStatus == "Passed" ? "text-success" : "text-danger"
+                }));
+
+            // Recent Profile Requests
+            var latestRequests = await _context.ProfileRequests.Include(r => r.User).OrderByDescending(r => r.RequestDate).Take(3).ToListAsync();
+            activities.AddRange(latestRequests.Select(r => new ActivityItem {
+                Title = $"Profile Change Request: {r.User?.FullName ?? "Unknown User"}",
+                Subtitle = $"Status: {r.Status}",
+                Timestamp = r.RequestDate,
+                Icon = "bi-person-gear",
+                IconBg = "bg-warning-subtle",
+                IconText = "text-warning"
+            }));
+
+            ViewBag.ActivityFeed = activities.OrderByDescending(a => a.Timestamp).Take(10).ToList();
+            ViewBag.RecentOrders = latestOrders;
 
             return View();
         }
@@ -186,10 +200,10 @@ namespace LouietexERP.Controllers
                 }
             }
 
-            if (target.Sum() == 0 && actual.Sum() == 0)
+            if (target.Count > 0 && target.Sum() == 0 && actual.Sum() == 0)
             {
                 var recentData = await _context.Productions.OrderByDescending(p => p.CreatedAt).GroupBy(p => p.CreatedAt.Date).Select(g => new { Day = g.Key, Target = g.Sum(p => p.TargetQuantity), Actual = g.Sum(p => p.ActualOutput) }).Take(timeframe == "monthly" ? 12 : 7).OrderBy(g => g.Day).ToListAsync();
-                if (recentData.Any())
+                if (recentData.Count > 0)
                 {
                     labels.Clear(); target.Clear(); actual.Clear();
                     foreach (var d in recentData)
@@ -216,6 +230,16 @@ namespace LouietexERP.Controllers
             public List<int> Actual { get; set; } = null!;
             public int TotalActual { get; set; }
             public string TimeframeDisplay { get; set; } = null!;
+        }
+
+        public class ActivityItem
+        {
+            public string Title { get; set; } = null!;
+            public string Subtitle { get; set; } = null!;
+            public DateTime Timestamp { get; set; }
+            public string Icon { get; set; } = null!;
+            public string IconBg { get; set; } = null!;
+            public string IconText { get; set; } = null!;
         }
     }
 }
