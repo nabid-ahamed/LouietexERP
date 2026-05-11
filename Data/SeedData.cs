@@ -69,7 +69,7 @@ namespace LouietexERP.Data
                 var lName = lastNames[random.Next(lastNames.Length)];
                 var fullName = $"{fName} {lName}";
                 var email = $"{fName.ToLower().Replace(".", "").Replace(" ", "")}.{lName.ToLower()}@louietex.com";
-                
+
                 employees.Add(new Employee
                 {
                     FullName = fullName,
@@ -99,7 +99,7 @@ namespace LouietexERP.Data
                 var buyer = bulkBuyers[randomBulk.Next(bulkBuyers.Length)];
                 var cat = categories[randomBulk.Next(categories.Length)];
                 var orderDate = now.AddDays(-randomBulk.Next(10, 400));
-                
+
                 context.Orders.Add(new Order
                 {
                     BuyerName = buyer,
@@ -120,8 +120,10 @@ namespace LouietexERP.Data
             var orders = await context.Orders.ToListAsync();
             if (orders.Count == 0) return;
 
-            var employees = await context.Employees.Where(e => e.Role == "Supervisor" || e.Role == "Manager" || e.Role == "Line Chief").ToListAsync();
-            var supervisorNames = employees.Select(e => e.FullName).ToList();
+            var supervisorNames = await context.Employees
+                .Where(e => e.Role == "Supervisor" || e.Role == "Manager" || e.Role == "Line Chief")
+                .Select(e => e.FullName)
+                .ToListAsync();
             if (supervisorNames.Count == 0) supervisorNames.Add("Md. Shafiqul Haque");
 
             var now = DateTime.UtcNow;
@@ -135,7 +137,7 @@ namespace LouietexERP.Data
                 var target = order.TotalQuantity / 2;
                 var status = order.Status == "Completed" ? "Completed" : (order.Status == "Shipped" ? "Completed" : "Running");
                 var actual = status == "Completed" ? target : (int)(target * random.NextDouble());
-                
+
                 var start = order.CreatedAt.AddDays(random.Next(1, 5));
                 var end = status == "Completed" ? start.AddDays(random.Next(5, 15)) : (DateTime?)null;
 
@@ -166,8 +168,10 @@ namespace LouietexERP.Data
             var productions = await context.Productions.ToListAsync();
             if (productions.Count == 0) return;
 
-            var qcOfficers = await context.Employees.Where(e => e.Role == "QC Officer" || e.Role == "QC Inspector").ToListAsync();
-            var inspectorNames = qcOfficers.Select(e => e.FullName).ToList();
+            var inspectorNames = await context.Employees
+                .Where(e => e.Role == "QC Officer" || e.Role == "QC Inspector")
+                .Select(e => e.FullName)
+                .ToListAsync();
             if (inspectorNames.Count == 0) inspectorNames.AddRange(["Abdul Karim", "Mohammad Rafiq", "Suraiya Begum"]);
 
             var now = DateTime.UtcNow;
@@ -178,7 +182,7 @@ namespace LouietexERP.Data
             {
                 var prod = productions[random.Next(productions.Count)];
                 var inspector = inspectorNames[random.Next(inspectorNames.Count)];
-                
+
                 int defectProb = random.Next(100);
                 string status = "Passed";
                 int defects = 0;

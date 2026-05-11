@@ -17,7 +17,7 @@ namespace LouietexERP.Controllers
         public async Task<IActionResult> ViewModifications()
         {
             var requests = await _context.ProfileRequests
-                .Where(r => !r.IsProcessed || r.Status.ToLower() == Models.ProfileRequestStatus.Pending.ToLower())
+                .Where(r => !r.IsProcessed || string.Equals(r.Status, Models.ProfileRequestStatus.Pending, StringComparison.OrdinalIgnoreCase))
                 .Include(r => r.User)
                 .OrderByDescending(r => r.RequestDate)
                 .ToListAsync();

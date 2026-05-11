@@ -8,18 +8,12 @@ using LouietexERP.Data;
 namespace LouietexERP.Controllers
 {
     [Authorize(Roles = SD.Role_SuperAdmin + "," + SD.Role_Admin)]
-    public class UserAccessController : Controller
+    public class UserAccessController(
+        UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager) : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-
-        public UserAccessController(
-            UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
-        {
-            _userManager = userManager;
-            _roleManager = roleManager;
-        }
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
         // ==========================================
         // INDEX - LIST ALL USERS
@@ -147,7 +141,7 @@ namespace LouietexERP.Controllers
             // Update Basic Info
             user.FullName = model.FullName;
             user.IsApproved = model.IsApproved;
-            
+
             // Cannot disable self
             var currentUserId = _userManager.GetUserId(User);
             if (user.Id == currentUserId && model.IsDisabled)
@@ -187,7 +181,7 @@ namespace LouietexERP.Controllers
                         await _userManager.UpdateAsync(user); // save other changes (FullName, etc.)
                         return RedirectToAction(nameof(Index));
                     }
-                    
+
                     // Absolute last check
                     if (allSuperAdmins.Count <= 1)
                     {
@@ -280,7 +274,7 @@ namespace LouietexERP.Controllers
                     TempData["Warning"] = "Cannot delete the only remaining active SuperAdmin account. At least one active SuperAdmin must exist.";
                     return RedirectToAction(nameof(Index));
                 }
-                
+
                 // Even if they are disabled, if they are the literal LAST one in the role, block it
                 if (allSuperAdmins.Count <= 1)
                 {
