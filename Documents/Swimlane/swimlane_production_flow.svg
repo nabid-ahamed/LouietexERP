@@ -1,0 +1,49 @@
+<svg width="600" height="650" viewBox="0 0 600 650" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#334155" />
+    </marker>
+  </defs>
+  <rect width="600" height="650" fill="#ffffff" />
+  <line x1="200" y1="0" x2="200" y2="650" stroke="#334155" stroke-width="2" />
+  <line x1="400" y1="0" x2="400" y2="650" stroke="#334155" stroke-width="2" />
+  <rect x="0" y="0" width="600" height="40" fill="#ffffff" stroke="#334155" stroke-width="2" />
+  <text x="100" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">System</text>
+  <text x="300" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Prod Manager</text>
+  <text x="500" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Production Line</text>
+
+  <ellipse cx="500" cy="70" rx="30" ry="15" fill="#64748b" />
+  <text x="500" y="75" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#ffffff">Start</text>
+  <line x1="500" y1="85" x2="500" y2="110" stroke="#334155" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+  <rect x="425" y="110" width="150" height="40" fill="#dcfce7" stroke="#166534" stroke-width="1" />
+  <text x="500" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Report Hourly Output</text>
+  <line x1="425" y1="130" x2="160" y2="130" stroke="#334155" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+  <rect x="25" y="110" width="150" height="40" fill="#dcfce7" stroke="#166534" stroke-width="1" />
+  <text x="100" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Store Log Data</text>
+  <line x1="100" y1="150" x2="100" y2="200" stroke="#334155" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+  <rect x="25" y="200" width="150" height="40" fill="#dcfce7" stroke="#166534" stroke-width="1" />
+  <text x="100" y="225" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Calc Target Gap</text>
+  <line x1="100" y1="240" x2="100" y2="300" stroke="#334155" stroke-width="1.5" />
+  <line x1="100" y1="300" x2="225" y2="300" stroke="#334155" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+  <rect x="225" y="280" width="150" height="40" fill="#dcfce7" stroke="#166534" stroke-width="1" />
+  <text x="300" y="305" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Analyze Real-time Feed</text>
+  <line x1="300" y1="320" x2="300" y2="360" stroke="#334155" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+  <polygon points="300,360 360,390 300,420 240,390" fill="#fef9c3" stroke="#854d0e" stroke-width="1" />
+  <text x="300" y="395" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Target Met?</text>
+
+  <line x1="240" y1="390" x2="160" y2="390" stroke="#334155" stroke-width="1.5" marker-end="url(#arrowhead)" />
+  <text x="200" y="385" font-family="Arial, sans-serif" font-size="8">No</text>
+  <rect x="25" y="370" width="150" height="40" fill="#fef2f2" stroke="#ef4444" stroke-width="1" />
+  <text x="100" y="395" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Trigger Delay Alert</text>
+
+  <line x1="100" y1="410" x2="100" y2="480" stroke="#334155" stroke-width="1.5" />
+  <line x1="100" y1="480" x2="425" y2="480" stroke="#334155" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+  <rect x="425" y="460" width="150" height="40" fill="#fef2f2" stroke="#ef4444" stroke-width="1" />
+  <text x="500" y="485" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Show Dashboard Warning</text>
+</svg>

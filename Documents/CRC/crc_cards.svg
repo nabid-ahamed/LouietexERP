@@ -1,0 +1,99 @@
+<svg width="1000" height="900" viewBox="0 0 1000 900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1000" height="900" fill="#ffffff" />
+  <text x="500" y="40" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1e293b">CRC Cards for LouietexERP</text>
+
+  <!-- Card Template Function/Macro represented here -->
+  
+  <!-- 1. ApplicationUser -->
+  <g transform="translate(50, 80)">
+    <rect width="400" height="200" rx="5" fill="#ffffff" stroke="#334155" stroke-width="2" />
+    <rect width="400" height="40" rx="5" fill="#6b21a8" />
+    <text x="200" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">Class: ApplicationUser</text>
+    <line x1="250" y1="40" x2="250" y2="200" stroke="#cbd5e1" />
+    <text x="10" y="60" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Responsibilities</text>
+    <text x="260" y="60" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Collaborators</text>
+    <text x="10" y="80" font-family="Arial, sans-serif" font-size="10">- Manage identity &amp; access</text>
+    <text x="10" y="95" font-family="Arial, sans-serif" font-size="10">- Track approval status</text>
+    <text x="10" y="110" font-family="Arial, sans-serif" font-size="10">- Handle profile updates</text>
+    <text x="260" y="80" font-family="Arial, sans-serif" font-size="10">- IdentityRole</text>
+    <text x="260" y="95" font-family="Arial, sans-serif" font-size="10">- ProfileRequest</text>
+    <text x="260" y="110" font-family="Arial, sans-serif" font-size="10">- QCInspection</text>
+  </g>
+
+  <!-- 2. Order -->
+  <g transform="translate(550, 80)">
+    <rect width="400" height="200" rx="5" fill="#ffffff" stroke="#334155" stroke-width="2" />
+    <rect width="400" height="40" rx="5" fill="#6b21a8" />
+    <text x="200" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">Class: Order</text>
+    <line x1="250" y1="40" x2="250" y2="200" stroke="#cbd5e1" />
+    <text x="10" y="60" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Responsibilities</text>
+    <text x="260" y="60" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Collaborators</text>
+    <text x="10" y="80" font-family="Arial, sans-serif" font-size="10">- Store buyer requirements</text>
+    <text x="10" y="95" font-family="Arial, sans-serif" font-size="10">- Track delivery deadlines</text>
+    <text x="10" y="110" font-family="Arial, sans-serif" font-size="10">- Manage order status</text>
+    <text x="260" y="80" font-family="Arial, sans-serif" font-size="10">- Production</text>
+    <text x="260" y="95" font-family="Arial, sans-serif" font-size="10">- ApplicationUser</text>
+  </g>
+
+  <!-- 3. Production -->
+  <g transform="translate(50, 320)">
+    <rect width="400" height="200" rx="5" fill="#ffffff" stroke="#334155" stroke-width="2" />
+    <rect width="400" height="40" rx="5" fill="#6b21a8" />
+    <text x="200" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">Class: Production</text>
+    <line x1="250" y1="40" x2="250" y2="200" stroke="#cbd5e1" />
+    <text x="10" y="60" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Responsibilities</text>
+    <text x="260" y="60" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Collaborators</text>
+    <text x="10" y="80" font-family="Arial, sans-serif" font-size="10">- Monitor line output</text>
+    <text x="10" y="95" font-family="Arial, sans-serif" font-size="10">- Calculate line efficiency</text>
+    <text x="10" y="110" font-family="Arial, sans-serif" font-size="10">- Aggregate defect data</text>
+    <text x="260" y="80" font-family="Arial, sans-serif" font-size="10">- Order</text>
+    <text x="260" y="95" font-family="Arial, sans-serif" font-size="10">- QCInspection</text>
+    <text x="260" y="110" font-family="Arial, sans-serif" font-size="10">- Inventory</text>
+  </g>
+
+  <!-- 4. QCInspection -->
+  <g transform="translate(550, 320)">
+    <rect width="400" height="200" rx="5" fill="#ffffff" stroke="#334155" stroke-width="2" />
+    <rect width="400" height="40" rx="5" fill="#6b21a8" />
+    <text x="200" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">Class: QCInspection</text>
+    <line x1="250" y1="40" x2="250" y2="200" stroke="#cbd5e1" />
+    <text x="10" y="60" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Responsibilities</text>
+    <text x="260" y="60" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Collaborators</text>
+    <text x="10" y="80" font-family="Arial, sans-serif" font-size="10">- Record inspection results</text>
+    <text x="10" y="95" font-family="Arial, sans-serif" font-size="10">- Validate batch quality</text>
+    <text x="10" y="110" font-family="Arial, sans-serif" font-size="10">- Assign inspection status</text>
+    <text x="260" y="80" font-family="Arial, sans-serif" font-size="10">- Production</text>
+    <text x="260" y="95" font-family="Arial, sans-serif" font-size="10">- ApplicationUser</text>
+  </g>
+
+  <!-- 5. Inventory -->
+  <g transform="translate(50, 560)">
+    <rect width="400" height="200" rx="5" fill="#ffffff" stroke="#334155" stroke-width="2" />
+    <rect width="400" height="40" rx="5" fill="#6b21a8" />
+    <text x="200" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">Class: Inventory</text>
+    <line x1="250" y1="40" x2="250" y2="200" stroke="#cbd5e1" />
+    <text x="10" y="60" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Responsibilities</text>
+    <text x="260" y="60" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Collaborators</text>
+    <text x="10" y="80" font-family="Arial, sans-serif" font-size="10">- Track material stock levels</text>
+    <text x="10" y="95" font-family="Arial, sans-serif" font-size="10">- Provide low stock alerts</text>
+    <text x="10" y="110" font-family="Arial, sans-serif" font-size="10">- Manage supplier data</text>
+    <text x="260" y="80" font-family="Arial, sans-serif" font-size="10">- Production</text>
+    <text x="260" y="95" font-family="Arial, sans-serif" font-size="10">- Order</text>
+  </g>
+
+  <!-- 6. Employee -->
+  <g transform="translate(550, 560)">
+    <rect width="400" height="200" rx="5" fill="#ffffff" stroke="#334155" stroke-width="2" />
+    <rect width="400" height="40" rx="5" fill="#6b21a8" />
+    <text x="200" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">Class: Employee</text>
+    <line x1="250" y1="40" x2="250" y2="200" stroke="#cbd5e1" />
+    <text x="10" y="60" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Responsibilities</text>
+    <text x="260" y="60" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Collaborators</text>
+    <text x="10" y="80" font-family="Arial, sans-serif" font-size="10">- Maintain staff records</text>
+    <text x="10" y="95" font-family="Arial, sans-serif" font-size="10">- Assign departmental roles</text>
+    <text x="10" y="110" font-family="Arial, sans-serif" font-size="10">- Link to system user</text>
+    <text x="260" y="80" font-family="Arial, sans-serif" font-size="10">- ApplicationUser</text>
+    <text x="260" y="95" font-family="Arial, sans-serif" font-size="10">- Production</text>
+  </g>
+
+</svg>

@@ -1,0 +1,38 @@
+<svg width="600" height="600" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#334155" />
+    </marker>
+  </defs>
+  <rect width="600" height="600" fill="#ffffff" />
+  <line x1="200" y1="0" x2="200" y2="600" stroke="#334155" stroke-width="2" />
+  <line x1="400" y1="0" x2="400" y2="600" stroke="#334155" stroke-width="2" />
+  <rect x="0" y="0" width="600" height="40" fill="#ffffff" stroke="#334155" stroke-width="2" />
+  <text x="100" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">System</text>
+  <text x="300" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">HR Admin</text>
+  <text x="500" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Staff Member</text>
+
+  <ellipse cx="300" cy="70" rx="30" ry="15" fill="#64748b" />
+  <text x="300" y="75" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#ffffff">Start</text>
+  <line x1="300" y1="85" x2="300" y2="100" stroke="#334155" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+  <rect x="225" y="100" width="150" height="40" fill="#dcfce7" stroke="#166534" stroke-width="1" />
+  <text x="300" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Enter Staff Details</text>
+  <line x1="225" y1="120" x2="160" y2="120" stroke="#334155" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+  <rect x="25" y="100" width="150" height="40" fill="#dcfce7" stroke="#166534" stroke-width="1" />
+  <text x="100" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Validate Records</text>
+  <line x1="100" y1="140" x2="100" y2="180" stroke="#334155" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+  <rect x="25" y="180" width="150" height="40" fill="#dcfce7" stroke="#166534" stroke-width="1" />
+  <text x="100" y="205" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Save to Personnel DB</text>
+  <line x1="100" y1="220" x2="100" y2="280" stroke="#334155" stroke-width="1.5" />
+  <line x1="100" y1="280" x2="225" y2="280" stroke="#334155" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+  <rect x="225" y="260" width="150" height="40" fill="#dcfce7" stroke="#166534" stroke-width="1" />
+  <text x="300" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Assign Role/Line</text>
+  <line x1="300" y1="300" x2="300" y2="360" stroke="#334155" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+  <rect x="225" y="360" width="150" height="40" fill="#dcfce7" stroke="#166534" stroke-width="1" />
+  <text x="300" y="385" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Confirm Creation</text>
+</svg>
