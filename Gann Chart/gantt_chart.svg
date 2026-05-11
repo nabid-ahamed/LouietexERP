@@ -1,0 +1,97 @@
+<svg width="1000" height="600" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1000" height="600" fill="#ffffff" />
+  <text x="500" y="40" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1e293b">Project Gantt Chart: LouietexERP (12 Weeks)</text>
+
+  <!-- Timeline Grid -->
+  <g transform="translate(200, 80)">
+    <!-- Week Headers -->
+    <line x1="0" y1="0" x2="720" y2="0" stroke="#cbd5e1" />
+    <line x1="0" y1="480" x2="720" y2="480" stroke="#cbd5e1" />
+    
+    <g font-family="Arial, sans-serif" font-size="10" fill="#64748b">
+      <text x="30" y="-10" text-anchor="middle">W1</text>
+      <text x="90" y="-10" text-anchor="middle">W2</text>
+      <text x="150" y="-10" text-anchor="middle">W3</text>
+      <text x="210" y="-10" text-anchor="middle">W4</text>
+      <text x="270" y="-10" text-anchor="middle">W5</text>
+      <text x="330" y="-10" text-anchor="middle">W6</text>
+      <text x="390" y="-10" text-anchor="middle">W7</text>
+      <text x="450" y="-10" text-anchor="middle">W8</text>
+      <text x="510" y="-10" text-anchor="middle">W9</text>
+      <text x="570" y="-10" text-anchor="middle">W10</text>
+      <text x="630" y="-10" text-anchor="middle">W11</text>
+      <text x="690" y="-10" text-anchor="middle">W12</text>
+    </g>
+
+    <!-- Grid Vertical Lines -->
+    <line x1="0" y1="0" x2="0" y2="480" stroke="#f1f5f9" />
+    <line x1="60" y1="0" x2="60" y2="480" stroke="#f1f5f9" />
+    <line x1="120" y1="0" x2="120" y2="480" stroke="#f1f5f9" />
+    <line x1="180" y1="0" x2="180" y2="480" stroke="#f1f5f9" />
+    <line x1="240" y1="0" x2="240" y2="480" stroke="#f1f5f9" />
+    <line x1="300" y1="0" x2="300" y2="480" stroke="#f1f5f9" />
+    <line x1="360" y1="0" x2="360" y2="480" stroke="#f1f5f9" />
+    <line x1="420" y1="0" x2="420" y2="480" stroke="#f1f5f9" />
+    <line x1="480" y1="0" x2="480" y2="480" stroke="#f1f5f9" />
+    <line x1="540" y1="0" x2="540" y2="480" stroke="#f1f5f9" />
+    <line x1="600" y1="0" x2="600" y2="480" stroke="#f1f5f9" />
+    <line x1="660" y1="0" x2="660" y2="480" stroke="#f1f5f9" />
+    <line x1="720" y1="0" x2="720" y2="480" stroke="#f1f5f9" />
+
+    <!-- Tasks -->
+    <!-- Task 1: Planning -->
+    <rect x="0" y="20" width="120" height="30" rx="4" fill="#3b82f6" opacity="0.8" />
+    <text x="-10" y="40" text-anchor="end" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">Planning &amp; Req Analysis</text>
+    <text x="60" y="40" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">W1-W2</text>
+
+    <!-- Task 2: UI Design -->
+    <rect x="120" y="70" width="120" height="30" rx="4" fill="#8b5cf6" opacity="0.8" />
+    <text x="-10" y="90" text-anchor="end" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">UI/UX Design &amp; Prototyping</text>
+    <text x="180" y="90" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">W3-W4</text>
+
+    <!-- Task 3: Auth Module -->
+    <rect x="240" y="120" width="60" height="30" rx="4" fill="#10b981" opacity="0.8" />
+    <text x="-10" y="140" text-anchor="end" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">Identity &amp; Auth Module</text>
+    <text x="270" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">W5</text>
+
+    <!-- Task 4: Orders & Employees -->
+    <rect x="300" y="170" width="60" height="30" rx="4" fill="#10b981" opacity="0.8" />
+    <text x="-10" y="190" text-anchor="end" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">Orders &amp; Employees</text>
+    <text x="330" y="190" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">W6</text>
+
+    <!-- Task 5: Production & Inventory -->
+    <rect x="360" y="220" width="60" height="30" rx="4" fill="#10b981" opacity="0.8" />
+    <text x="-10" y="240" text-anchor="end" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">Production &amp; Inventory</text>
+    <text x="390" y="240" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">W7</text>
+
+    <!-- Task 6: QC & Analytics -->
+    <rect x="420" y="270" width="60" height="30" rx="4" fill="#10b981" opacity="0.8" />
+    <text x="-10" y="290" text-anchor="end" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">QC Inspection &amp; Analytics</text>
+    <text x="450" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">W8</text>
+
+    <!-- Task 7: Reporting -->
+    <rect x="480" y="320" width="120" height="30" rx="4" fill="#f59e0b" opacity="0.8" />
+    <text x="-10" y="340" text-anchor="end" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">PDF Reporting &amp; Exports</text>
+    <text x="540" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">W9-W10</text>
+
+    <!-- Task 8: Testing -->
+    <rect x="600" y="370" width="60" height="30" rx="4" fill="#ef4444" opacity="0.8" />
+    <text x="-10" y="390" text-anchor="end" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">Testing &amp; Security Audits</text>
+    <text x="630" y="390" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">W11</text>
+
+    <!-- Task 9: Documentation -->
+    <rect x="660" y="420" width="60" height="30" rx="4" fill="#64748b" opacity="0.8" />
+    <text x="-10" y="440" text-anchor="end" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">Final Docs &amp; Handover</text>
+    <text x="690" y="440" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">W12</text>
+
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(800, 520)" font-family="Arial, sans-serif" font-size="10">
+    <rect x="0" y="0" width="15" height="15" fill="#3b82f6" /> <text x="20" y="12">Planning</text>
+    <rect x="0" y="20" width="15" height="15" fill="#8b5cf6" /> <text x="20" y="32">Design</text>
+    <rect x="0" y="40" width="15" height="15" fill="#10b981" /> <text x="20" y="52">Development</text>
+    <rect x="0" y="60" width="15" height="15" fill="#ef4444" /> <text x="20" y="72">Testing</text>
+  </g>
+
+</svg>
