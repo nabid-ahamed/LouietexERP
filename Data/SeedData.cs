@@ -54,15 +54,7 @@ namespace LouietexERP.Data
 
         private static async Task SeedEmployeesAsync(ApplicationDbContext context)
         {
-            // Clear existing for fresh start as requested
-            var existing = await context.Employees.ToListAsync();
-            if (existing.Count >= 30) return; // Keep if already seeded with 30+
-
-            if (existing.Count > 0)
-            {
-                context.Employees.RemoveRange(existing);
-                await context.SaveChangesAsync();
-            }
+            if (await context.Employees.AnyAsync()) return;
 
             var employees = new List<Employee>();
             var firstNames = new[] { "Md. Rafiqul", "Fatema", "Md. Karim", "Sumaiya", "Md. Jahangir", "Rehana", "Md. Arif", "Nargis", "Md. Shafiqul", "Sabina", "Md. Robiul", "Taslima", "Md. Nurul", "Halima", "Md. Zakir", "Roksana", "Md. Anwar", "Jesmin", "Md. Sohel", "Champa", "Md. Delwar", "Nasrin", "Abul", "Farhana", "Mizanur", "Lucky", "Shahidul", "Munmun", "Habibur", "Rozina", "Kamrul", "Shamima" };
@@ -94,37 +86,9 @@ namespace LouietexERP.Data
 
         private static async Task SeedOrdersAsync(ApplicationDbContext context)
         {
+            if (await context.Orders.AnyAsync()) return;
+
             var now = DateTime.UtcNow;
-            var existing = await context.Orders.ToListAsync();
-            
-            // Check if we have any orders from today to keep the demo "hot"
-            var todayOrdersCount = existing.Count(o => o.CreatedAt.Date == now.Date);
-
-            if (todayOrdersCount < 5)
-            {
-                var buyers = new[] { "H&M", "Zara", "Levis", "Adidas", "Nike" };
-                var styles = new[] { "Slim Fit Denim", "Cotton Polo", "Hooded Sweatshirt", "Cargo Pants", "Graphic T-Shirt" };
-                var statuses = new[] { "Pending", "In Production", "In Production", "Approved", "Pending" };
-                var random = new Random();
-
-                for (int i = 0; i < 5; i++)
-                {
-                    context.Orders.Add(new Order
-                    {
-                        BuyerName = buyers[i],
-                        StyleCode = styles[i],
-                        TotalQuantity = random.Next(500, 2000),
-                        DeliveryDate = now.AddDays(random.Next(15, 45)),
-                        Status = statuses[i],
-                        CreatedAt = now.AddMinutes(-i * 30) // Spread over the last few hours
-                    });
-                }
-                await context.SaveChangesAsync();
-            }
-
-            // Standard bulk seeding if DB is empty or very low
-            if (existing.Count >= 20) return;
-
             var bulkBuyers = new[] { "Uniqlo", "GAP", "Next", "Primark", "M&S", "Puma" };
             var categories = new[] { "TS", "PL", "JK", "DN", "SW", "HD" };
             var bulkStatuses = new[] { "Pending", "In Production", "Shipped", "Completed" };
@@ -151,15 +115,7 @@ namespace LouietexERP.Data
 
         private static async Task SeedProductionsAsync(ApplicationDbContext context)
         {
-            // Always refresh productions if we refreshed orders
-            var existing = await context.Productions.ToListAsync();
-            if (existing.Count >= 40) return;
-
-            if (existing.Count > 0)
-            {
-                context.Productions.RemoveRange(existing);
-                await context.SaveChangesAsync();
-            }
+            if (await context.Productions.AnyAsync()) return;
 
             var orders = await context.Orders.ToListAsync();
             if (orders.Count == 0) return;
@@ -205,12 +161,7 @@ namespace LouietexERP.Data
 
         private static async Task SeedQCAsync(ApplicationDbContext context)
         {
-            var existing = await context.QCInspections.ToListAsync();
-            if (existing.Count > 0)
-            {
-                context.QCInspections.RemoveRange(existing);
-                await context.SaveChangesAsync();
-            }
+            if (await context.QCInspections.AnyAsync()) return;
 
             var productions = await context.Productions.ToListAsync();
             if (productions.Count == 0) return;

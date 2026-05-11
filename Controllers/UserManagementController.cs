@@ -121,6 +121,26 @@ namespace LouietexERP.Controllers
             var user = await _context.Users.FindAsync(userId);
             if (user == null) return NotFound();
 
+            // ⛔ PROTECTION: Cannot reject self
+            var currentUserId = _userManager.GetUserId(User);
+            if (user.Id == currentUserId)
+            {
+                TempData["Warning"] = "You cannot reject or delete your own account.";
+                return RedirectToAction(nameof(PendingApprovals));
+            }
+
+            // ⛔ PROTECTION: Cannot reject the last Super Admin
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles.Contains(SD.Role_SuperAdmin))
+            {
+                var allSuperAdmins = await _userManager.GetUsersInRoleAsync(SD.Role_SuperAdmin);
+                if (allSuperAdmins.Count <= 1)
+                {
+                    TempData["Warning"] = "Cannot remove the last Super Admin from the system.";
+                    return RedirectToAction(nameof(PendingApprovals));
+                }
+            }
+
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 

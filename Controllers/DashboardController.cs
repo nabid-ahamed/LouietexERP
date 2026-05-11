@@ -104,7 +104,7 @@ namespace LouietexERP.Controllers
             // ── 8. Recent Activity Feed ──────────────────────────────────
             var activities = new List<ActivityItem>();
 
-            // Recent Orders
+            // 1. Recent Orders
             var latestOrders = await _context.Orders.OrderByDescending(o => o.CreatedAt).Take(5).ToListAsync();
             activities.AddRange(latestOrders.Select(o => new ActivityItem
             {
@@ -116,7 +116,7 @@ namespace LouietexERP.Controllers
                 IconText = "text-primary"
             }));
 
-            // Recent QC Results
+            // 2. Recent QC Results
             var latestQC = await _context.QCInspections.Include(q => q.Production).ThenInclude(p => p!.Order).OrderByDescending(q => q.UpdatedAt).Take(5).ToListAsync();
             activities.AddRange(latestQC.Select(q => new ActivityItem
             {
@@ -128,7 +128,43 @@ namespace LouietexERP.Controllers
                 IconText = q.QCStatus == "Passed" ? "text-success" : "text-danger"
             }));
 
-            // Recent Profile Requests
+            // 3. Recent Productions (Starts & Completions)
+            var latestProds = await _context.Productions.Include(p => p.Order).OrderByDescending(p => p.UpdatedAt).Take(5).ToListAsync();
+            activities.AddRange(latestProds.Select(p => new ActivityItem
+            {
+                Title = $"Production {p.Status}: {p.Order?.StyleCode ?? p.LineNumber}",
+                Subtitle = $"Line: {p.LineNumber} | Progress: {p.ActualOutput}/{p.TargetQuantity}",
+                Timestamp = p.UpdatedAt,
+                Icon = p.Status == "Completed" ? "bi-check-circle-fill" : "bi-play-circle",
+                IconBg = p.Status == "Completed" ? "bg-success-subtle" : "bg-info-subtle",
+                IconText = p.Status == "Completed" ? "text-success" : "text-info"
+            }));
+
+            // 4. Low Stock Alerts
+            var lowStock = await _context.Inventories.Where(i => i.Quantity <= i.MinStockLevel).OrderByDescending(i => i.Id).Take(3).ToListAsync();
+            activities.AddRange(lowStock.Select(i => new ActivityItem
+            {
+                Title = $"Low Stock: {i.Name}",
+                Subtitle = $"Current: {i.Quantity} | Min: {i.MinStockLevel}",
+                Timestamp = DateTime.Now.AddMinutes(-5), // Stock alerts are current
+                Icon = "bi-exclamation-triangle",
+                IconBg = "bg-danger-subtle",
+                IconText = "text-danger"
+            }));
+
+            // 5. Recent Employees (Joinings)
+            var newEmployees = await _context.Employees.OrderByDescending(e => e.JoiningDate).Take(3).ToListAsync();
+            activities.AddRange(newEmployees.Select(e => new ActivityItem
+            {
+                Title = $"New Joiner: {e.FullName}",
+                Subtitle = $"Dept: {e.Department} | Role: {e.Role}",
+                Timestamp = e.JoiningDate,
+                Icon = "bi-person-plus",
+                IconBg = "bg-info-subtle",
+                IconText = "text-info"
+            }));
+
+            // 6. Recent Profile Requests
             var latestRequests = await _context.ProfileRequests.Include(r => r.User).OrderByDescending(r => r.RequestDate).Take(3).ToListAsync();
             activities.AddRange(latestRequests.Select(r => new ActivityItem
             {
@@ -184,7 +220,7 @@ namespace LouietexERP.Controllers
                     var startOfWeek = endOfWeek.AddDays(-(i + 1) * 7);
                     var endOfSelectedWeek = startOfWeek.AddDays(7);
                     labels.Add("Week " + (10 - i));
-                    
+
                     var weeklyProds = await _context.Productions.Where(p => p.CreatedAt >= startOfWeek && p.CreatedAt < endOfSelectedWeek).ToListAsync();
                     target.Add(weeklyProds.Sum(p => p.TargetQuantity));
                     actual.Add(weeklyProds.Sum(p => p.ActualOutput));
@@ -199,7 +235,7 @@ namespace LouietexERP.Controllers
                     var startOfMonth = new DateTime(monthDate.Year, monthDate.Month, 1);
                     var endOfMonth = startOfMonth.AddMonths(1);
                     labels.Add(startOfMonth.ToString("MMM yy"));
-                    
+
                     var monthlyProds = await _context.Productions.Where(p => p.CreatedAt >= startOfMonth && p.CreatedAt < endOfMonth).ToListAsync();
                     target.Add(monthlyProds.Sum(p => p.TargetQuantity));
                     actual.Add(monthlyProds.Sum(p => p.ActualOutput));

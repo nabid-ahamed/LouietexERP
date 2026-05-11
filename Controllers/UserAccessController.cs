@@ -174,13 +174,25 @@ namespace LouietexERP.Controllers
             if (currentRole != model.Role && await _roleManager.RoleExistsAsync(model.Role))
             {
                 // Prevent removing last SuperAdmin
+                // ⛔ PROTECTION: Must always have at least one ACTIVE SuperAdmin
                 if (currentRole == SD.Role_SuperAdmin)
                 {
                     var allSuperAdmins = await _userManager.GetUsersInRoleAsync(SD.Role_SuperAdmin);
+                    var activeSuperAdmins = allSuperAdmins.Where(u => !u.IsDisabled).ToList();
+
+                    // If we are moving the last active SuperAdmin out of the role, block it
+                    if (activeSuperAdmins.Count <= 1 && !user.IsDisabled)
+                    {
+                        TempData["Warning"] = "Cannot change the role of the only remaining active SuperAdmin. At least one active SuperAdmin must exist.";
+                        await _userManager.UpdateAsync(user); // save other changes (FullName, etc.)
+                        return RedirectToAction(nameof(Index));
+                    }
+                    
+                    // Absolute last check
                     if (allSuperAdmins.Count <= 1)
                     {
-                        TempData["Warning"] = "Cannot change role of the last SuperAdmin.";
-                        await _userManager.UpdateAsync(user); // save other changes
+                        TempData["Warning"] = "Cannot change the role of the absolute last SuperAdmin in the system.";
+                        await _userManager.UpdateAsync(user);
                         return RedirectToAction(nameof(Index));
                     }
                 }
@@ -238,28 +250,41 @@ namespace LouietexERP.Controllers
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
 
+            // ⛔ PROTECTION: Cannot delete self
             var currentUserId = _userManager.GetUserId(User);
             if (user.Id == currentUserId)
             {
-                TempData["Warning"] = "You cannot delete your own account.";
+                TempData["Warning"] = "You cannot delete your own account for security reasons.";
                 return RedirectToAction(nameof(Index));
             }
 
             var roles = await _userManager.GetRolesAsync(user);
-            var isSuperAdmin = roles.Contains(SD.Role_SuperAdmin);
+            var isTargetSuperAdmin = roles.Contains(SD.Role_SuperAdmin);
 
-            if (User.IsInRole(SD.Role_Admin) && isSuperAdmin)
+            // ⛔ PROTECTION: Admin cannot delete a SuperAdmin
+            if (User.IsInRole(SD.Role_Admin) && isTargetSuperAdmin)
             {
-                TempData["Warning"] = "Admins cannot delete a SuperAdmin.";
+                TempData["Warning"] = "Administrators do not have permission to delete a SuperAdmin account.";
                 return RedirectToAction(nameof(Index));
             }
 
-            if (isSuperAdmin)
+            // ⛔ PROTECTION: Must always have at least one ACTIVE SuperAdmin
+            if (isTargetSuperAdmin)
             {
                 var allSuperAdmins = await _userManager.GetUsersInRoleAsync(SD.Role_SuperAdmin);
+                var activeSuperAdmins = allSuperAdmins.Where(u => !u.IsDisabled).ToList();
+
+                // If the user we are deleting is the last active SuperAdmin, block it
+                if (activeSuperAdmins.Count <= 1 && !user.IsDisabled)
+                {
+                    TempData["Warning"] = "Cannot delete the only remaining active SuperAdmin account. At least one active SuperAdmin must exist.";
+                    return RedirectToAction(nameof(Index));
+                }
+                
+                // Even if they are disabled, if they are the literal LAST one in the role, block it
                 if (allSuperAdmins.Count <= 1)
                 {
-                    TempData["Warning"] = "Cannot delete the last SuperAdmin.";
+                    TempData["Warning"] = "Cannot delete the absolute last SuperAdmin account in the system.";
                     return RedirectToAction(nameof(Index));
                 }
             }
