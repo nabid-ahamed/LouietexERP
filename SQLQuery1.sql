@@ -1,4 +1,4 @@
--- June 2025
+﻿-- June 2025
 INSERT INTO Productions (OrderId, LineNumber, Supervisor, TargetQuantity, ActualOutput, DefectCount, Status, CreatedAt, UpdatedAt, StartDate, EndDate) VALUES (2, 'Line-01', 'John Doe', 5000, 4850, 25, 'Completed', '2025-06-05', '2025-06-05', '2025-06-05', '2025-06-10');
 INSERT INTO Productions (OrderId, LineNumber, Supervisor, TargetQuantity, ActualOutput, DefectCount, Status, CreatedAt, UpdatedAt, StartDate, EndDate) VALUES (3, 'Line-02', 'Jane Smith', 4000, 3900, 15, 'Completed', '2025-06-12', '2025-06-12', '2025-06-12', '2025-06-17');
 INSERT INTO Productions (OrderId, LineNumber, Supervisor, TargetQuantity, ActualOutput, DefectCount, Status, CreatedAt, UpdatedAt, StartDate, EndDate) VALUES (4, 'Line-03', 'Mike Ross', 6000, 5800, 40, 'Completed', '2025-06-20', '2025-06-20', '2025-06-20', '2025-06-25');
