@@ -1,77 +1,313 @@
 @model IEnumerable<LouietexERP.Models.Employee>
 @{
     ViewData["Title"] = "HR & Workforce Analytics";
+    
+    var totalStaff = Model.Count();
+    var totalDepts = Model.Select(e => e.Department).Distinct().Count();
+    var totalRoles = Model.Select(e => e.Role).Distinct().Count();
+    
+    // Calculate recent hires (e.g., joined within the last 365 days)
+    var recentHiresCount = Model.Count(e => e.JoiningDate >= DateTime.Now.AddDays(-365));
+    
+    // Group departments for breakdown list
+    var deptGroups = Model.GroupBy(e => e.Department)
+                          .OrderByDescending(g => g.Count())
+                          .ToList();
+                          
+    var uniqueDepts = Model.Select(e => e.Department).Distinct().OrderBy(d => d).ToList();
+    var uniqueRoles = Model.Select(e => e.Role).Distinct().OrderBy(r => r).ToList();
 }
 
-<div class="container-fluid px-4 py-4">
-    <div class="d-flex align-items-center mb-4">
-        <a href="/Reports/Index" class="btn btn-light rounded-circle p-3 me-3 shadow-sm border"><i class="bi bi-arrow-left fs-5"></i></a>
-        <div>
-            <h2 class="fw-bold text-dark mb-0">HR & Workforce Analytics</h2>
-            <p class="text-muted mb-0">Department distribution and workforce statistics.</p>
+<div class="container-fluid px-4 py-4 animate-fade-in">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div class="d-flex align-items-center">
+            <a href="/Reports/Index" class="btn btn-action-back me-3 shadow-sm border"><i class="bi bi-arrow-left fs-5"></i></a>
+            <div>
+                <span class="badge bg-soft-primary text-primary fw-semibold px-3 py-1.5 rounded-pill mb-1">Business Intelligence</span>
+                <h2 class="fw-bold text-dark mb-0">HR & Workforce Analytics</h2>
+                <p class="text-muted mb-0">Comprehensive department distribution, analytics, and interactive personnel roster.</p>
+            </div>
+        </div>
+        <div class="export-actions d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-export shadow-sm" onclick="window.print()"><i class="bi bi-printer me-2"></i>Print Report</button>
         </div>
     </div>
 
-    <div class="row g-4 mb-4">
-        <div class="col-xl-6 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 border-start border-4 border-primary">
-                <h6 class="text-muted small text-uppercase fw-bold mb-3">Total Workforce</h6>
-                <div class="d-flex align-items-center">
-                    <h1 class="fw-bold mb-0 me-3">@ViewBag.TotalStaff</h1>
-                    <span class="badge bg-light-primary text-primary rounded-pill">Active Employees</span>
+    <!-- Stats Cards Row -->
+    <div class="row g-4 mb-4 animate-slide-up">
+        <!-- Card 1: Total Workforce -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="kpi-card shadow-sm rounded-4 p-4 h-100 kpi-primary">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="kpi-label">Total Workforce</span>
+                        <h2 class="kpi-value text-dark mb-0">@totalStaff</h2>
+                    </div>
+                    <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
+                </div>
+                <div class="kpi-footer text-success">
+                    <i class="bi bi-check-circle-fill me-1"></i>
+                    <span>Active employees</span>
                 </div>
             </div>
         </div>
-        <div class="col-xl-6 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 border-start border-4 border-info">
-                <h6 class="text-muted small text-uppercase fw-bold mb-3">Departments</h6>
-                <div class="d-flex align-items-center">
-                    <h1 class="fw-bold mb-0 me-3">@ViewBag.Depts</h1>
-                    <span class="badge bg-light-info text-info rounded-pill">Active Depts</span>
+
+        <!-- Card 2: Departments -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="kpi-card shadow-sm rounded-4 p-4 h-100 kpi-info">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="kpi-label">Active Departments</span>
+                        <h2 class="kpi-value text-dark mb-0">@totalDepts</h2>
+                    </div>
+                    <div class="kpi-icon"><i class="bi bi-diagram-3-fill"></i></div>
+                </div>
+                <div class="kpi-footer text-info">
+                    <i class="bi bi-building me-1"></i>
+                    <span>Operational divisions</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Key Roles -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="kpi-card shadow-sm rounded-4 p-4 h-100 kpi-warning">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="kpi-label">Workforce Roles</span>
+                        <h2 class="kpi-value text-dark mb-0">@totalRoles</h2>
+                    </div>
+                    <div class="kpi-icon"><i class="bi bi-briefcase-fill"></i></div>
+                </div>
+                <div class="kpi-footer text-warning">
+                    <i class="bi bi-shield-shaded me-1"></i>
+                    <span>Distinct job functions</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Recent Hires -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="kpi-card shadow-sm rounded-4 p-4 h-100 kpi-success">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="kpi-label">Recent Hires</span>
+                        <h2 class="kpi-value text-dark mb-0">@recentHiresCount</h2>
+                    </div>
+                    <div class="kpi-icon"><i class="bi bi-person-plus-fill"></i></div>
+                </div>
+                <div class="kpi-footer text-success">
+                    <i class="bi bi-graph-up-arrow me-1"></i>
+                    <span>Joined within 1 year</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-xl-6">
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-header bg-white border-bottom py-3 px-4 text-center">
-                    <h6 class="fw-bold m-0 text-dark">Department Distribution</h6>
+    <!-- Main Dashboard Row -->
+    <div class="row g-4 animate-slide-up" style="animation-delay: 0.1s;">
+        <!-- Left Column: Department Distribution Chart & Breakdown -->
+        <div class="col-xl-5">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-2">
+                    <h5 class="fw-bold text-dark m-0">Department Distribution</h5>
+                    <p class="text-muted small mb-0">Visual analysis of personnel across active operational departments.</p>
                 </div>
+                <div class="card-body px-4 pb-4 pt-2 d-flex flex-column justify-content-between">
+                    <div class="chart-container mb-4 position-relative" style="height: 250px;">
+                        <canvas id="deptChart"></canvas>
+                    </div>
+                    
+                    <div class="dept-breakdown-list">
+                        <h6 class="fw-bold text-muted small text-uppercase mb-3">Department Summary</h6>
+                        <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
+                            <table class="table table-sm table-borderless align-middle mb-0">
+                                <thead>
+                                    <tr class="border-bottom text-muted small">
+                                        <th class="pb-2">Department</th>
+                                        <th class="pb-2 text-end">Count</th>
+                                        <th class="pb-2 text-end">Ratio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int index = 0;
+                                        var colors = new[] { "#6366f1", "#14b8a6", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#ec4899", "#3b82f6", "#6b7280" };
+                                    }
+                                    @foreach (var deptGroup in deptGroups)
+                                    {
+                                        var count = deptGroup.Count();
+                                        var pct = Math.Round((double)count / totalStaff * 100, 1);
+                                        var color = colors[index % colors.Length];
+                                        index++;
+                                        
+                                        <tr class="align-middle">
+                                            <td class="py-2">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="dept-dot me-2.5" style="background-color: @color;"></span>
+                                                    <span class="fw-semibold text-dark fs-7">@deptGroup.Key</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-2 text-end">
+                                                <span class="badge bg-light text-dark fw-bold border">@count</span>
+                                            </td>
+                                            <td class="py-2 text-end" style="width: 40%;">
+                                                <div class="d-flex align-items-center justify-content-end gap-2">
+                                                    <span class="small fw-semibold text-muted">@pct%</span>
+                                                    <div class="progress shadow-4xs" style="height: 6px; width: 60px; border-radius: 4px; background-color: #f1f5f9;">
+                                                        <div class="progress-bar" style="background-color: @color; width: @pct%; border-radius: 4px;"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Interactive Employee Directory & Summary -->
+        <div class="col-xl-7">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">Employee Roster Summary</h5>
+                        <p class="text-muted small mb-0">Roster of all @totalStaff active organization members.</p>
+                    </div>
+                </div>
+                
                 <div class="card-body p-4">
-                    <canvas id="deptChart" style="height: 350px;"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-6">
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-header bg-white border-bottom py-3 px-4">
-                    <h6 class="fw-bold m-0 text-dark">Employee List Summary</h6>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light">
+                    <!-- Live Filter Controls -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-5">
+                            <div class="search-box position-relative">
+                                <i class="bi bi-search position-absolute top-50 translate-middle-y start-0 ms-3 text-muted"></i>
+                                <input type="text" id="searchInput" class="form-control ps-5" placeholder="Search by name or email...">
+                            </div>
+                        </div>
+                        <div class="col-md-3.5">
+                            <select id="deptFilter" class="form-select">
+                                <option value="">All Departments</option>
+                                @foreach (var dept in uniqueDepts)
+                                {
+                                    <option value="@dept">@dept</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3.5">
+                            <select id="roleFilter" class="form-select">
+                                <option value="">All Roles</option>
+                                @foreach (var role in uniqueRoles)
+                                {
+                                    <option value="@role">@role</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Directory Table -->
+                    <div class="table-responsive border rounded-3 mb-4 shadow-2xs" style="min-height: 420px; overflow-x: auto;">
+                        <table class="table table-hover align-middle mb-0" id="employeeTable">
+                            <thead class="table-light-header">
                                 <tr>
-                                    <th class="ps-4">Employee</th>
-                                    <th>Dept</th>
-                                    <th class="pe-4">Role</th>
+                                    <th class="ps-4 py-3">Employee</th>
+                                    <th class="py-3">Department</th>
+                                    <th class="py-3">Role</th>
+                                    <th class="py-3 pe-4">Joining Date</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var emp in Model.Take(6))
+                                @foreach (var emp in Model)
                                 {
-                                    <tr>
-                                        <td class="ps-4">
-                                            <div class="fw-bold text-dark">@emp.FullName</div>
+                                    // Get initials for avatar
+                                    var initials = "";
+                                    var parts = emp.FullName.Split(new[] { ' ', '.' }, StringSplitOptions.RemoveEmptyEntries);
+                                    var significantParts = parts.Where(p => p.Length > 2 && !p.Equals("md", StringComparison.OrdinalIgnoreCase)).ToList();
+                                    if (significantParts.Any())
+                                    {
+                                        initials = string.Join("", significantParts.Take(2).Select(p => p[0]));
+                                    }
+                                    else if (parts.Length > 0)
+                                    {
+                                        initials = parts[0][0].ToString();
+                                    }
+                                    if (string.IsNullOrWhiteSpace(initials)) initials = "EM";
+                                    
+                                    // Generate a stable color based on name string
+                                    var stringHash = emp.FullName.GetHashCode();
+                                    var colorIndex = Math.Abs(stringHash) % colors.Length;
+                                    var avatarBgColor = colors[colorIndex];
+                                    
+                                    <tr class="employee-row" 
+                                        data-name="@emp.FullName.ToLower()" 
+                                        data-email="@emp.Email.ToLower()" 
+                                        data-dept="@emp.Department" 
+                                        data-role="@emp.Role">
+                                        <td class="ps-4 py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle me-3 shadow-xs" style="background-color: @avatarBgColor;">
+                                                    <span class="avatar-text">@initials.ToUpper()</span>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold text-dark mb-0.5 lh-sm">@emp.FullName</div>
+                                                    <div class="text-muted small fs-7 lh-sm">@emp.Email</div>
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td>@emp.Department</td>
-                                        <td class="pe-4">@emp.Role</td>
+                                        <td class="py-3">
+                                            <span class="badge badge-dept" style="background-color: @(avatarBgColor)15; color: @avatarBgColor; border: 1px solid @(avatarBgColor)30;">
+                                                @emp.Department
+                                            </span>
+                                        </td>
+                                        <td class="py-3">
+                                            <span class="text-dark fw-medium fs-7">@emp.Role</span>
+                                        </td>
+                                        <td class="py-3 pe-4">
+                                            <div>
+                                                <div class="fs-7 text-dark fw-semibold">@emp.JoiningDate.ToString("MMM dd, yyyy")</div>
+                                                @{
+                                                    var tenureDays = (DateTime.Now - emp.JoiningDate).Days;
+                                                    var tenureString = "";
+                                                    if (tenureDays >= 365)
+                                                    {
+                                                        var yrs = tenureDays / 365;
+                                                        tenureString = yrs == 1 ? "1 year" : $"{yrs} years";
+                                                    }
+                                                    else
+                                                    {
+                                                        var mos = tenureDays / 30;
+                                                        tenureString = mos <= 1 ? "Recent" : $"{mos} months";
+                                                    }
+                                                }
+                                                <div class="text-muted small fs-8">Tenure: @tenureString</div>
+                                            </div>
+                                        </td>
                                     </tr>
                                 }
                             </tbody>
                         </table>
+                        <!-- No Results Message -->
+                        <div id="noResults" class="text-center py-5 d-none">
+                            <i class="bi bi-people text-muted fs-1 mb-3 d-block opacity-40"></i>
+                            <h6 class="fw-bold text-dark">No employees found</h6>
+                            <p class="text-muted small mb-0">Try adjusting your filters or search keywords.</p>
+                        </div>
+                    </div>
+
+                    <!-- Client-side Pagination Footer -->
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2" id="paginationControls">
+                        <div class="fs-7 text-muted fw-semibold" id="pageSummary">
+                            Showing 1 to 7 of 35 employees
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0 gap-1" id="paginationList">
+                                <!-- Generated Dynamically -->
+                            </ul>
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -79,20 +315,432 @@
     </div>
 </div>
 
+<style>
+    /* Premium Styling for HR & Workforce Analytics Dashboard */
+    
+    :root {
+        --primary-soft: rgba(99, 102, 241, 0.08);
+        --info-soft: rgba(20, 184, 166, 0.08);
+        --warning-soft: rgba(245, 158, 11, 0.08);
+        --success-soft: rgba(16, 185, 129, 0.08);
+    }
+    
+    .btn-action-back {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        color: #4b5563;
+        transition: all 0.25s ease;
+    }
+    .btn-action-back:hover {
+        background-color: #f3f4f6;
+        color: #111827;
+        transform: scale(1.05);
+    }
+    
+    .btn-export {
+        border-radius: 10px;
+        padding: 9px 18px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    .btn-export:hover {
+        transform: translateY(-1px);
+    }
+    
+    .bg-soft-primary {
+        background-color: rgba(99, 102, 241, 0.1) !important;
+    }
+    
+    /* KPI Card Styles */
+    .kpi-card {
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        background: white;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.08) !important;
+    }
+    .kpi-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+    }
+    
+    .kpi-primary::after { background: #6366f1; }
+    .kpi-info::after { background: #14b8a6; }
+    .kpi-warning::after { background: #f59e0b; }
+    .kpi-success::after { background: #10b981; }
+    
+    .kpi-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        display: block;
+        margin-bottom: 6px;
+    }
+    .kpi-value {
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+    .kpi-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+    
+    .kpi-primary .kpi-icon { background: rgba(99, 102, 241, 0.08); color: #6366f1; }
+    .kpi-info .kpi-icon { background: rgba(20, 184, 166, 0.08); color: #14b8a6; }
+    .kpi-warning .kpi-icon { background: rgba(245, 158, 11, 0.08); color: #f59e0b; }
+    .kpi-success .kpi-icon { background: rgba(16, 185, 129, 0.08); color: #10b981; }
+    
+    .kpi-footer {
+        display: flex;
+        align-items: center;
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 12px;
+    }
+    
+    /* Department breakdown */
+    .dept-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+    .fs-7 { font-size: 14px !important; }
+    .fs-8 { font-size: 12px !important; }
+    .mb-0.5 { margin-bottom: 2px; }
+    
+    /* Search Box & Inputs */
+    .search-box input {
+        border-radius: 10px;
+        padding-top: 9px;
+        padding-bottom: 9px;
+        border: 1px solid #e2e8f0;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .search-box input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+    
+    .form-select {
+        border-radius: 10px;
+        padding-top: 9px;
+        padding-bottom: 9px;
+        border: 1px solid #e2e8f0;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .form-select:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+    
+    /* Avatars */
+    .avatar-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border: 2px solid white;
+    }
+    .avatar-text {
+        font-size: 13px;
+        font-weight: 700;
+        color: white;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Badges */
+    .badge-dept {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 6px;
+        letter-spacing: 0.3px;
+    }
+    
+    .table-light-header th {
+        background-color: #f8fafc !important;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.5px;
+        color: #475569;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    /* Row Animations */
+    .employee-row {
+        transition: all 0.15s ease;
+    }
+    .employee-row:hover {
+        background-color: #f8fafc !important;
+    }
+    
+    /* Pagination */
+    .pagination .page-link {
+        border-radius: 8px !important;
+        border: 1px solid #e2e8f0;
+        color: #4b5563;
+        font-weight: 600;
+        font-size: 13px;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #6366f1;
+        border-color: #6366f1;
+        color: white;
+    }
+    .pagination .page-item:not(.active):not(.disabled) .page-link:hover {
+        background-color: #f1f5f9;
+        color: #111827;
+        border-color: #cbd5e1;
+    }
+    
+    .shadow-2xs {
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    }
+    .shadow-xs {
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    }
+    .shadow-4xs {
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Elegant Micro-Animations */
+    .animate-fade-in {
+        animation: fadeIn 0.4s ease-out forwards;
+    }
+    .animate-slide-up {
+        animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @@keyframes slideUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            new Chart(document.getElementById('deptChart'), {
-                type: 'pie',
+            // 1. Chart Configuration
+            const chartCtx = document.getElementById('deptChart');
+            const deptLabels = @Html.Raw(Json.Serialize(Model.GroupBy(e => e.Department).OrderByDescending(g => g.Count()).Select(g => g.Key)));
+            const deptData = @Html.Raw(Json.Serialize(Model.GroupBy(e => e.Department).OrderByDescending(g => g.Count()).Select(g => g.Count())));
+            const colors = ["#6366f1", "#14b8a6", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#ec4899", "#3b82f6", "#6b7280"];
+            
+            new Chart(chartCtx, {
+                type: 'doughnut',
                 data: {
-                    labels: @Html.Raw(Json.Serialize(Model.GroupBy(e => e.Department).Select(g => g.Key))),
+                    labels: deptLabels,
                     datasets: [{
-                        data: @Html.Raw(Json.Serialize(Model.GroupBy(e => e.Department).Select(g => g.Count()))),
-                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796']
+                        data: deptData,
+                        backgroundColor: colors.slice(0, deptLabels.length),
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 4
                     }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            padding: 12,
+                            cornerRadius: 10,
+                            backgroundColor: '#1e293b',
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const val = context.raw;
+                                    const pct = ((val / total) * 100).toFixed(1);
+                                    return ` ${context.label}: ${val} staff (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
                 }
             });
+
+            // 2. Interactive Search, Filter & Pagination
+            const searchInput = document.getElementById('searchInput');
+            const deptFilter = document.getElementById('deptFilter');
+            const roleFilter = document.getElementById('roleFilter');
+            const employeeTable = document.getElementById('employeeTable');
+            const noResults = document.getElementById('noResults');
+            const pageSummary = document.getElementById('pageSummary');
+            const paginationList = document.getElementById('paginationList');
+            
+            const allRows = Array.from(document.querySelectorAll('.employee-row'));
+            const pageSize = 7;
+            let currentPage = 1;
+            let filteredRows = [...allRows];
+
+            function filterAndPaginate() {
+                const query = searchInput.value.toLowerCase().trim();
+                const selectedDept = deptFilter.value;
+                const selectedRole = roleFilter.value;
+
+                // 1. Filter rows
+                filteredRows = allRows.filter(row => {
+                    const name = row.getAttribute('data-name');
+                    const email = row.getAttribute('data-email');
+                    const dept = row.getAttribute('data-dept');
+                    const role = row.getAttribute('data-role');
+
+                    const matchesQuery = !query || name.includes(query) || email.includes(query);
+                    const matchesDept = !selectedDept || dept === selectedDept;
+                    const matchesRole = !selectedRole || role === selectedRole;
+
+                    return matchesQuery && matchesDept && matchesRole;
+                });
+
+                // 2. Adjust current page if needed
+                const totalItems = filteredRows.length;
+                const totalPages = Math.ceil(totalItems / pageSize) || 1;
+                if (currentPage > totalPages) {
+                    currentPage = totalPages;
+                }
+
+                // 3. Paginate
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = Math.min(startIndex + pageSize, totalItems);
+
+                // Hide all rows first
+                allRows.forEach(row => row.style.display = 'none');
+
+                if (totalItems === 0) {
+                    employeeTable.style.display = 'none';
+                    noResults.classList.remove('d-none');
+                    pageSummary.textContent = "Showing 0 to 0 of 0 employees";
+                    renderPagination(0, 1);
+                    return;
+                }
+
+                employeeTable.style.display = 'table';
+                noResults.classList.add('d-none');
+
+                // Show visible rows
+                for (let i = startIndex; i < endIndex; i++) {
+                    filteredRows[i].style.display = 'table-row';
+                }
+
+                // Update stats
+                pageSummary.textContent = `Showing ${startIndex + 1} to ${endIndex} of ${totalItems} employees`;
+                renderPagination(totalPages, currentPage);
+            }
+
+            function renderPagination(totalPages, activePage) {
+                paginationList.innerHTML = '';
+                if (totalPages <= 1) {
+                    document.getElementById('paginationControls').style.display = 'none';
+                    return;
+                }
+                document.getElementById('paginationControls').style.display = 'flex';
+
+                // Previous Button
+                const prevLi = document.createElement('li');
+                prevLi.className = `page-item ${activePage === 1 ? 'disabled' : ''}`;
+                prevLi.innerHTML = `<a class="page-link" href="#" aria-label="Previous"><i class="bi bi-chevron-left"></i></a>`;
+                prevLi.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (activePage > 1) {
+                        currentPage--;
+                        filterAndPaginate();
+                    }
+                });
+                paginationList.appendChild(prevLi);
+
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${i === activePage ? 'active' : ''}`;
+                    li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                    li.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        currentPage = i;
+                        filterAndPaginate();
+                    });
+                    paginationList.appendChild(li);
+                }
+
+                // Next Button
+                const nextLi = document.createElement('li');
+                nextLi.className = `page-item ${activePage === totalPages ? 'disabled' : ''}`;
+                nextLi.innerHTML = `<a class="page-link" href="#" aria-label="Next"><i class="bi bi-chevron-right"></i></a>`;
+                nextLi.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (activePage < totalPages) {
+                        currentPage++;
+                        filterAndPaginate();
+                    }
+                });
+                paginationList.appendChild(nextLi);
+            }
+
+            // Event listeners
+            searchInput.addEventListener('input', function() {
+                currentPage = 1;
+                filterAndPaginate();
+            });
+            deptFilter.addEventListener('change', function() {
+                currentPage = 1;
+                filterAndPaginate();
+            });
+            roleFilter.addEventListener('change', function() {
+                currentPage = 1;
+                filterAndPaginate();
+            });
+
+            // Initialize
+            filterAndPaginate();
         });
     </script>
 }
+

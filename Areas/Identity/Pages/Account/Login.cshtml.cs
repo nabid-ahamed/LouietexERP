@@ -131,7 +131,7 @@ namespace LouietexERP.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Dashboard");
                 }
             }
 

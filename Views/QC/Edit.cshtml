@@ -23,9 +23,41 @@
                         <input type="hidden" asp-for="InspectionDate" />
 
                         <div class="row mb-3">
-                            <div class="col-md-12">
-                                <label asp-for="ProductionId" class="form-label fw-bold">Production Line <span class="text-danger">*</span></label>
-                                <select asp-for="ProductionId" class="form-select" asp-items="ViewBag.ProductionId"></select>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Select Customer Order <span class="text-danger">*</span></label>
+                                <select id="orderSelect" class="form-select">
+                                    <option value="">-- Select Order / Batch --</option>
+                                    @if (ViewBag.Orders != null)
+                                    {
+                                        foreach (var order in (IEnumerable<LouietexERP.Models.Order>)ViewBag.Orders)
+                                        {
+                                            var isSelected = (ViewBag.SelectedOrderId != null && (int)ViewBag.SelectedOrderId == order.Id);
+                                            if (isSelected)
+                                            {
+                                                <option value="@order.Id" selected="selected">@order.StyleCode (@order.BuyerName)</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@order.Id">@order.StyleCode (@order.BuyerName)</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ProductionId" class="form-label fw-bold">Production Line / Run <span class="text-danger">*</span></label>
+                                <select asp-for="ProductionId" class="form-select" id="productionSelect">
+                                    <option value="">-- Select Production Line --</option>
+                                    @if (ViewBag.Productions != null)
+                                    {
+                                        foreach (var prod in (IEnumerable<LouietexERP.Models.Production>)ViewBag.Productions)
+                                        {
+                                            <option value="@prod.Id" data-order-id="@prod.OrderId">
+                                                @prod.LineNumber (Supervisor: @(prod.Supervisor ?? "N/A"))
+                                            </option>
+                                        }
+                                    }
+                                </select>
                                 <span asp-validation-for="ProductionId" class="text-danger small"></span>
                             </div>
                         </div>
@@ -75,4 +107,57 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const orderSelect = document.getElementById("orderSelect");
+            const productionSelect = document.getElementById("productionSelect");
+            
+            // Store the initial selected production run value
+            const initialProductionId = "@Model.ProductionId";
+            
+            // Store all original production options
+            const originalOptions = Array.from(productionSelect.querySelectorAll("option"));
+            
+            function filterProductions() {
+                const selectedOrderId = orderSelect.value;
+                
+                // Clear and reset the production select
+                productionSelect.innerHTML = "";
+                
+                if (!selectedOrderId) {
+                    // Disable and add only the placeholder
+                    productionSelect.appendChild(originalOptions[0]);
+                    productionSelect.value = "";
+                    productionSelect.disabled = true;
+                    return;
+                }
+                
+                // Filter options matching the selected OrderId
+                const filteredOptions = originalOptions.filter((option, index) => {
+                    if (index === 0) return true; // Keep placeholder
+                    return option.getAttribute("data-order-id") === selectedOrderId;
+                });
+                
+                // Add matching options to select
+                filteredOptions.forEach(option => productionSelect.appendChild(option));
+                
+                // Enable select
+                productionSelect.disabled = false;
+                
+                // Restore selection if it matches the initial ID, otherwise clear select
+                const matchingOption = filteredOptions.find(opt => opt.value === initialProductionId);
+                if (matchingOption) {
+                    productionSelect.value = initialProductionId;
+                } else {
+                    productionSelect.value = "";
+                }
+            }
+            
+            orderSelect.addEventListener("change", filterProductions);
+            
+            // Trigger initial filtering on load
+            filterProductions();
+        });
+    </script>
 }

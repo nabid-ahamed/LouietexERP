@@ -80,9 +80,13 @@ namespace LouietexERP.Controllers
         }
 
         // GET: QC/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["ProductionId"] = new SelectList(_context.Productions.Include(p => p.Order), "Id", "LineNumber");
+            var orders = await _context.Orders.OrderBy(o => o.StyleCode).ToListAsync();
+            var productions = await _context.Productions.Include(p => p.Order).ToListAsync();
+            ViewBag.Orders = orders;
+            ViewBag.Productions = productions;
+            ViewData["ProductionId"] = new SelectList(productions, "Id", "LineNumber");
             return View();
         }
 
@@ -115,7 +119,11 @@ namespace LouietexERP.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProductionId"] = new SelectList(_context.Productions, "Id", "LineNumber", qCInspection.ProductionId);
+            var orders = await _context.Orders.OrderBy(o => o.StyleCode).ToListAsync();
+            var productions = await _context.Productions.Include(p => p.Order).ToListAsync();
+            ViewBag.Orders = orders;
+            ViewBag.Productions = productions;
+            ViewData["ProductionId"] = new SelectList(productions, "Id", "LineNumber", qCInspection.ProductionId);
             return View(qCInspection);
         }
 
@@ -124,9 +132,20 @@ namespace LouietexERP.Controllers
         {
             if (id == null) return NotFound();
 
-            var qCInspection = await _context.QCInspections.FindAsync(id);
+            var qCInspection = await _context.QCInspections
+                .Include(q => q.Production)
+                .FirstOrDefaultAsync(q => q.Id == id);
+                
             if (qCInspection == null) return NotFound();
-            ViewData["ProductionId"] = new SelectList(_context.Productions, "Id", "LineNumber", qCInspection.ProductionId);
+            
+            var orders = await _context.Orders.OrderBy(o => o.StyleCode).ToListAsync();
+            var productions = await _context.Productions.Include(p => p.Order).ToListAsync();
+            
+            ViewBag.Orders = orders;
+            ViewBag.Productions = productions;
+            ViewBag.SelectedOrderId = qCInspection.Production?.OrderId;
+            
+            ViewData["ProductionId"] = new SelectList(productions, "Id", "LineNumber", qCInspection.ProductionId);
             return View(qCInspection);
         }
 
@@ -155,7 +174,15 @@ namespace LouietexERP.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProductionId"] = new SelectList(_context.Productions, "Id", "LineNumber", qCInspection.ProductionId);
+            var orders = await _context.Orders.OrderBy(o => o.StyleCode).ToListAsync();
+            var productions = await _context.Productions.Include(p => p.Order).ToListAsync();
+            ViewBag.Orders = orders;
+            ViewBag.Productions = productions;
+            
+            var prod = await _context.Productions.FindAsync(qCInspection.ProductionId);
+            ViewBag.SelectedOrderId = prod?.OrderId;
+            
+            ViewData["ProductionId"] = new SelectList(productions, "Id", "LineNumber", qCInspection.ProductionId);
             return View(qCInspection);
         }
 
