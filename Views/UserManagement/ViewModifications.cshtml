@@ -4,7 +4,6 @@
 
 @{
     ViewData["Title"] = "Review Requests";
-    var pendingPictures = ViewBag.PendingPictures as List<LouietexERP.Models.ApplicationUser> ?? new();
     
     // Group requests into pending vs processed for better viewing
     var pendingRequests = Model.Where(r => !r.IsProcessed).ToList();
@@ -35,16 +34,6 @@
             <a class="nav-link" data-bs-toggle="tab" href="#processedRequests">
                 <i class="bi bi-clock-history me-1"></i>
                 Request History
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#legacyPictureRequests">
-                <i class="bi bi-image me-1"></i>
-                Legacy Picture Uploads
-                @if (pendingPictures.Any())
-                {
-                    <span class="badge bg-danger ms-1">@pendingPictures.Count</span>
-                }
             </a>
         </li>
     </ul>
@@ -235,59 +224,6 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-            }
-        </div>
-
-        <!-- TAB 3: LEGACY PROFILE PICTURE REQUESTS -->
-        <div class="tab-pane fade" id="legacyPictureRequests">
-            @if (!pendingPictures.Any())
-            {
-                <div class="alert alert-info shadow-sm border-0">
-                    <i class="bi bi-check-circle me-2"></i> No legacy pending profile picture requests.
-                </div>
-            }
-            else
-            {
-                <div class="row">
-                    @foreach (var user in pendingPictures)
-                    {
-                        <div class="col-md-3 mb-4">
-                            <div class="card shadow-sm border-0 text-center p-3">
-
-                                <!-- PENDING PICTURE PREVIEW -->
-                                <img src="@user.PendingProfilePicturePath"
-                                     class="rounded-circle mx-auto mb-2 border border-3 border-warning"
-                                     style="width:90px; height:90px; object-fit:cover;" />
-
-                                <p class="fw-semibold mb-0">@user.FullName</p>
-                                <small class="text-muted">@user.Email</small>
-
-                                <span class="badge bg-warning text-dark mt-2">
-                                    <i class="bi bi-clock me-1"></i> Pending Legacy
-                                </span>
-
-                                <div class="d-flex gap-2 mt-3 justify-content-center">
-                                    <form method="post" asp-action="ApprovePicture"
-                                          asp-controller="UserManagement">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@user.Id" />
-                                        <button class="btn btn-sm btn-success">
-                                            <i class="bi bi-check"></i> Approve
-                                        </button>
-                                    </form>
-                                    <form method="post" asp-action="RejectPicture"
-                                          asp-controller="UserManagement">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@user.Id" />
-                                        <button class="btn btn-sm btn-danger">
-                                            <i class="bi bi-x"></i> Reject
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    }
                 </div>
             }
         </div>

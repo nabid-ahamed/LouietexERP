@@ -13,18 +13,13 @@ namespace LouietexERP.Controllers
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
 
-        // ✅ SHOW PROFILE REQUESTS + PENDING PICTURES IN ONE PAGE
+        // ✅ SHOW PROFILE REQUESTS IN ONE PAGE
         public async Task<IActionResult> ViewModifications()
         {
             var requests = await _context.ProfileRequests
                 .Where(r => !r.IsProcessed || r.Status == Models.ProfileRequestStatus.Pending)
                 .Include(r => r.User)
                 .OrderByDescending(r => r.RequestDate)
-                .ToListAsync();
-
-            // ✅ Pass pending pictures to the same view via ViewBag
-            ViewBag.PendingPictures = await _userManager.Users
-                .Where(u => u.PendingProfilePicturePath != null)
                 .ToListAsync();
 
             return View(requests);
@@ -106,6 +101,16 @@ namespace LouietexERP.Controllers
 
             user.IsApproved = true;
             await _context.SaveChangesAsync();
+            
+            await LouietexERP.Services.ActivityLogger.LogActivityAsync(
+                _context,
+                $"User Approved: {user.FullName}",
+                $"Email: {user.Email} is now approved to log in.",
+                "bi-person-check",
+                "bg-success-subtle",
+                "text-success",
+                "UserManagement"
+            );
 
             TempData["Message"] = "User approved successfully!";
             return RedirectToAction(nameof(PendingApprovals));
@@ -146,48 +151,6 @@ namespace LouietexERP.Controllers
 
             TempData["Warning"] = "User rejected and removed.";
             return RedirectToAction(nameof(PendingApprovals));
-        }
-
-        // ✅ SHOW PENDING PICTURES (kept for direct access if needed)
-        public async Task<IActionResult> ApprovePictures()
-        {
-            var users = await _userManager.Users
-                .Where(u => u.PendingProfilePicturePath != null)
-                .ToListAsync();
-
-            return View(users);
-        }
-
-        // ✅ APPROVE PICTURE — redirects back to ViewModifications
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ApprovePicture(string id)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null) return NotFound();
-
-            user.ProfilePicturePath = user.PendingProfilePicturePath;
-            user.ProfilePictureApproved = true;
-            user.PendingProfilePicturePath = null;
-            await _userManager.UpdateAsync(user);
-
-            TempData["Message"] = "Profile picture approved!";
-            return RedirectToAction(nameof(ViewModifications));
-        }
-
-        // ✅ REJECT PICTURE — redirects back to ViewModifications
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RejectPicture(string id)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null) return NotFound();
-
-            user.PendingProfilePicturePath = null;
-            await _userManager.UpdateAsync(user);
-
-            TempData["Warning"] = "Profile picture rejected.";
-            return RedirectToAction(nameof(ViewModifications));
         }
     }
 }

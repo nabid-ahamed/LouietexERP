@@ -117,6 +117,18 @@ namespace LouietexERP.Controllers
                 }
 
                 await _context.SaveChangesAsync();
+                
+                var prod = await _context.Productions.Include(p => p.Order).FirstOrDefaultAsync(p => p.Id == qCInspection.ProductionId);
+                await LouietexERP.Services.ActivityLogger.LogActivityAsync(
+                    _context,
+                    $"QC {qCInspection.QCStatus}: {prod?.Order?.StyleCode ?? prod?.LineNumber ?? "N/A"}",
+                    $"Inspector: {qCInspection.InspectorName ?? "QC Team"} | Defects: {qCInspection.DefectCount}",
+                    qCInspection.QCStatus == "Passed" ? "bi-shield-check" : "bi-shield-x",
+                    qCInspection.QCStatus == "Passed" ? "bg-success-subtle" : "bg-danger-subtle",
+                    qCInspection.QCStatus == "Passed" ? "text-success" : "text-danger",
+                    "QC"
+                );
+                
                 return RedirectToAction(nameof(Index));
             }
             var orders = await _context.Orders.OrderBy(o => o.StyleCode).ToListAsync();
@@ -167,6 +179,17 @@ namespace LouietexERP.Controllers
                     qCInspection.UpdatedAt = DateTime.Now;
                     _context.Update(qCInspection);
                     await _context.SaveChangesAsync();
+                    
+                    var qcProd = await _context.Productions.Include(p => p.Order).FirstOrDefaultAsync(p => p.Id == qCInspection.ProductionId);
+                    await LouietexERP.Services.ActivityLogger.LogActivityAsync(
+                        _context,
+                        $"QC Updated: {qcProd?.Order?.StyleCode ?? qcProd?.LineNumber ?? "N/A"}",
+                        $"Result: {qCInspection.QCStatus} | Defects: {qCInspection.DefectCount} | Remarks: {qCInspection.Remarks}",
+                        qCInspection.QCStatus == "Passed" ? "bi-shield-check" : "bi-shield-x",
+                        qCInspection.QCStatus == "Passed" ? "bg-success-subtle" : "bg-danger-subtle",
+                        qCInspection.QCStatus == "Passed" ? "text-success" : "text-danger",
+                        "QC"
+                    );
                 }
                 catch (DbUpdateConcurrencyException) when (!QCInspectionExists(qCInspection.Id))
                 {

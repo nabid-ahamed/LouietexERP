@@ -14,6 +14,7 @@ namespace LouietexERP.Data
             await SeedOrdersAsync(context);
             await SeedProductionsAsync(context);
             await SeedQCAsync(context);
+            await SeedActivityLogsAsync(context);
         }
 
         private static async Task SeedInventoryAsync(ApplicationDbContext context)
@@ -216,6 +217,23 @@ namespace LouietexERP.Data
             }
 
             await context.QCInspections.AddRangeAsync(qcRecords);
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task SeedActivityLogsAsync(ApplicationDbContext context)
+        {
+            if (await context.ActivityLogs.AnyAsync()) return;
+
+            var logs = new List<ActivityLog>
+            {
+                new() { Title = "ERP System Seeded", Subtitle = "All core business modules initialized successfully.", Timestamp = DateTime.Now.AddHours(-6), Icon = "bi-cpu", IconBg = "bg-primary-subtle", IconText = "text-primary", Module = "System" },
+                new() { Title = "New Order: GA-DN-2515", Subtitle = "Buyer: GAP | Quantity: 8,500", Timestamp = DateTime.Now.AddHours(-4), Icon = "bi-bag-plus", IconBg = "bg-primary-subtle", IconText = "text-primary", Module = "Orders" },
+                new() { Title = "Production Running: GA-DN-2515", Subtitle = "Line: Line-06 | Supervisor: Abul Rahman", Timestamp = DateTime.Now.AddHours(-3), Icon = "bi-play-circle", IconBg = "bg-info-subtle", IconText = "text-info", Module = "Production" },
+                new() { Title = "QC Passed: GA-DN-2515", Subtitle = "Inspector: QC Inspector Pro | Defects: 5", Timestamp = DateTime.Now.AddHours(-2), Icon = "bi-shield-check", IconBg = "bg-success-subtle", IconText = "text-success", Module = "QC" },
+                new() { Title = "Inventory Created: Cotton Fabric (White)", Subtitle = "Initial quantity: 5,000 units added.", Timestamp = DateTime.Now.AddDays(-1), Icon = "bi-box-seam", IconBg = "bg-warning-subtle", IconText = "text-warning", Module = "Inventory" }
+            };
+
+            await context.ActivityLogs.AddRangeAsync(logs);
             await context.SaveChangesAsync();
         }
     }

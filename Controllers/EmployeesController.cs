@@ -107,6 +107,17 @@ namespace LouietexERP.Controllers
             {
                 _context.Add(employee);
                 await _context.SaveChangesAsync();
+                
+                await LouietexERP.Services.ActivityLogger.LogActivityAsync(
+                    _context,
+                    $"New Joiner: {employee.FullName}",
+                    $"Dept: {employee.Department} | Role: {employee.Role}",
+                    "bi-person-plus",
+                    "bg-info-subtle",
+                    "text-info",
+                    "Employees"
+                );
+                
                 return RedirectToAction(nameof(Index));
             }
             return View(employee);

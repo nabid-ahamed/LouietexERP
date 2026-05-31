@@ -28,7 +28,7 @@
         currentUser = await UserManager.GetUserAsync(User);
     }
     var fullName = currentUser?.FullName ?? "User";
-    var profilePic = currentUser?.ProfilePicturePath ?? currentUser?.PendingProfilePicturePath;
+    var profilePic = currentUser?.ProfilePicturePath;
     
     // Get Role Display Name
     var roleName = "Staff";

@@ -104,81 +104,103 @@ namespace LouietexERP.Controllers
             // ── 8. Recent Activity Feed ──────────────────────────────────
             var activities = new List<ActivityItem>();
 
-            // 1. Recent Orders
-            var latestOrders = await _context.Orders.OrderByDescending(o => o.CreatedAt).Take(5).ToListAsync();
-            activities.AddRange(latestOrders.Select(o => new ActivityItem
+            var dbLogs = await _context.ActivityLogs
+                .OrderByDescending(a => a.Timestamp)
+                .Take(15)
+                .Select(a => new ActivityItem
+                {
+                    Title = a.Title,
+                    Subtitle = a.Subtitle,
+                    Timestamp = a.Timestamp,
+                    Icon = a.Icon,
+                    IconBg = a.IconBg,
+                    IconText = a.IconText
+                })
+                .ToListAsync();
+
+            if (dbLogs.Count > 0)
             {
-                Title = $"New Order: {o.StyleCode}",
-                Subtitle = $"Buyer: {o.BuyerName} | Quantity: {o.TotalQuantity:N0}",
-                Timestamp = o.CreatedAt,
-                Icon = "bi-bag-plus",
-                IconBg = "bg-primary-subtle",
-                IconText = "text-primary"
-            }));
-
-            // 2. Recent QC Results
-            var latestQC = await _context.QCInspections.Include(q => q.Production).ThenInclude(p => p!.Order).OrderByDescending(q => q.UpdatedAt).Take(5).ToListAsync();
-            activities.AddRange(latestQC.Select(q => new ActivityItem
+                activities = dbLogs;
+            }
+            else
             {
-                Title = $"QC {q.QCStatus}: {q.Production?.Order?.StyleCode ?? "N/A"}",
-                Subtitle = $"Inspector: {q.InspectorName ?? "Unknown"} | Defects: {q.DefectCount}",
-                Timestamp = q.UpdatedAt,
-                Icon = q.QCStatus == "Passed" ? "bi-shield-check" : "bi-shield-x",
-                IconBg = q.QCStatus == "Passed" ? "bg-success-subtle" : "bg-danger-subtle",
-                IconText = q.QCStatus == "Passed" ? "text-success" : "text-danger"
-            }));
+                // Fallback to dynamic queries if no activity logs exist yet
+                // 1. Recent Orders
+                var latestOrders = await _context.Orders.OrderByDescending(o => o.CreatedAt).Take(5).ToListAsync();
+                activities.AddRange(latestOrders.Select(o => new ActivityItem
+                {
+                    Title = $"New Order: {o.StyleCode}",
+                    Subtitle = $"Buyer: {o.BuyerName} | Quantity: {o.TotalQuantity:N0}",
+                    Timestamp = o.CreatedAt,
+                    Icon = "bi-bag-plus",
+                    IconBg = "bg-primary-subtle",
+                    IconText = "text-primary"
+                }));
 
-            // 3. Recent Productions (Starts & Completions)
-            var latestProds = await _context.Productions.Include(p => p.Order).OrderByDescending(p => p.UpdatedAt).Take(5).ToListAsync();
-            activities.AddRange(latestProds.Select(p => new ActivityItem
-            {
-                Title = $"Production {p.Status}: {p.Order?.StyleCode ?? p.LineNumber}",
-                Subtitle = $"Line: {p.LineNumber} | Progress: {p.ActualOutput}/{p.TargetQuantity}",
-                Timestamp = p.UpdatedAt,
-                Icon = p.Status == "Completed" ? "bi-check-circle-fill" : "bi-play-circle",
-                IconBg = p.Status == "Completed" ? "bg-success-subtle" : "bg-info-subtle",
-                IconText = p.Status == "Completed" ? "text-success" : "text-info"
-            }));
+                // 2. Recent QC Results
+                var latestQC = await _context.QCInspections.Include(q => q.Production).ThenInclude(p => p!.Order).OrderByDescending(q => q.UpdatedAt).Take(5).ToListAsync();
+                activities.AddRange(latestQC.Select(q => new ActivityItem
+                {
+                    Title = $"QC {q.QCStatus}: {q.Production?.Order?.StyleCode ?? "N/A"}",
+                    Subtitle = $"Inspector: {q.InspectorName ?? "Unknown"} | Defects: {q.DefectCount}",
+                    Timestamp = q.UpdatedAt,
+                    Icon = q.QCStatus == "Passed" ? "bi-shield-check" : "bi-shield-x",
+                    IconBg = q.QCStatus == "Passed" ? "bg-success-subtle" : "bg-danger-subtle",
+                    IconText = q.QCStatus == "Passed" ? "text-success" : "text-danger"
+                }));
 
-            // 4. Low Stock Alerts
-            var lowStock = await _context.Inventories.Where(i => i.Quantity <= i.MinStockLevel).OrderByDescending(i => i.Id).Take(3).ToListAsync();
-            activities.AddRange(lowStock.Select(i => new ActivityItem
-            {
-                Title = $"Low Stock: {i.Name}",
-                Subtitle = $"Current: {i.Quantity} | Min: {i.MinStockLevel}",
-                Timestamp = DateTime.Now.AddMinutes(-5), // Stock alerts are current
-                Icon = "bi-exclamation-triangle",
-                IconBg = "bg-danger-subtle",
-                IconText = "text-danger"
-            }));
+                // 3. Recent Productions (Starts & Completions)
+                var latestProds = await _context.Productions.Include(p => p.Order).OrderByDescending(p => p.UpdatedAt).Take(5).ToListAsync();
+                activities.AddRange(latestProds.Select(p => new ActivityItem
+                {
+                    Title = $"Production {p.Status}: {p.Order?.StyleCode ?? p.LineNumber}",
+                    Subtitle = $"Line: {p.LineNumber} | Progress: {p.ActualOutput}/{p.TargetQuantity}",
+                    Timestamp = p.UpdatedAt,
+                    Icon = p.Status == "Completed" ? "bi-check-circle-fill" : "bi-play-circle",
+                    IconBg = p.Status == "Completed" ? "bg-success-subtle" : "bg-info-subtle",
+                    IconText = p.Status == "Completed" ? "text-success" : "text-info"
+                }));
 
-            // 5. Recent Employees (Joinings)
-            var newEmployees = await _context.Employees.OrderByDescending(e => e.JoiningDate).Take(3).ToListAsync();
-            activities.AddRange(newEmployees.Select(e => new ActivityItem
-            {
-                Title = $"New Joiner: {e.FullName}",
-                Subtitle = $"Dept: {e.Department} | Role: {e.Role}",
-                Timestamp = e.JoiningDate,
-                Icon = "bi-person-plus",
-                IconBg = "bg-info-subtle",
-                IconText = "text-info"
-            }));
+                // 4. Low Stock Alerts
+                var lowStock = await _context.Inventories.Where(i => i.Quantity <= i.MinStockLevel).OrderByDescending(i => i.LastUpdated).Take(3).ToListAsync();
+                activities.AddRange(lowStock.Select(i => new ActivityItem
+                {
+                    Title = $"Low Stock: {i.Name}",
+                    Subtitle = $"Current: {i.Quantity} | Min: {i.MinStockLevel}",
+                    Timestamp = i.LastUpdated,
+                    Icon = "bi-exclamation-triangle",
+                    IconBg = "bg-danger-subtle",
+                    IconText = "text-danger"
+                }));
 
-            // 6. Recent Profile Requests
-            var latestRequests = await _context.ProfileRequests.Include(r => r.User).OrderByDescending(r => r.RequestDate).Take(3).ToListAsync();
-            activities.AddRange(latestRequests.Select(r => new ActivityItem
-            {
-                Title = $"Profile Request: {r.User?.FullName ?? "Unknown User"}",
-                Subtitle = $"Status: {r.Status} | Type: {r.RequestType}",
-                Timestamp = r.RequestDate,
-                Icon = "bi-person-gear",
-                IconBg = "bg-warning-subtle",
-                IconText = "text-warning"
-            }));
+                // 5. Recent Employees (Joinings)
+                var newEmployees = await _context.Employees.OrderByDescending(e => e.JoiningDate).Take(3).ToListAsync();
+                activities.AddRange(newEmployees.Select(e => new ActivityItem
+                {
+                    Title = $"New Joiner: {e.FullName}",
+                    Subtitle = $"Dept: {e.Department} | Role: {e.Role}",
+                    Timestamp = e.JoiningDate,
+                    Icon = "bi-person-plus",
+                    IconBg = "bg-info-subtle",
+                    IconText = "text-info"
+                }));
 
+                // 6. Recent Profile Requests
+                var latestRequests = await _context.ProfileRequests.Include(r => r.User).OrderByDescending(r => r.RequestDate).Take(3).ToListAsync();
+                activities.AddRange(latestRequests.Select(r => new ActivityItem
+                {
+                    Title = $"Profile Request: {r.User?.FullName ?? "Unknown User"}",
+                    Subtitle = $"Status: {r.Status} | Type: {r.RequestType}",
+                    Timestamp = r.RequestDate,
+                    Icon = "bi-person-gear",
+                    IconBg = "bg-warning-subtle",
+                    IconText = "text-warning"
+                }));
+            }
 
+            var latestOrdersForFeed = await _context.Orders.OrderByDescending(o => o.CreatedAt).Take(5).ToListAsync();
             ViewBag.ActivityFeed = activities.OrderByDescending(a => a.Timestamp).Take(15).ToList();
-            ViewBag.RecentOrders = latestOrders;
+            ViewBag.RecentOrders = latestOrdersForFeed;
 
             return View();
         }

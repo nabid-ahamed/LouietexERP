@@ -20,6 +20,8 @@ namespace LouietexERP.Models
         public int MinStockLevel { get; set; } // For Low Stock Alerts 
 
         public string Supplier { get; set; } = null!;
-        
+
+        [Display(Name = "Last Updated")]
+        public DateTime LastUpdated { get; set; } = DateTime.Now;
     }
 }

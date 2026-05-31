@@ -115,6 +115,17 @@ namespace LouietexERP.Controllers
             {
                 _context.Add(order);
                 await _context.SaveChangesAsync();
+                
+                await LouietexERP.Services.ActivityLogger.LogActivityAsync(
+                    _context,
+                    $"New Order: {order.StyleCode}",
+                    $"Buyer: {order.BuyerName} | Quantity: {order.TotalQuantity:N0}",
+                    "bi-bag-plus",
+                    "bg-primary-subtle",
+                    "text-primary",
+                    "Orders"
+                );
+                
                 return RedirectToAction(nameof(Index));
             }
             return View(order);
@@ -154,6 +165,16 @@ namespace LouietexERP.Controllers
                 {
                     _context.Update(order);
                     await _context.SaveChangesAsync();
+                    
+                    await LouietexERP.Services.ActivityLogger.LogActivityAsync(
+                        _context,
+                        $"Order Updated: {order.StyleCode}",
+                        $"Buyer: {order.BuyerName} | Status set to: {order.Status}",
+                        "bi-pencil-square",
+                        "bg-warning-subtle",
+                        "text-warning",
+                        "Orders"
+                    );
                 }
                 catch (DbUpdateConcurrencyException)
                 {

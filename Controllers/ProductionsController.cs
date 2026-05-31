@@ -119,6 +119,18 @@ namespace LouietexERP.Controllers
                 production.UpdatedAt = DateTime.Now;
                 _context.Add(production);
                 await _context.SaveChangesAsync();
+                
+                var order = await _context.Orders.FindAsync(production.OrderId);
+                await LouietexERP.Services.ActivityLogger.LogActivityAsync(
+                    _context,
+                    $"Production Started: {order?.StyleCode ?? production.LineNumber}",
+                    $"Line: {production.LineNumber} | Target: {production.TargetQuantity:N0} pcs",
+                    "bi-play-circle",
+                    "bg-info-subtle",
+                    "text-info",
+                    "Production"
+                );
+                
                 return RedirectToAction(nameof(Index));
             }
             ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "StyleCode", production.OrderId);
@@ -159,6 +171,17 @@ namespace LouietexERP.Controllers
                     production.UpdatedAt = DateTime.Now;
                     _context.Update(production);
                     await _context.SaveChangesAsync();
+                    
+                    var order = await _context.Orders.FindAsync(production.OrderId);
+                    await LouietexERP.Services.ActivityLogger.LogActivityAsync(
+                        _context,
+                        $"Production {production.Status}: {order?.StyleCode ?? production.LineNumber}",
+                        $"Line: {production.LineNumber} | Output: {production.ActualOutput}/{production.TargetQuantity}",
+                        production.Status == "Completed" ? "bi-check-circle-fill" : "bi-arrow-repeat",
+                        production.Status == "Completed" ? "bg-success-subtle" : "bg-warning-subtle",
+                        production.Status == "Completed" ? "text-success" : "text-warning",
+                        "Production"
+                    );
                 }
                 catch (DbUpdateConcurrencyException) when (!ProductionExists(production.Id))
                 {

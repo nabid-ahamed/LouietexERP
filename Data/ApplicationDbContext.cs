@@ -18,5 +18,6 @@ namespace LouietexERP.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<ProfileRequest> ProfileRequests { get; set; }
         public DbSet<QCInspection> QCInspections { get; set; }
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
     }
 }

@@ -95,6 +95,7 @@ namespace LouietexERP.Controllers
         {
             if (ModelState.IsValid)
             {
+                inventory.LastUpdated = DateTime.Now;
                 _context.Add(inventory);
                 await _context.SaveChangesAsync();
 
@@ -102,6 +103,28 @@ namespace LouietexERP.Controllers
                 if (inventory.Quantity <= inventory.MinStockLevel)
                 {
                     TempData["Warning"] = $"Alert: {inventory.Name} is below the minimum stock level!";
+                    
+                    await LouietexERP.Services.ActivityLogger.LogActivityAsync(
+                        _context,
+                        $"Low Stock: {inventory.Name}",
+                        $"Current: {inventory.Quantity} | Min: {inventory.MinStockLevel}",
+                        "bi-exclamation-triangle",
+                        "bg-danger-subtle",
+                        "text-danger",
+                        "Inventory"
+                    );
+                }
+                else
+                {
+                    await LouietexERP.Services.ActivityLogger.LogActivityAsync(
+                        _context,
+                        $"Inventory Created: {inventory.Name}",
+                        $"Initial stock: {inventory.Quantity:N0} units | Category: {inventory.Category}",
+                        "bi-box-seam",
+                        "bg-warning-subtle",
+                        "text-warning",
+                        "Inventory"
+                    );
                 }
 
                 return RedirectToAction(nameof(Index));
@@ -142,6 +165,7 @@ namespace LouietexERP.Controllers
             {
                 try
                 {
+                    inventory.LastUpdated = DateTime.Now;
                     _context.Update(inventory);
                     await _context.SaveChangesAsync();
 
@@ -149,6 +173,28 @@ namespace LouietexERP.Controllers
                     if (inventory.Quantity <= inventory.MinStockLevel)
                     {
                         TempData["Warning"] = $"Alert: {inventory.Name} is below the minimum stock level!";
+                        
+                        await LouietexERP.Services.ActivityLogger.LogActivityAsync(
+                            _context,
+                            $"Low Stock: {inventory.Name}",
+                            $"Current: {inventory.Quantity} | Min: {inventory.MinStockLevel}",
+                            "bi-exclamation-triangle",
+                            "bg-danger-subtle",
+                            "text-danger",
+                            "Inventory"
+                        );
+                    }
+                    else
+                    {
+                        await LouietexERP.Services.ActivityLogger.LogActivityAsync(
+                            _context,
+                            $"Inventory Updated: {inventory.Name}",
+                            $"New stock: {inventory.Quantity:N0} units | Category: {inventory.Category}",
+                            "bi-box-seam",
+                            "bg-warning-subtle",
+                            "text-warning",
+                            "Inventory"
+                        );
                     }
                 }
                 catch (DbUpdateConcurrencyException)
